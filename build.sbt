@@ -1,9 +1,22 @@
-ThisBuild / scalaVersion := "2.13.10"
+import Dependencies.Libraries._
+import Dependencies.Libraries
 
-name := "Baby-Med"
+lazy val projectSettings = Seq(
+  version           := "1.0",
+  scalaVersion      := "2.13.10",
+  organization      := "IT-Forelead",
+  scalafmtOnCompile := true,
+  scalacOptions ++= CompilerOptions.cOptions,
+  Test / compile / coverageEnabled    := true,
+  Compile / compile / coverageEnabled := false,
+)
 
 lazy val root = project
   .in(file("."))
+  .settings(projectSettings: _*)
+  .settings(
+    name := "baby-med"
+  )
   .aggregate(
     integrations,
     supports,
@@ -13,8 +26,10 @@ lazy val root = project
 
 lazy val common = project
   .in(file("common"))
+  .settings(projectSettings: _*)
   .settings(
-    name := "common"
+    name := "common",
+    libraryDependencies ++= Cats.all ++ Logging.all ++ Circe.all,
   )
 
 lazy val integrations = project
