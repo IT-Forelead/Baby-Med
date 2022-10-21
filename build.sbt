@@ -1,6 +1,6 @@
 ThisBuild / scalaVersion := "2.13.10"
 
-name := "template"
+name := "Baby-Med"
 
 lazy val root = project
   .in(file("."))
