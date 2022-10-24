@@ -1,9 +1,4 @@
-CREATE TABLE roles
-(
-    id      UUID PRIMARY KEY,
-    name    VARCHAR NOT NULL,
-    deleted BOOLEAN NOT NULL DEFAULT false
-);
+CREATE TYPE ROLE AS ENUM ('super_manager', 'tech_admin', 'admin');
 
 CREATE TABLE users
 (
@@ -11,8 +6,7 @@ CREATE TABLE users
     firstname VARCHAR NOT NULL,
     lastname  VARCHAR NOT NULL,
     phone     VARCHAR NOT NULL,
-    role_id   UUID    NOT NULL
-        CONSTRAINT fk_role_id REFERENCES roles (id) ON UPDATE CASCADE ON DELETE NO ACTION,
+    role      ROLE    NOT NULL,
     password  VARCHAR NOT NULL,
     deleted   BOOLEAN NOT NULL DEFAULT false
 );

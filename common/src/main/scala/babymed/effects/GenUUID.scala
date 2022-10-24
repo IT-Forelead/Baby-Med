@@ -1,4 +1,4 @@
-package babyMed.effects
+package babymed.effects
 
 import java.util.UUID
 

@@ -1,6 +1,6 @@
 import Dependencies.Libraries
 
-name         := "users"
+name := "users"
 organization := "baby-med"
 scalaVersion := "2.13.10"
 scalacOptions += "-language:higherKinds"
@@ -14,7 +14,8 @@ lazy val `services_users-domain` = project
         Libraries.Derevo.all ++
         Libraries.Circe.all ++
         Seq(
-          Libraries.`tsec-pass-hasher`
+          Libraries.`tsec-pass-hasher`,
+          Libraries.newtype
         )
   )
   .dependsOn(LocalProject("common"))

@@ -2,12 +2,12 @@ import Dependencies.Libraries._
 import Dependencies.Libraries
 
 lazy val projectSettings = Seq(
-  version           := "1.0",
-  scalaVersion      := "2.13.10",
-  organization      := "IT-Forelead",
+  version := "1.0",
+  scalaVersion := "2.13.10",
+  organization := "IT-Forelead",
   scalafmtOnCompile := true,
   scalacOptions ++= CompilerOptions.cOptions,
-  Test / compile / coverageEnabled    := true,
+  Test / compile / coverageEnabled := true,
   Compile / compile / coverageEnabled := false,
 )
 
@@ -29,7 +29,17 @@ lazy val common = project
   .settings(projectSettings: _*)
   .settings(
     name := "common",
-    libraryDependencies ++= Cats.all ++ Logging.all ++ Circe.all,
+    libraryDependencies ++=
+      Cats.all ++
+        Logging.all ++
+        Circe.all ++
+        Refined.all ++
+        Enumeratum.all ++
+        Ciris.all ++
+        Derevo.all ++
+        Seq(
+          Libraries.`monocle-core`
+        ),
   )
 
 lazy val integrations = project
