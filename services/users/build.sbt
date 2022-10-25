@@ -40,6 +40,7 @@ lazy val `services_users-core` =
     )
     .dependsOn(
       `services_users-protocol`,
+      LocalProject("supports_skunk"),
       LocalProject("test-tools") % Test
     )
 

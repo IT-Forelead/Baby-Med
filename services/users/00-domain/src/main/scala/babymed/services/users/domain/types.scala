@@ -1,11 +1,13 @@
 package babymed.services.users.domain
 
-import cats.instances.uuid
+import babymed.effects.uuid
 import derevo.cats.{eqv, show}
 import derevo.circe.magnolia.{decoder, encoder}
 import derevo.derive
 import eu.timepit.refined.types.all.NonEmptyString
 import io.estatico.newtype.macros.newtype
+import io.circe.refined._
+import eu.timepit.refined.cats._
 
 import java.util.UUID
 import javax.crypto.Cipher

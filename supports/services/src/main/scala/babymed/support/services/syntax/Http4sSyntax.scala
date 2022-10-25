@@ -8,7 +8,7 @@ import cats.MonadThrow
 import cats.effect.Async
 import cats.effect.Sync
 import cats.implicits._
-import babymed.domain.exception.MultipartDecodeError
+import babymed.exception.MultipartDecodeError
 import babymed.support.services.http4s.utils.MapConvert
 import babymed.support.services.http4s.utils.MapConvert.ValidationResult
 import eu.timepit.refined.types.string.NonEmptyString

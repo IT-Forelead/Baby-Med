@@ -5,8 +5,6 @@ import java.time.LocalDateTime
 import java.time.LocalTime
 import java.time.ZonedDateTime
 
-import scala.language.implicitConversions
-
 trait JavaTimeSyntax {
   final implicit def localTimeOps(dateTime: LocalTime): LocalTimeOps =
     new LocalTimeOps(dateTime)

@@ -2,15 +2,15 @@ package babymed.services.users.domain
 
 import babymed.Phone
 import babymed.domain.Role
-import babymed.services.users.domain.types.{FirstName, LastName}
+import babymed.services.users.domain.types._
 import derevo.circe.magnolia.{decoder, encoder}
 import derevo.derive
-
-import java.util.UUID
+import io.circe.refined._
+import eu.timepit.refined.cats._
 
 @derive(decoder, encoder)
 case class User(
-  id: UUID,
+  id: UserId,
   firstname: FirstName,
   lastname: LastName,
   phone: Phone,

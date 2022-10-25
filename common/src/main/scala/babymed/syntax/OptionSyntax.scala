@@ -1,7 +1,5 @@
 package babymed.syntax
 
-import scala.language.implicitConversions
-
 import cats.Monad
 import cats.data.OptionT
 import cats.syntax.all._
