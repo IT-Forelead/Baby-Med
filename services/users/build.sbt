@@ -18,7 +18,10 @@ lazy val `services_users-domain` = project
           Libraries.newtype
         )
   )
-  .dependsOn(LocalProject("common"))
+  .dependsOn(
+    LocalProject("common"),
+    LocalProject("test-tools")
+  )
 
 lazy val `services_users-protocol` =
   project
