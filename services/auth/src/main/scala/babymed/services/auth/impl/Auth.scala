@@ -3,6 +3,8 @@ package babymed.services.auth.impl
 import scala.concurrent.duration.DurationInt
 
 import babymed.exception.AuthError
+import babymed.exception.AuthError.NoSuchUser
+import babymed.exception.AuthError.PasswordDoesNotMatch
 import babymed.services.auth.domain.Credentials
 import babymed.services.auth.domain.types.UserJwtAuth
 import babymed.services.auth.utils.AuthMiddleware
@@ -12,7 +14,7 @@ import babymed.services.users.domain.User
 import babymed.services.users.proto.Users
 import babymed.support.redis.RedisClient
 import babymed.syntax.all.circeSyntaxDecoderOps
-import babymed.util.BabyMedStringUtil.createHash
+import cats.conversions.all.autoWidenFunctor
 import cats.data.OptionT
 import cats.effect.Sync
 import cats.syntax.all._
@@ -22,6 +24,7 @@ import eu.timepit.refined.auto.autoUnwrap
 import eu.timepit.refined.types.string.NonEmptyString
 import org.http4s.Request
 import org.http4s.server
+import tsec.passwordhashers.jca.SCrypt
 
 trait Auth[F[_]] {
   def login(credentials: Credentials): F[JwtToken]
@@ -41,19 +44,9 @@ object Auth {
       override def login(credentials: Credentials): F[JwtToken] =
         users.find(credentials.phone).flatMap {
           case None =>
-            AuthError
-              .NoSuchUser(s"User not found by login: ${credentials.phone.value}")
-              .raiseError[F, JwtToken]
-          case Some(userAndHash) if createHash(credentials.password) != userAndHash.hash.value =>
-            AuthError.PasswordDoesNotMatch("Incorrect password").raiseError[F, JwtToken]
-          case Some(userAndHash) =>
-            OptionT(redis.get(credentials.phone)).cataF(
-              tokens.create.flatTap { t =>
-                redis.put(t.value, userAndHash.user, TokenExpiration) >>
-                  redis.put(credentials.phone.value, t.value, TokenExpiration)
-              },
-              token => JwtToken(token).pure[F],
-            )
+            NoSuchUser("User Not Found").raiseError[F, JwtToken]
+          case Some(userAndHash) if !SCrypt.checkpwUnsafe(credentials.password, userAndHash.hash) =>
+            PasswordDoesNotMatch("Password does not match").raiseError[F, JwtToken]
         }
 
       override def destroySession(request: Request[F], login: NonEmptyString): F[Unit] =
