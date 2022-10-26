@@ -14,14 +14,14 @@ CREATE TABLE users
 CREATE TABLE regions
 (
     id      UUID PRIMARY KEY,
-    region  VARCHAR NOT NULL,
+    name  VARCHAR NOT NULL,
     deleted BOOLEAN NOT NULL DEFAULT false
 );
 
 CREATE TABLE towns
 (
     id        UUID PRIMARY KEY,
-    town      VARCHAR NOT NULL,
+    name      VARCHAR NOT NULL,
     region_id UUID    NOT NULL
         CONSTRAINT fk_region_id REFERENCES regions (id) ON UPDATE CASCADE ON DELETE NO ACTION,
     deleted   BOOLEAN NOT NULL DEFAULT false
