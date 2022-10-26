@@ -17,7 +17,7 @@ trait TypeGen extends Generators {
   val passwordGen: Gen[Password] = for {
     s0 <- Gen.alphaUpperChar
     s1 <- nonEmptyStringGen(5, 8)
-    s2 <- Gen.alphaNumChar
+    s2 <- numberGen(1)
     s3 <- Gen.oneOf("!@#$%^&*")
   } yield s"$s0$s1$s2$s3"
 }
