@@ -1,3 +1,5 @@
 package babymed.exception
 
-final case class MultipartDecodeError(cause: String)
+import scala.util.control.NoStackTrace
+
+final case class MultipartDecodeError(cause: String) extends NoStackTrace

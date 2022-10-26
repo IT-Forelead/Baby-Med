@@ -1,14 +1,14 @@
-import Dependencies.Libraries._
 import Dependencies.Libraries
+import Dependencies.Libraries._
 
 lazy val projectSettings = Seq(
-  version := "1.0",
-  scalaVersion := "2.13.10",
-  organization := "IT-Forelead",
+  version           := "1.0",
+  scalaVersion      := "2.13.10",
+  organization      := "IT-Forelead",
   scalafmtOnCompile := true,
   scalacOptions ++= CompilerOptions.cOptions,
-  Test / compile / coverageEnabled := true,
-  Compile / compile / coverageEnabled := false,
+  Test / compile / coverageEnabled    := true,
+  Compile / compile / coverageEnabled := false
 )
 
 lazy val root = project
@@ -21,7 +21,7 @@ lazy val root = project
     integrations,
     supports,
     services,
-    `test-tools`,
+    `test-tools`
   )
 
 lazy val common = project
@@ -39,7 +39,7 @@ lazy val common = project
         Derevo.all ++
         Seq(
           Libraries.`monocle-core`
-        ),
+        )
   )
 
 lazy val integrations = project
@@ -62,6 +62,12 @@ lazy val services = project
 
 lazy val `test-tools` = project
   .in(file("test"))
+  .settings(projectSettings: _*)
   .settings(
-    name := "test-tools"
+    name := "test-tools",
+    libraryDependencies ++=
+      Libraries.Testing.all ++
+        Libraries.Http4s.all ++
+        Libraries.Skunk.all
   )
+  .dependsOn(common)

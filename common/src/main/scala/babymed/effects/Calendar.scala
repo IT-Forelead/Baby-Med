@@ -5,8 +5,8 @@ import java.time.LocalDate
 import java.time.LocalDateTime
 import java.time.ZonedDateTime
 
-import cats.effect._
 import babymed.syntax.javaTime._
+import cats.effect._
 
 trait Calendar[F[_]] {
   def currentDate: F[LocalDate]

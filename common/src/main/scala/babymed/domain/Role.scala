@@ -1,9 +1,10 @@
 package babymed.domain
 
-import enumeratum.values.{StringCirceEnum, StringEnum, StringEnumEntry}
-import io.circe.Decoder
-
 import scala.collection.immutable
+
+import enumeratum.values.StringCirceEnum
+import enumeratum.values.StringEnum
+import enumeratum.values.StringEnumEntry
 
 sealed abstract class Role(val value: String) extends StringEnumEntry
 
@@ -13,6 +14,5 @@ object Role extends StringCirceEnum[Role] with StringEnum[Role] {
   case object Admin extends Role("admin")
 
   override def values: immutable.IndexedSeq[Role] = findValues
-  implicit val circeDecoderWithDefault: Decoder[Role] = circeDecoder.or(Decoder.decodeString)
   def find(value: String): Option[Role] = values.find(_.value == value)
 }

@@ -1,7 +1,5 @@
 package babymed.syntax
 
-import scala.language.implicitConversions
-
 import cats.implicits.toBifunctorOps
 import ciris.ConfigDecoder
 import ciris.ConfigError

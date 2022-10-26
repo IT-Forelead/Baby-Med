@@ -1,7 +1,5 @@
 package babymed.syntax
 
-import scala.language.implicitConversions
-
 import io.circe.Encoder
 import io.circe.Printer
 import io.circe.syntax.EncoderOps

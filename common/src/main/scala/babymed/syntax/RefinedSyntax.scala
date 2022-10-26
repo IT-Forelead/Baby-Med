@@ -1,7 +1,6 @@
 package babymed.syntax
 
 import scala.collection.Factory
-import scala.language.implicitConversions
 
 import cats.syntax.all._
 import eu.timepit.refined.api.RefType

@@ -79,7 +79,7 @@ class ServiceDerivationMacro(val c: blackbox.Context) {
       case _ => c.abort(c.enclosingPosition, "@service can only be used on traits")
     }
 
-    if (sys.props.exists { case (key, value) => key == "cieloassist.service.macro" && value == "true" })
+    if (sys.props.exists { case (key, value) => key == "babymed.service.macro" && value == "true" })
       c.info(c.enclosingPosition, showCode(result.tree), force = true)
 
     result
@@ -106,7 +106,7 @@ class ServiceDerivationMacro(val c: blackbox.Context) {
     val rpcTraitMethodDefinitions = serviceMethods.zipWithIndex.map {
       case ((name, _, rtpe), idx) =>
         val caseClassTypeName = requestCaseClassName(name, idx)
-        q"def $name(request: cieloassist.support.services.rpc.RpcRequest[$caseClassTypeName]): F[$rtpe]"
+        q"def $name(request: babymed.support.services.rpc.RpcRequest[$caseClassTypeName]): F[$rtpe]"
     }
 
     val rpcTraitTypeName = TypeName(s"${serviceProtoTypeName}Rpc")
@@ -178,7 +178,7 @@ class ServiceDerivationMacro(val c: blackbox.Context) {
 
         q"""
           override def $name(...$methodParamLists): F[$rtpe] =
-            service.$name(_root_.cieloassist.support.services.rpc.RpcRequest(Map.empty[String, String], ${caseClassTypeName.toTermName}(..$paramNames)))
+            service.$name(_root_.babymed.support.services.rpc.RpcRequest(Map.empty[String, String], ${caseClassTypeName.toTermName}(..$paramNames)))
 
         """
     }
@@ -233,7 +233,7 @@ class ServiceDerivationMacro(val c: blackbox.Context) {
 
         q"""
           override def $name(
-            params: _root_.cieloassist.support.services.rpc.RpcRequest[$caseClassTypeName]
+            params: _root_.babymed.support.services.rpc.RpcRequest[$caseClassTypeName]
           ): F[$rtpe] = {
             import params.request._
             handler.$name(...$tupleToMethodCall)
