@@ -3,10 +3,10 @@
 export APP_MODE=DEV
 
 export POSTGRES_HOST="localhost"
-export POSTGRES_PORT=5432
-export POSTGRES_USER="cieloassist"
+export POSTGRES_PORT=5435
+export POSTGRES_USER="babymed"
 export POSTGRES_PASSWORD="123"
-export POSTGRES_DATABASE="cieloassist"
+export POSTGRES_DATABASE="babymed"
 export POSTGRES_POOL_SIZE=1024
 
 export HTTP_HOST="localhost"

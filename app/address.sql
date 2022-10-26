@@ -1,59 +1,104 @@
-INSERT INTO regions (region)
-VALUES ('Andijon viloyati'),
-       ('Buxoro viloyati'),
-       ('Farg`ona viloyati'),
-       ('Jizzax viloyati'),
-       ('Namangan viloyati'),
-       ('Navoiy viloyati'),
-       ('Qashqadaryo viloyati'),
-       ('Samarqand viloyati'),
-       ('Sirdaryo viloyati'),
-       ('Surxondaryo viloyati'),
-       ('Toshkent viloyati'),
-       ('Xorazm viloyati'),
-       ('Qoraqalpog`iston Respublikasi'),
-       ('Toshkent shahri');
+CREATE TABLE regions
+(
+    id      UUID PRIMARY KEY,
+    name  VARCHAR NOT NULL,
+    deleted BOOLEAN NOT NULL DEFAULT false
+);
+
+CREATE TABLE towns
+(
+    id        UUID PRIMARY KEY,
+    name      VARCHAR NOT NULL,
+    region_id UUID    NOT NULL
+        CONSTRAINT fk_region_id REFERENCES regions (id) ON UPDATE CASCADE ON DELETE NO ACTION,
+    deleted   BOOLEAN NOT NULL DEFAULT false
+);
+
+INSERT INTO "regions" ("id", "name") VALUES ('4fcb3bc7-8459-45dc-a380-10f995e15ad8', 'Andijon viloyati');
+INSERT INTO "regions" ("id", "name") VALUES ('122a0d83-fb8e-4dbf-a65d-3ee6a0688037', 'Buxoro viloyati');
+INSERT INTO "regions" ("id", "name") VALUES ('d51b9830-7cb6-4420-a07e-c8df78d90447', 'Farg`ona viloyati');
+INSERT INTO "regions" ("id", "name") VALUES ('a4ec39b1-dfad-45e1-a12c-7986ffa4e4bf', 'Jizzax viloyati');
+INSERT INTO "regions" ("id", "name") VALUES ('2d27b575-f952-4c93-8f9e-02c89758cbc7', 'Namangan viloyati');
+INSERT INTO "regions" ("id", "name") VALUES ('51b00d57-1b99-47c5-b89c-8d1fab5825f6', 'Navoiy viloyati');
+INSERT INTO "regions" ("id", "name") VALUES ('f4bbb8aa-680f-4220-9079-b460e9f2e573', 'Qashqadaryo viloyati');
+INSERT INTO "regions" ("id", "name") VALUES ('425ff71e-57dd-459f-a831-cf57b30a7345', 'Samarqand viloyati');
+INSERT INTO "regions" ("id", "name") VALUES ('3acfc29c-3e14-4beb-96f6-20f025e431ab', 'Sirdaryo viloyati');
+INSERT INTO "regions" ("id", "name") VALUES ('54b834ee-0df9-465e-ad34-be1834b491d0', 'Surxondaryo viloyati');
+INSERT INTO "regions" ("id", "name") VALUES ('3b316182-e55c-4e03-8811-052fcd888236', 'Toshkent viloyati');
+INSERT INTO "regions" ("id", "name") VALUES ('ad514b71-3096-4be5-a455-d87abbb081b2', 'Xorazm viloyati');
+INSERT INTO "regions" ("id", "name") VALUES ('8b88eb6c-24e1-4ecd-b944-8605d28da975', 'Qoraqalpog`iston Respublikasi');
+INSERT INTO "regions" ("id", "name") VALUES ('dac35ec3-a904-42d7-af20-5d7e853fe1f6', 'Toshkent shahri');
+
+INSERT INTO "towns" ("id", "name", "region_id")
+VALUES ('', 'Andijon shahri', '4fcb3bc7-8459-45dc-a380-10f995e15ad8');
+INSERT INTO "towns" ("id", "name", "region_id")
+VALUES ('', 'Xonabod shahri', '4fcb3bc7-8459-45dc-a380-10f995e15ad8');
+INSERT INTO "towns" ("id", "name", "region_id")
+VALUES ('', 'Andijon tumani', '4fcb3bc7-8459-45dc-a380-10f995e15ad8');
+INSERT INTO "towns" ("id", "name", "region_id")
+VALUES ('', 'Asaka tumani', '4fcb3bc7-8459-45dc-a380-10f995e15ad8');
+INSERT INTO "towns" ("id", "name", "region_id")
+VALUES ('', 'Baliqchi tumani', '4fcb3bc7-8459-45dc-a380-10f995e15ad8');
+INSERT INTO "towns" ("id", "name", "region_id")
+VALUES ('', 'Bo`z tumani', '4fcb3bc7-8459-45dc-a380-10f995e15ad8');
+INSERT INTO "towns" ("id", "name", "region_id")
+VALUES ('', 'Buloqboshi tumani', '4fcb3bc7-8459-45dc-a380-10f995e15ad8');
+INSERT INTO "towns" ("id", "name", "region_id")
+VALUES ('', 'Isboskan tumani', '4fcb3bc7-8459-45dc-a380-10f995e15ad8');
+INSERT INTO "towns" ("id", "name", "region_id")
+VALUES ('', 'Jalaquduq tumani', '4fcb3bc7-8459-45dc-a380-10f995e15ad8');
+INSERT INTO "towns" ("id", "name", "region_id")
+VALUES ('', 'Marxamat tumani', '4fcb3bc7-8459-45dc-a380-10f995e15ad8');
+INSERT INTO "towns" ("id", "name", "region_id")
+VALUES ('', 'Oltinko`l tumani', '4fcb3bc7-8459-45dc-a380-10f995e15ad8');
+INSERT INTO "towns" ("id", "name", "region_id")
+VALUES ('', 'Paxtaobod tumani', '4fcb3bc7-8459-45dc-a380-10f995e15ad8');
+INSERT INTO "towns" ("id", "name", "region_id")
+VALUES ('', 'Qo`rg`ontepa tumani', '4fcb3bc7-8459-45dc-a380-10f995e15ad8');
+INSERT INTO "towns" ("id", "name", "region_id")
+VALUES ('', 'Shahrixon tumani', '4fcb3bc7-8459-45dc-a380-10f995e15ad8');
+INSERT INTO "towns" ("id", "name", "region_id")
+VALUES ('', 'Ulug`nor tumani', '4fcb3bc7-8459-45dc-a380-10f995e15ad8');
+INSERT INTO "towns" ("id", "name", "region_id")
+VALUES ('', 'Xo`jaobod tumani', '4fcb3bc7-8459-45dc-a380-10f995e15ad8');
+
+INSERT INTO "towns" ("id", "name", "region_id")
+VALUES ('', 'Buxoro shahri', '122a0d83-fb8e-4dbf-a65d-3ee6a0688037');
+INSERT INTO "towns" ("id", "name", "region_id")
+VALUES ('', 'Kogon shahri', '122a0d83-fb8e-4dbf-a65d-3ee6a0688037');
+INSERT INTO "towns" ("id", "name", "region_id")
+VALUES ('', 'Buxoro tumani', '122a0d83-fb8e-4dbf-a65d-3ee6a0688037');
+INSERT INTO "towns" ("id", "name", "region_id")
+VALUES ('', 'G`ijduvon tumani', '122a0d83-fb8e-4dbf-a65d-3ee6a0688037');
+INSERT INTO "towns" ("id", "name", "region_id")
+VALUES ('', 'Jondor tumani', '122a0d83-fb8e-4dbf-a65d-3ee6a0688037');
+INSERT INTO "towns" ("id", "name", "region_id")
+VALUES ('', 'Kogon tumani', '122a0d83-fb8e-4dbf-a65d-3ee6a0688037');
+INSERT INTO "towns" ("id", "name", "region_id")
+VALUES ('', 'Olot tumani', '122a0d83-fb8e-4dbf-a65d-3ee6a0688037');
+INSERT INTO "towns" ("id", "name", "region_id")
+VALUES ('', 'Peshku tumani', '122a0d83-fb8e-4dbf-a65d-3ee6a0688037');
+INSERT INTO "towns" ("id", "name", "region_id")
+VALUES ('', 'Qorovulbozor tumani', '122a0d83-fb8e-4dbf-a65d-3ee6a0688037');
+INSERT INTO "towns" ("id", "name", "region_id")
+VALUES ('', 'Qorako`l tumani', '122a0d83-fb8e-4dbf-a65d-3ee6a0688037');
+INSERT INTO "towns" ("id", "name", "region_id")
+VALUES ('', 'Romitan tumani', '122a0d83-fb8e-4dbf-a65d-3ee6a0688037');
+INSERT INTO "towns" ("id", "name", "region_id")
+VALUES ('', 'Shofirkon tumani', '122a0d83-fb8e-4dbf-a65d-3ee6a0688037');
+INSERT INTO "towns" ("id", "name", "region_id")
+VALUES ('', 'Vobkent tumani', '122a0d83-fb8e-4dbf-a65d-3ee6a0688037');
+
+INSERT INTO "towns" ("id", "name", "region_id")
+VALUES ('', 'Farg`ona shahri', 'd51b9830-7cb6-4420-a07e-c8df78d90447');
 
 INSERT INTO towns (town, region_id)
-VALUES ('Andijon shahri', 1),
-       ('Xonabod shahri', 1),
-       ('Andijon tumani', 1),
-       ('Asaka tumani', 1),
-       ('Baliqchi tumani', 1),
-       ('Bo`z tumani', 1),
-       ('Buloqboshi tumani', 1),
-       ('Isboskan tumani', 1),
-       ('Jalaquduq tumani', 1),
-       ('Marxamat tumani', 1),
-       ('Oltinko`l tumani', 1),
-       ('Paxtaobod tumani', 1),
-       ('Qo`rg`ontepa tumani', 1),
-       ('Shahrixon tumani', 1),
-       ('Ulug`nor tumani', 1),
-       ('Xo`jaobod tumani', 1);
-
-INSERT INTO towns (town, region_id)
-VALUES ('Buxoro shahri', 2),
-       ('Kogon shahri', 2),
-       ('Buxoro tumani', 2),
-       ('G`ijduvon tumani', 2),
-       ('Jondor tumani', 2),
-       ('Kogon tumani', 2),
-       ('Olot tumani', 2),
-       ('Peshku tumani', 2),
-       ('Qorovulbozor tumani', 2),
-       ('Qorako`l tumani', 2),
-       ('Romitan tumani', 2),
-       ('Shofirkon tumani', 2),
-       ('Vobkent tumani', 2);
-
-INSERT INTO towns (town, region_id)
-VALUES ('Farg`ona shahri', 3),
+VALUES ('', 3),
        ('Marg`ilon shahri', 3),
        ('Quvasoy shahri', 3),
        ('Qo`qon shahri', 3),
        ('Beshariq tumani', 3),
-       ('Bog`dod tumani', 3),
+       ('Bag`dod tumani', 3),
        ('Buvayda tumani', 3),
        ('Dang`ara tumani', 3),
        ('Farg`ona tumani', 3),
@@ -87,7 +132,8 @@ INSERT INTO towns (town, region_id)
 VALUES ('Namangan shahri', 5),
        ('Chortoq tumani', 5),
        ('Chust tumani', 5),
-       ('Chust tumani', 5),
+       ('Davlatobod tumani', 5),
+       ('Kosonsoy tumani', 5),
        ('Mingbuloq tumani', 5),
        ('Namangan tumani', 5),
        ('Norin tumani', 5),
@@ -106,24 +152,24 @@ VALUES ('Navoiy shahri', 6),
        ('Qiziltepa tumani', 6),
        ('Tomdi tumani', 6),
        ('Uchquduq tumani', 6),
-       ('Xatirchi tumani', 6),
-       ('Zarafshon tumani', 6);
+       ('Xatirchi tumani', 6);
 
 INSERT INTO towns (town, region_id)
 VALUES ('Qarshi shahri', 7),
-       ('Shaxrisabz shahri', 7),
+       ('Shahrisabz shahri', 7),
        ('Chiroqchi tumani', 7),
        ('Dehqonobod tumani', 7),
        ('G`uzor tumani', 7),
        ('Kasbi tumani', 7),
        ('Kitob tumani', 7),
        ('Koson tumani', 7),
+       ('Ko`kdala tumani', 7),
        ('Mirishkor tumani', 7),
        ('Muborak tumani', 7),
        ('Nishon tumani', 7),
        ('Qamashi tumani', 7),
        ('Qarshi tumani', 7),
-       ('Shaxrisabz tumani', 7),
+       ('Shahrisabz tumani', 7),
        ('Yakkabog` tumani', 7);
 
 INSERT INTO towns (town, region_id)
@@ -160,6 +206,7 @@ VALUES ('Guliston shahri', 9),
 INSERT INTO towns (town, region_id)
 VALUES ('Termiz shahri', 10),
        ('Angor tumani', 10),
+       ('Bandixon tumani', 10),
        ('Boysun tumani', 10),
        ('Denov tumani', 10),
        ('Jarqo`rg`on tumani', 10),
@@ -187,14 +234,14 @@ VALUES ('Angren shahri', 11),
        ('Chinoz tumani', 11),
        ('Ohangaron tumani', 11),
        ('Oqqo`rg`on tumani', 11),
-       ('O`rtachirchiq tumani', 11),
+       ('O`rta chirchiq tumani', 11),
        ('Parkent tumani', 11),
        ('Piskent tumani', 11),
        ('Qibray tumani', 11),
-       ('Quyichirchiq tumani', 11),
+       ('Quyi chirchiq tumani', 11),
        ('Toshkent tumani', 11),
        ('Yangiyo`l tumani', 11),
-       ('Yuqorichirchiq tumani', 11),
+       ('Yuqori chirchiq tumani', 11),
        ('Zangiota tumani', 11);
 
 INSERT INTO towns (town, region_id)
@@ -205,6 +252,7 @@ VALUES ('Urganch shahri', 12),
        ('Hazorasp tumani', 12),
        ('Qo`shko`pir tumani', 12),
        ('Shovot tumani', 12),
+       ('Tuproqqal`a tumani', 12),
        ('Urganch tumani', 12),
        ('Xiva tumani', 12),
        ('Xonqa tumani', 12),
