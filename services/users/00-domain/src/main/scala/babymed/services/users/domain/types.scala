@@ -4,10 +4,14 @@ import babymed.effects.uuid
 import derevo.cats.{eqv, show}
 import derevo.circe.magnolia.{decoder, encoder}
 import derevo.derive
+import eu.timepit.refined.api.Refined
+import eu.timepit.refined.boolean.And
 import eu.timepit.refined.types.all.NonEmptyString
 import io.estatico.newtype.macros.newtype
 import io.circe.refined._
 import eu.timepit.refined.cats._
+import eu.timepit.refined.collection.NonEmpty
+import eu.timepit.refined.string.MatchesRegex
 
 import java.util.UUID
 import javax.crypto.Cipher

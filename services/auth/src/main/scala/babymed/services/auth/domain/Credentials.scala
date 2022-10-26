@@ -1,6 +1,6 @@
 package babymed.services.auth.domain
 
-import babymed.Phone
+import babymed.refinements.Phone
 import derevo.cats.show
 import derevo.circe.magnolia.decoder
 import derevo.circe.magnolia.encoder

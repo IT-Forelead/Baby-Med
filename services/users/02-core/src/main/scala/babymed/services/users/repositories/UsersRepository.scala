@@ -1,6 +1,6 @@
 package babymed.services.users.repositories
 
-import babymed.Phone
+import babymed.refinements.Phone
 import babymed.services.users.domain.UserAndHash
 import babymed.support.skunk.syntax.all.skunkSyntaxQueryOps
 import cats.effect.MonadCancel

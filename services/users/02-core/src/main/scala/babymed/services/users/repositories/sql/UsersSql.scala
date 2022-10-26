@@ -1,6 +1,6 @@
 package babymed.services.users.repositories.sql
 
-import babymed.Phone
+import babymed.refinements.Phone
 import babymed.services.users.domain.{User, UserAndHash}
 import babymed.services.users.domain.types.UserId
 import babymed.support.skunk.codecs.phone

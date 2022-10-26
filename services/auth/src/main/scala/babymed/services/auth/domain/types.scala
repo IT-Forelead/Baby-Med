@@ -21,9 +21,6 @@ import io.circe.refined._
 import io.estatico.newtype.macros.newtype
 
 object types {
-  private type PasswordRegex =
-    MatchesRegex["^(?=.*[0-9])(?=.*[!@#$%^&*])(?=.*[A-Z])[a-zA-Z0-9!@#$%^&*]{6,32}$"]
-  type Password = String Refined (NonEmpty And PasswordRegex)
 
   @derive(configDecoder, show)
   @newtype case class JwtAccessTokenKey(secret: NonEmptyString)

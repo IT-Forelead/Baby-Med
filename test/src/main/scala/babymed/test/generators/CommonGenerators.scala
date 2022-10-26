@@ -5,10 +5,13 @@ import java.time.LocalDateTime
 import java.time.ZonedDateTime
 import java.util.UUID
 
-import babymed.EmailAddress
+import babymed.refinements.EmailAddress
+import babymed.refinements.Password
+import babymed.refinements.Phone
 import babymed.syntax.all.zonedDateTimeOps
 import babymed.syntax.refined.commonSyntaxAutoRefineV
 import com.comcast.ip4s.IpAddress
+import org.scalacheck.Arbitrary.arbitrary
 import org.scalacheck.Gen
 
 trait CommonGenerators {
@@ -55,4 +58,6 @@ trait CommonGenerators {
 
   lazy val urlGen: Gen[URL] =
     Gen.alphaLowerStr.map(domain => new URL(s"http://$domain.com"))
+
+  val phoneGen: Gen[Phone] = numberGen(12).map("+" + _)
 }

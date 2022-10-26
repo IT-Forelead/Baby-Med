@@ -45,8 +45,16 @@ object Auth {
         users.find(credentials.phone).flatMap {
           case None =>
             NoSuchUser("User Not Found").raiseError[F, JwtToken]
-          case Some(userAndHash) if !SCrypt.checkpwUnsafe(credentials.password, userAndHash.hash) =>
+          case Some(userAndHash) if !SCrypt.checkpwUnsafe(credentials.password, userAndHash.password) =>
             PasswordDoesNotMatch("Password does not match").raiseError[F, JwtToken]
+          case Some(userAndHash) =>
+            OptionT(redis.get(credentials.phone)).cataF(
+              tokens.create.flatTap { t =>
+                redis.put(t.value, userAndHash.user, TokenExpiration) >>
+                  redis.put(credentials.phone, t.value, TokenExpiration)
+              },
+              token => JwtToken(token).pure[F],
+            )
         }
 
       override def destroySession(request: Request[F], login: NonEmptyString): F[Unit] =
