@@ -2,19 +2,20 @@ CREATE TYPE ROLE AS ENUM ('super_manager', 'tech_admin', 'admin');
 
 CREATE TABLE users
 (
-    id        UUID PRIMARY KEY,
-    firstname VARCHAR NOT NULL,
-    lastname  VARCHAR NOT NULL,
-    phone     VARCHAR NOT NULL,
-    role      ROLE    NOT NULL,
-    password  VARCHAR NOT NULL,
-    deleted   BOOLEAN NOT NULL DEFAULT false
+    id          UUID PRIMARY KEY,
+    created_at  TIMESTAMP NOT NULL,
+    firstname   VARCHAR NOT NULL,
+    lastname    VARCHAR NOT NULL,
+    phone       VARCHAR NOT NULL,
+    role        ROLE    NOT NULL,
+    password    VARCHAR NOT NULL,
+    deleted     BOOLEAN NOT NULL DEFAULT false
 );
 
 CREATE TABLE regions
 (
     id      UUID PRIMARY KEY,
-    name  VARCHAR NOT NULL,
+    name    VARCHAR NOT NULL,
     deleted BOOLEAN NOT NULL DEFAULT false
 );
 
@@ -464,17 +465,18 @@ VALUES ('f4989b83-fc64-4844-bd57-e721a7f0e4aa', 'Yunusobod tumani', 'dac35ec3-a9
 
 CREATE TABLE clients
 (
-    id        UUID PRIMARY KEY,
-    firstname VARCHAR NOT NULL,
-    lastname  VARCHAR NOT NULL,
-    region_id UUID    NOT NULL
+    id          UUID PRIMARY KEY,
+    created_at  TIMESTAMP NOT NULL,
+    firstname   VARCHAR NOT NULL,
+    lastname    VARCHAR NOT NULL,
+    region_id   UUID    NOT NULL
         CONSTRAINT fk_region_id REFERENCES regions (id) ON UPDATE CASCADE ON DELETE NO ACTION,
-    town_id   UUID    NOT NULL
+    town_id     UUID    NOT NULL
         CONSTRAINT fk_town_id REFERENCES towns (id) ON UPDATE CASCADE ON DELETE NO ACTION,
-    address   VARCHAR NOT NULL,
-    birthday  DATE    NOT NULL,
-    phone     VARCHAR UNIQUE,
-    deleted   BOOLEAN NOT NULL DEFAULT false
+    address     VARCHAR NOT NULL,
+    birthday    DATE    NOT NULL,
+    phone       VARCHAR UNIQUE,
+    deleted     BOOLEAN NOT NULL DEFAULT false
 );
 
 CREATE TABLE payments

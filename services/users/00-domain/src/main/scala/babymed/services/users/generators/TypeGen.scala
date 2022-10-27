@@ -7,6 +7,8 @@ import babymed.test.generators.Generators
 import babymed.syntax.refined.commonSyntaxAutoRefineV
 import org.scalacheck.Gen
 
+import java.time.LocalDateTime
+
 trait TypeGen extends Generators {
   val userIdGen: Gen[UserId] = idGen(UserId.apply)
   val firstNameGen: Gen[FirstName] = nonEmptyString.map(FirstName(_))
@@ -15,9 +17,20 @@ trait TypeGen extends Generators {
   val roleGen: Gen[Role] = Gen.oneOf(Role.values)
 
   val passwordGen: Gen[Password] = for {
-    s0 <- Gen.alphaUpperChar
-    s1 <- nonEmptyStringGen(5, 8)
-    s2 <- numberGen(1)
-    s3 <- Gen.oneOf("!@#$%^&*")
-  } yield s"$s0$s1$s2$s3"
+    s1 <- Gen.oneOf("123456789ABCDEFGHJKLMNPQRSTUVWXYZabcdefghjkmnpqrstuvwxyz")
+    s2 <- Gen.oneOf("123456789ABCDEFGHJKLMNPQRSTUVWXYZabcdefghjkmnpqrstuvwxyz")
+    s3 <- Gen.oneOf("123456789ABCDEFGHJKLMNPQRSTUVWXYZabcdefghjkmnpqrstuvwxyz")
+    s4 <- Gen.oneOf("123456789ABCDEFGHJKLMNPQRSTUVWXYZabcdefghjkmnpqrstuvwxyz")
+    s5 <- Gen.oneOf("123456789ABCDEFGHJKLMNPQRSTUVWXYZabcdefghjkmnpqrstuvwxyz")
+    s6 <- Gen.oneOf("123456789ABCDEFGHJKLMNPQRSTUVWXYZabcdefghjkmnpqrstuvwxyz")
+  } yield s"$s1$s2$s3$s4$s5$s6"
+
+  val timestampGen: Gen[LocalDateTime] = for {
+    year <- Gen.choose(1800, 2100)
+    month <- Gen.choose(1, 12)
+    day <- Gen.choose(1, 28)
+    hour <- Gen.choose(0, 23)
+    minute <- Gen.choose(0, 59)
+  } yield LocalDateTime.of(year, month, day, hour, minute)
+
 }
