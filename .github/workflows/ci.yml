@@ -31,4 +31,4 @@ jobs:
         run: nix-shell --argstr jdk "${{ matrix.java }}" --run "sbt -mem 3000 test"
 
       - name: "Building 🏗"
-        run: nix-shell --argstr jdk "${{ matrix.java }}" --run "cd build/ | bash base-image"
+        run: nix-shell --argstr jdk "${{ matrix.java }}" --run "cd build/; bash base-image"
