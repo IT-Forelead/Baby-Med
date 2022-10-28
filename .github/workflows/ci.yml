@@ -29,6 +29,7 @@ jobs:
 
       - name: "Testing 🏝"
         run: nix-shell --argstr jdk "${{ matrix.java }}" --run "sbt -mem 3000 test"
+
   build:
     name: BUILD
     needs: [test]
