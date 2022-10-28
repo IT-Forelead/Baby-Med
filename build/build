@@ -1,0 +1,5 @@
+#!/bin/bash
+
+cd .. || exit
+source .env
+sbt -mem 3000 "project services" "docker:publishLocal"

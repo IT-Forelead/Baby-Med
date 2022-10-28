@@ -2,8 +2,6 @@ package babymed.support.services.syntax
 
 import java.time.ZonedDateTime
 
-import scala.language.implicitConversions
-
 import cats.MonadThrow
 import cats.effect.Async
 import cats.effect.Sync

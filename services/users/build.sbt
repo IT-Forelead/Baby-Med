@@ -3,12 +3,10 @@ import Dependencies.Libraries
 name := "users"
 organization := "baby-med"
 scalaVersion := "2.13.10"
-scalacOptions += "-language:higherKinds"
 
 lazy val `services_users-domain` = project
   .in(file("00-domain"))
   .settings(
-    scalacOptions ++= Seq("-Ymacro-annotations"),
     libraryDependencies ++=
       Libraries.Refined.all ++
         Libraries.Derevo.all ++
