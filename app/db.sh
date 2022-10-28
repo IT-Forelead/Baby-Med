@@ -1,4 +1,4 @@
 #!/bin/bash
 source ../env.sh
-docker-compose stop postgres
+docker rm -f babymed_db
 docker-compose up -d postgres
