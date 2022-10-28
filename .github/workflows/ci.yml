@@ -13,13 +13,13 @@ jobs:
         java:
           - graalvm11-ce
     steps:
-      - uses: actions/checkout@v2.3.2
+      - uses: actions/checkout@v3.2.0
 
       - name: "Cache for sbt & coursier ♨️"
-        uses: coursier/cache-action@v4.1
+        uses: coursier/cache-action@v6
 
       - name: "Install Nix ❄️"
-        uses: cachix/install-nix-action@v13
+        uses: cachix/install-nix-action@v18
 
       - name: "Install Cachix ❄️"
         uses: cachix/cachix-action@v10
@@ -27,8 +27,8 @@ jobs:
           name: http4s-server
           signingKey: "${{ secrets.CACHIX_SIGNING_KEY }}"
 
-#      - name: "Testing 🏝"
-#        run: nix-shell --argstr jdk "${{ matrix.java }}" --run "sbt -mem 3000 test"
+      - name: "Testing 🏝"
+        run: nix-shell --argstr jdk "${{ matrix.java }}" --run "sbt -mem 3000 test"
 
       - name: "Building 🏗"
         run: nix-shell --argstr jdk "${{ matrix.java }}" --run "cd build/; bash base-image; docker images"
