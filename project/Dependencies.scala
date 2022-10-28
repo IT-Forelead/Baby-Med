@@ -15,7 +15,6 @@ object Dependencies {
     lazy val refined = "0.10.1"
     lazy val tsec = "0.4.0"
     lazy val redis4cats = "1.1.1"
-    lazy val monocleVersion = "3.1.0"
     lazy val `cats-retry` = "3.1.0"
     lazy val newtype = "0.4.4"
     lazy val derevo = "0.13.0"

@@ -1,10 +1,9 @@
 package babymed.support.services
 
+import scala.annotation._
+
 import babymed.support.services.internal.ServiceDerivationMacro
 import higherkindness.mu.rpc.protocol._
-
-import scala.annotation._
-import scala.language.experimental.macros
 
 @compileTimeOnly("macros paradise must be enabled")
 class service(

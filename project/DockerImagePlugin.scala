@@ -19,7 +19,7 @@ object DockerImagePlugin extends AutoPlugin {
 
   def serviceSetting(serviceName: String): Seq[Def.Setting[_]] =
     Seq(
-      Docker / packageName         := s"babymed-$serviceName",
+      Docker / packageName         := s"babymed_services-$serviceName",
       packageDoc / publishArtifact := false,
       packageSrc / publishArtifact := true,
     )

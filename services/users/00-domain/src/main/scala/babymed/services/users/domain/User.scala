@@ -6,7 +6,6 @@ import babymed.services.users.domain.types._
 import derevo.circe.magnolia.{decoder, encoder}
 import derevo.derive
 import io.circe.refined._
-import eu.timepit.refined.cats._
 
 import java.time.LocalDateTime
 

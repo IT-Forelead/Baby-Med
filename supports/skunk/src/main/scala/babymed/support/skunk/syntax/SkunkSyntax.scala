@@ -1,10 +1,6 @@
 package babymed.support.skunk.syntax
 
-import scala.language.implicitConversions
-
-import cats.effect.Concurrent
-import cats.effect.MonadCancel
-import cats.effect.Resource
+import cats.effect._
 import cats.implicits._
 import skunk._
 import skunk.codec.numeric.int4

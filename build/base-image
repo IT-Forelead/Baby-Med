@@ -1,0 +1,3 @@
+#!/bin/bash
+
+docker build -t babymed-base-server:1.0 .

@@ -1,0 +1,25 @@
+#!/bin/bash
+sudo mkdir -p /srv/nginx_conf
+
+sudo rm -rf /srv/nginx_conf/babymed.conf
+sudo tee -a /srv/nginx_conf/babymed.conf > /dev/null <<EOT
+server {
+  listen 80 default_server;
+  listen [::]:80 default_server;
+
+  location /api/ {
+    proxy_pass http://babymed_services-users:8000/;
+  }
+
+}
+
+server {
+  listen 80;
+  server_name kibana.local;
+  location / {
+     proxy_pass http://kibana:5601;
+  }
+}
+EOT
+
+docker restart babymed_nginx
