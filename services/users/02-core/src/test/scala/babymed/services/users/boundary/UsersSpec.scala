@@ -13,12 +13,11 @@ object UsersSpec extends TestSuite with UserGenerators {
       Sync[F].delay(userGen.get)
     override def findByPhone(phone: Phone): F[Option[UserAndHash]] =
       Sync[F].delay(userAndHashGen.getOpt)
-
   }
 
   val users: Users[F] = new Users[F](userRepo)
 
-  loggedTest("Create user") { logger =>
+  loggedTest("Create User") { logger =>
     users
       .create(createUserGen.get)
       .as(success)
@@ -29,7 +28,7 @@ object UsersSpec extends TestSuite with UserGenerators {
       }
   }
 
-  loggedTest("Find User by Phone") { implicit logger =>
+  loggedTest("Find User By Phone") { implicit logger =>
     users
       .find(phone = phoneGen.get)
       .as(success)

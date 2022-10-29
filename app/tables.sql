@@ -1,17 +1,5 @@
 CREATE TYPE ROLE AS ENUM ('super_manager', 'tech_admin', 'admin');
 
-CREATE TABLE users
-(
-    id          UUID PRIMARY KEY,
-    created_at  TIMESTAMP NOT NULL,
-    firstname   VARCHAR NOT NULL,
-    lastname    VARCHAR NOT NULL,
-    phone       VARCHAR NOT NULL,
-    role        ROLE    NOT NULL,
-    password    VARCHAR NOT NULL,
-    deleted     BOOLEAN NOT NULL DEFAULT false
-);
-
 CREATE TABLE regions
 (
     id      UUID PRIMARY KEY,
@@ -463,28 +451,40 @@ VALUES ('a144cd37-c743-47fc-88ec-c670b4fde1e7', 'Yashnobod tumani', 'dac35ec3-a9
 INSERT INTO "towns" ("id", "name", "region_id")
 VALUES ('f4989b83-fc64-4844-bd57-e721a7f0e4aa', 'Yunusobod tumani', 'dac35ec3-a904-42d7-af20-5d7e853fe1f6');
 
-CREATE TABLE clients
+CREATE TABLE users
 (
-    id          UUID PRIMARY KEY,
-    created_at  TIMESTAMP NOT NULL,
-    firstname   VARCHAR NOT NULL,
-    lastname    VARCHAR NOT NULL,
-    region_id   UUID    NOT NULL
+    id         UUID PRIMARY KEY,
+    created_at TIMESTAMP NOT NULL,
+    firstname  VARCHAR   NOT NULL,
+    lastname   VARCHAR   NOT NULL,
+    phone      VARCHAR   NOT NULL,
+    role       ROLE      NOT NULL,
+    password   VARCHAR   NOT NULL,
+    deleted    BOOLEAN   NOT NULL DEFAULT false
+);
+
+CREATE TABLE customers
+(
+    id         UUID PRIMARY KEY,
+    created_at TIMESTAMP NOT NULL,
+    firstname  VARCHAR   NOT NULL,
+    lastname   VARCHAR   NOT NULL,
+    region_id  UUID      NOT NULL
         CONSTRAINT fk_region_id REFERENCES regions (id) ON UPDATE CASCADE ON DELETE NO ACTION,
-    town_id     UUID    NOT NULL
+    town_id    UUID      NOT NULL
         CONSTRAINT fk_town_id REFERENCES towns (id) ON UPDATE CASCADE ON DELETE NO ACTION,
-    address     VARCHAR NOT NULL,
-    birthday    DATE    NOT NULL,
-    phone       VARCHAR UNIQUE,
-    deleted     BOOLEAN NOT NULL DEFAULT false
+    address    VARCHAR   NOT NULL,
+    birthday   DATE      NOT NULL,
+    phone      VARCHAR UNIQUE,
+    deleted    BOOLEAN   NOT NULL DEFAULT false
 );
 
 CREATE TABLE payments
 (
-    id         UUID PRIMARY KEY,
-    client_id  UUID      NOT NULL
-        CONSTRAINT fk_client_id REFERENCES clients (id) ON UPDATE CASCADE ON DELETE NO ACTION,
-    price      NUMERIC   NOT NULL,
-    created_at TIMESTAMP NOT NULL,
-    deleted    BOOLEAN   NOT NULL DEFAULT false
+    id           UUID PRIMARY KEY,
+    customers_id UUID      NOT NULL
+        CONSTRAINT fk_customers_id REFERENCES customers (id) ON UPDATE CASCADE ON DELETE NO ACTION,
+    price        NUMERIC   NOT NULL,
+    created_at   TIMESTAMP NOT NULL,
+    deleted      BOOLEAN   NOT NULL DEFAULT false
 );

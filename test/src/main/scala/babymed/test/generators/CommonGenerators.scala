@@ -1,17 +1,16 @@
 package babymed.test.generators
 
 import java.net.URL
+import java.time.LocalDate
 import java.time.LocalDateTime
 import java.time.ZonedDateTime
 import java.util.UUID
 
 import babymed.refinements.EmailAddress
-import babymed.refinements.Password
 import babymed.refinements.Phone
 import babymed.syntax.all.zonedDateTimeOps
 import babymed.syntax.refined.commonSyntaxAutoRefineV
 import com.comcast.ip4s.IpAddress
-import org.scalacheck.Arbitrary.arbitrary
 import org.scalacheck.Gen
 
 trait CommonGenerators {
@@ -43,6 +42,13 @@ trait CommonGenerators {
       part3 <- Gen.choose(0, 255)
       part4 <- Gen.choose(0, 255)
     } yield IpAddress.fromString(s"$part1.$part2.$part3.$part4").get
+
+  lazy val dateGen: Gen[LocalDate] =
+    for {
+      year <- Gen.choose(1800, 2100)
+      month <- Gen.choose(1, 12)
+      day <- Gen.choose(1, 28)
+    } yield LocalDate.of(year, month, day)
 
   lazy val localDateTimeGen: Gen[LocalDateTime] =
     for {

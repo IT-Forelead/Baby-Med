@@ -1,7 +1,12 @@
 package babymed.support.skunk.syntax
 
-import cats.effect._
+import scala.language.implicitConversions
+import cats.effect.Concurrent
+import cats.effect.MonadCancel
+import cats.effect.Resource
 import cats.implicits._
+import eu.timepit.refined.auto.autoUnwrap
+import eu.timepit.refined.types.numeric.NonNegInt
 import skunk._
 import skunk.codec.numeric.int4
 import skunk.implicits._
@@ -131,6 +136,16 @@ final class FragmentOps(af: AppliedFragment) {
     val filter: Fragment[Int ~ Int] = sql" LIMIT $int4 OFFSET $int4 "
     af |+| filter(lim ~ offset)
   }
+
+  def paginateOpt(maybeLim: Option[NonNegInt], maybeIndex: Option[NonNegInt]): AppliedFragment =
+    (maybeLim, maybeIndex)
+      .mapN {
+        case lim ~ index =>
+          val offset = (index - 1) * lim
+          val filter: Fragment[Int ~ Int] = sql" LIMIT $int4 OFFSET $int4 "
+          af |+| filter(lim.value ~ offset)
+      }
+      .getOrElse(af)
 
   /** Returns `WHERE (f1) AND (f2) AND ... (fn)` for defined `f`, if any, otherwise the empty fragment. */
 

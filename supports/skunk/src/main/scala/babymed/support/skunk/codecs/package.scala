@@ -1,6 +1,5 @@
 package babymed.support.skunk
 
-import babymed.{EmailAddress, Phone}
 import babymed.effects.IsUUID
 import babymed.refinements.{EmailAddress, Phone}
 import babymed.syntax.refined.commonSyntaxAutoRefineV
