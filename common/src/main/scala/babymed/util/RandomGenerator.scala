@@ -2,7 +2,7 @@ package babymed.util
 
 import scala.collection.mutable
 
-import babymed.Password
+import babymed.refinements.Password
 import babymed.syntax.refined.commonSyntaxAutoRefineV
 
 object RandomGenerator {

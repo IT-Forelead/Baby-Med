@@ -1,7 +1,7 @@
 package babymed.services.users.repositories
 
 import cats.implicits._
-import babymed.Phone
+import babymed.refinements.Phone
 import babymed.domain.ID
 import babymed.syntax.refined.commonSyntaxAutoUnwrapV
 import babymed.services.users.domain.types.UserId

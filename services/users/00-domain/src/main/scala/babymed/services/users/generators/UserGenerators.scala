@@ -1,6 +1,8 @@
 package babymed.services.users.generators
 
-import babymed.services.users.domain.{CreateUser, User, UserAndHash}
+import babymed.services.users.domain.CreateUser
+import babymed.services.users.domain.User
+import babymed.services.users.domain.UserAndHash
 import org.scalacheck.Gen
 import tsec.passwordhashers.jca.SCrypt
 
@@ -8,11 +10,11 @@ trait UserGenerators extends TypeGen {
   def userGen: Gen[User] =
     User(
       id = userIdGen.get,
-      createdAt = timestampGen.get,
+      createdAt = localDateTimeGen.get,
       firstname = firstNameGen.get,
       lastname = lastNameGen.get,
       role = roleGen.get,
-      phone = phoneGen.get
+      phone = phoneGen.get,
     )
 
   def createUserGen: Gen[CreateUser] =
@@ -20,12 +22,12 @@ trait UserGenerators extends TypeGen {
       firstname = firstNameGen.get,
       lastname = lastNameGen.get,
       role = roleGen.get,
-      phone = phoneGen.get
+      phone = phoneGen.get,
     )
 
   def userAndHashGen: Gen[UserAndHash] =
     UserAndHash(
       user = userGen.get,
-      password = SCrypt.hashpwUnsafe(passwordGen.get.value)
+      password = SCrypt.hashpwUnsafe(passwordGen.get.value),
     )
 }
