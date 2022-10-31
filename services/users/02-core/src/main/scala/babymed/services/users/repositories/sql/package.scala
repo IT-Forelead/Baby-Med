@@ -22,10 +22,10 @@ package object sql {
   val firstName: Codec[FirstName] = nes.imap[FirstName](FirstName.apply)(_.value)
   val lastName: Codec[LastName] = nes.imap[LastName](LastName.apply)(_.value)
   val address: Codec[Address] = nes.imap[Address](Address.apply)(_.value)
-  val region: Codec[Region] = nes.imap[Region](Region.apply)(_.value)
-  val town: Codec[Town] = nes.imap[Town](Town.apply)(_.value)
   val passwordHash: Codec[PasswordHash[SCrypt]] =
     varchar.imap[PasswordHash[SCrypt]](PasswordHash[SCrypt])(_.toString)
   val role: Codec[Role] = `enum`[Role](_.value, Role.find, Type("role"))
+  val regionName: Codec[RegionName] = nes.imap[RegionName](RegionName.apply)(_.value)
+  val townName: Codec[TownName] = nes.imap[TownName](TownName.apply)(_.value)
 
 }

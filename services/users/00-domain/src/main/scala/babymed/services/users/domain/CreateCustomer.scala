@@ -1,19 +1,15 @@
 package babymed.services.users.domain
 
-import java.time.LocalDate
-import java.time.LocalDateTime
-
 import babymed.refinements.Phone
-import babymed.services.users.domain.types._
-import derevo.circe.magnolia.decoder
-import derevo.circe.magnolia.encoder
+import babymed.services.users.domain.types.{Address, FirstName, LastName, RegionId, TownId}
+import derevo.circe.magnolia.{decoder, encoder}
 import derevo.derive
 import io.circe.refined._
 
+import java.time.LocalDate
+
 @derive(decoder, encoder)
-case class Customer(
-  id: CustomerId,
-  createdAt: LocalDateTime,
+case class CreateCustomer (
   firstname: FirstName,
   lastname: LastName,
   regionId: RegionId,

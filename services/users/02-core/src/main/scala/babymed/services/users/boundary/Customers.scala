@@ -1,8 +1,6 @@
 package babymed.services.users.boundary
 
-import babymed.services.users.domain.Customer.CreateCustomer
-import babymed.services.users.domain.Customer.CustomerWithAddress
-import babymed.services.users.domain.{Customer, SearchFilters}
+import babymed.services.users.domain.{CreateCustomer, Customer, CustomerWithAddress, SearchFilters}
 import babymed.services.users.proto
 import babymed.services.users.repositories.CustomersRepository
 
