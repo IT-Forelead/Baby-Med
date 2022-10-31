@@ -74,5 +74,7 @@ jobs:
           password: ${{ secrets.DOCKER_PASSWORD }}
       - name: Publishing images ...
         run: |
+          ls;
+          docker images;
           cd build/;
           bash publish push -f babymed/services -t latest;
