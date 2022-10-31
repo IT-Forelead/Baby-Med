@@ -1,6 +1,6 @@
 package babymed.services.users.boundary
 
-import babymed.Phone
+import babymed.refinements.Phone
 import babymed.services.users.domain.{CreateUser, User, UserAndHash}
 import babymed.services.users.generators.UserGenerators
 import babymed.services.users.repositories.UsersRepository
@@ -9,16 +9,15 @@ import cats.effect.kernel.Sync
 
 object UsersSpec extends TestSuite with UserGenerators {
   val userRepo: UsersRepository[F] = new UsersRepository[F] {
-    override def create(createUser: CreateUser): UsersSpec.F[User] =
+    override def create(createUser: CreateUser): F[User] =
       Sync[F].delay(userGen.get)
     override def findByPhone(phone: Phone): F[Option[UserAndHash]] =
       Sync[F].delay(userAndHashGen.getOpt)
-
   }
 
   val users: Users[F] = new Users[F](userRepo)
 
-  loggedTest("Create user") { logger =>
+  loggedTest("Create User") { logger =>
     users
       .create(createUserGen.get)
       .as(success)
@@ -29,7 +28,7 @@ object UsersSpec extends TestSuite with UserGenerators {
       }
   }
 
-  loggedTest("Find User by Phone") { implicit logger =>
+  loggedTest("Find User By Phone") { implicit logger =>
     users
       .find(phone = phoneGen.get)
       .as(success)

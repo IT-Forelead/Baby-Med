@@ -14,6 +14,7 @@ object Dependencies {
     lazy val ciris = "2.3.2"
     lazy val refined = "0.10.1"
     lazy val tsec = "0.4.0"
+    val squants = "1.8.3"
     lazy val redis4cats = "1.1.1"
     lazy val `cats-retry` = "3.1.0"
     lazy val newtype = "0.4.4"
@@ -182,6 +183,7 @@ object Dependencies {
     lazy val `monocle-core` = "dev.optics"             %% "monocle-core"  % Versions.monocle
     lazy val `http4s-jwt-auth` = "dev.profunktor" %% "http4s-jwt-auth" % Versions.`http4s-jwt-auth`
     lazy val mailer = "javax.mail"                 % "mail"            % Versions.mailer
+    lazy val squants = "org.typelevel"            %% "squants" % Versions.squants
     lazy val izumi = "dev.zio"                    %% "izumi-reflect"   % Versions.izumi
 
     lazy val `cats-tagless-macros` =

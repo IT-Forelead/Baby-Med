@@ -1,6 +1,6 @@
 package babymed.services.users.boundary
 
-import babymed.Phone
+import babymed.refinements.Phone
 import babymed.services.users.domain.{CreateUser, User, UserAndHash}
 import babymed.services.users.proto
 import babymed.services.users.repositories.UsersRepository

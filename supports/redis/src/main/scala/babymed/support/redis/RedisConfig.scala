@@ -1,6 +1,6 @@
 package babymed.support.redis
 
-import babymed.UriAddress
+import babymed.refinements.UriAddress
 import ciris._
 import ciris.refined.refTypeConfigDecoder
 
