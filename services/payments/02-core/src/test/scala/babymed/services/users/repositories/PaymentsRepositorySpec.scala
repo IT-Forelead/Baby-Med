@@ -32,7 +32,7 @@ object PaymentsRepositorySpec extends DBSuite with PaymentGenerator{
       repo
         .get(SearchFilters.Empty)
         .map { payments =>
-          assert(payments.exists(_.price == createPaymentData.price))
+          assert(payments.exists(_.payment.price == createPaymentData.price))
         }
         .handleError {
           fail("Test failed.")

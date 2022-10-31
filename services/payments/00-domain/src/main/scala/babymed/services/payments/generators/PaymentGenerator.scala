@@ -1,8 +1,9 @@
 package babymed.services.payments.generators
-import babymed.services.payments.domain.{CreatePayment, Payment, SearchFilters}
+import babymed.services.payments.domain.{CreatePayment, Payment, PaymentWithCustomer, SearchFilters}
+import babymed.services.users.domain.Customer
 import org.scalacheck.Gen
 
-trait PaymentGenerator extends TypeGen {
+trait PaymentGenerator extends TypeGen with UsersTypeGen {
   def paymentGen: Gen[Payment] =
     Payment(
       id = paymentIdGen.get,
@@ -15,6 +16,25 @@ trait PaymentGenerator extends TypeGen {
     CreatePayment(
       customerId = customerIdGen.get,
       price = priceGen.get
+    )
+
+  def customerGen: Gen[Customer] =
+    Customer(
+      id = customerIdGen.get,
+      createdAt = localDateTimeGen.get,
+      firstname = firstNameGen.get,
+      lastname = lastNameGen.get,
+      regionId = regionIdGen.get,
+      townId = townIdGen.get,
+      address = addressGen.get,
+      birthday = dateGen.get,
+      phone = phoneGen.get,
+    )
+
+  def paymentWithCustomerGen: Gen[PaymentWithCustomer] =
+    PaymentWithCustomer(
+      payment = paymentGen.get,
+      customer = customerGen.get
     )
 
   def searchFiltersGen: Gen[SearchFilters] =

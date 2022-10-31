@@ -3,7 +3,7 @@ package babymed.services.payments.repositories
 import babymed.domain.ID
 import babymed.effects.{Calendar, GenUUID}
 import babymed.services.payments.domain.types.PaymentId
-import babymed.services.payments.domain.{CreatePayment, Payment, SearchFilters}
+import babymed.services.payments.domain.{CreatePayment, Payment, PaymentWithCustomer, SearchFilters}
 import babymed.services.payments.repositories.sql.PaymentsSql
 import babymed.support.skunk.syntax.all._
 import cats.effect.{Concurrent, MonadCancel, Resource}
@@ -13,7 +13,7 @@ import skunk.implicits._
 
 trait PaymentsRepository[F[_]] {
   def create(createPayment: CreatePayment): F[Payment]
-  def get(searchFilters: SearchFilters): F[List[Payment]]
+  def get(searchFilters: SearchFilters): F[List[PaymentWithCustomer]]
 }
 
 object PaymentsRepository {
@@ -30,9 +30,9 @@ object PaymentsRepository {
         payment <- PaymentsSql.insert.queryUnique(id ~ now ~ createPayment)
       } yield payment
 
-    override def get(searchFilters: SearchFilters): F[List[Payment]] = {
+    override def get(searchFilters: SearchFilters): F[List[PaymentWithCustomer]] = {
       val query = PaymentsSql.select(searchFilters).paginateOpt(searchFilters.limit, searchFilters.page)
-      query.fragment.query(PaymentsSql.decoder).queryList(query.argument)
+      query.fragment.query(PaymentsSql.decPaymentWithCustomer).queryList(query.argument)
 
     }
 
