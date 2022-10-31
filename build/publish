@@ -1,0 +1,74 @@
+#!/usr/bin/env bash
+set -e
+
+filter=""
+given_tag=""
+
+while getopts ":f:t:" opt ${@:2}; do
+  case $opt in
+  f)
+    filter=$OPTARG
+    ;;
+  t)
+    given_tag=$OPTARG
+    ;;
+  \?)
+    echo "Invalid option: -$OPTARG" >&2
+    ;;
+  esac
+done
+
+help() {
+  echo
+  echo "\
+  Usage: push [-f filter] [-t tag]  Publishing all Docker images to a docker hub
+         -f filter                  Filter images by their name (inclusive)
+         -t                         Tag"
+  echo
+}
+
+get-image-field() {
+  local imageId=$1
+  local field=$2
+  : ${imageId:? required}
+  : ${field:? required}
+
+  docker images --no-trunc "$filter*:$given_tag" | sed -n "/${imageId}/s/  */ /gp" | cut -d " " -f $field
+}
+
+get-image-name() {
+  get-image-field $1 1
+}
+
+get-image-tag() {
+  get-image-field $1 2
+}
+
+push-all-images() {
+  local ids=$(docker images --no-trunc "$filter*:$given_tag" -q)
+  local name tag
+  for id in $ids; do
+    name=$(get-image-name $id)
+    tag=$(get-image-tag $id)
+    # Apply filter (if any)
+    if [[ ! -z "$filter" ]] && [[ ! "$name:$tag" =~ "$filter" ]]; then
+      continue
+    fi
+    # Ignore stale images (tag == <none>)
+    if [[ "$tag" = "<none>" ]]; then
+      continue
+    fi
+    # WRITE YOUR LOGIC HERE
+    echo "Publishing $name:$tag ..."
+    docker push $name:$tag
+  done
+}
+
+case $1 in
+push)
+  push-all-images
+  ;;
+*)
+  help
+  ;;
+esac
