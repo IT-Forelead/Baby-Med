@@ -59,12 +59,15 @@ CREATE TABLE customers
     deleted    BOOLEAN   NOT NULL DEFAULT false
 );
 
+INSERT INTO "customers" ("id", "created_at", "firstname", "lastname", "region_id", "town_id", "address", "birthday", "phone")
+VALUES ('f4484324-e6cd-4e48-8d24-638f0a4fabaa', '2022-10-31T10:20:54.813Z', 'Defaut', 'Customer', 'ad514b71-3096-4be5-a455-d87abbb081b2', '0d073b76-08ce-4b78-a88c-a0cb6f80eaf9', 'Al-Xorazmiy', '2002-12-12', '+998901234567');
+
 CREATE TABLE payments
 (
-    id         UUID PRIMARY KEY,
-    client_id  UUID      NOT NULL
-        CONSTRAINT fk_customers_id REFERENCES customers (id) ON UPDATE CASCADE ON DELETE NO ACTION,
-    price      NUMERIC   NOT NULL,
-    created_at TIMESTAMP NOT NULL,
-    deleted    BOOLEAN   NOT NULL DEFAULT false
+    id           UUID PRIMARY KEY,
+    created_at   TIMESTAMP NOT NULL,
+    customer_id UUID      NOT NULL
+        CONSTRAINT fk_customer_id REFERENCES customers (id) ON UPDATE CASCADE ON DELETE NO ACTION,
+    price        NUMERIC   NOT NULL,
+    deleted      BOOLEAN   NOT NULL DEFAULT false
 );
