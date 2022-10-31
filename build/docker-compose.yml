@@ -4,7 +4,7 @@ services:
     image: nginx
     container_name: babymed_nginx
     volumes:
-      - /srv/nginx_conf:/etc/nginx/conf.d
+      - ./nginx:/etc/nginx/conf.d
     networks:
       - baby-net
       - external-net
