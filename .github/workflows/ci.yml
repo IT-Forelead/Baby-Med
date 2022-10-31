@@ -82,7 +82,7 @@ jobs:
           host: ${{ secrets.HOST }}
           username: ${{ secrets.USERNAME }}
           key: ${{ secrets.SSH_PRIVATE_KEY }}
-          source: "./build/"
+          source: "./build/*"
           target: "babymed"
 
       - name: Install SSH key of timeweb
