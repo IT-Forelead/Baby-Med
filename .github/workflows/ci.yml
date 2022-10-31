@@ -74,9 +74,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Enter to build folder
-        run: |
-          pwd
-          ls
+        run: ls
 #          cd ./build/
       - name: Copy repository contents via scp
         uses: appleboy/scp-action@master
