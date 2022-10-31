@@ -5,68 +5,68 @@ on:
     branches:
       - master
 jobs:
-  test:
-    name: TEST
-    runs-on: ubuntu-latest
-    strategy:
-      matrix:
-        java:
-          - graalvm11-ce
-    steps:
-      - uses: actions/checkout@v3
-
-      - name: "Cache for sbt & coursier ♨️"
-        uses: coursier/cache-action@v6
-
-      - name: "Install Nix ❄️"
-        uses: cachix/install-nix-action@v18
-
-      - name: "Install Cachix ❄️"
-        uses: cachix/cachix-action@v12
-        with:
-          name: http4s-server
-          signingKey: "${{ secrets.CACHIX_SIGNING_KEY }}"
-
-  #      - name: "Testing 🏝"
-  #        run: nix-shell --argstr jdk "${{ matrix.java }}" --run "sbt -mem 3000 test"
-
-  build:
-    name: BUILD
-    needs: [ test ]
-    runs-on: ubuntu-latest
-    strategy:
-      matrix:
-        java:
-          - graalvm11-ce
-    steps:
-      - uses: actions/checkout@v3
-
-      - name: "Cache for sbt & coursier ♨️"
-        uses: coursier/cache-action@v6
-
-      - name: "Install Nix ❄️"
-        uses: cachix/install-nix-action@v18
-
-      - name: Log in to Docker Hub
-        uses: docker/login-action@v2
-        with:
-          username: ${{ secrets.DOCKER_USERNAME }}
-          password: ${{ secrets.DOCKER_PASSWORD }}
-
-      - name: "Install Cachix ❄️"
-        uses: cachix/cachix-action@v12
-        with:
-          name: http4s-server
-          signingKey: "${{ secrets.CACHIX_SIGNING_KEY }}"
-
-      - name: "Build base image 🏗"
-        run: nix-shell --argstr jdk "${{ matrix.java }}" --run "cd build/; bash base-image;"
-
-      - name: "Publish local 🏗"
-        run: nix-shell --argstr jdk "${{ matrix.java }}" --run "cd build/; bash build"
-
-      - name: Publishing images ...
-        run: nix-shell --argstr jdk "${{ matrix.java }}" --run "cd build/; bash publish push -f babymed/services -t latest;"
+#  test:
+#    name: TEST
+#    runs-on: ubuntu-latest
+#    strategy:
+#      matrix:
+#        java:
+#          - graalvm11-ce
+#    steps:
+#      - uses: actions/checkout@v3
+#
+#      - name: "Cache for sbt & coursier ♨️"
+#        uses: coursier/cache-action@v6
+#
+#      - name: "Install Nix ❄️"
+#        uses: cachix/install-nix-action@v18
+#
+#      - name: "Install Cachix ❄️"
+#        uses: cachix/cachix-action@v12
+#        with:
+#          name: http4s-server
+#          signingKey: "${{ secrets.CACHIX_SIGNING_KEY }}"
+#
+#  #      - name: "Testing 🏝"
+#  #        run: nix-shell --argstr jdk "${{ matrix.java }}" --run "sbt -mem 3000 test"
+#
+#  build:
+#    name: BUILD
+#    needs: [ test ]
+#    runs-on: ubuntu-latest
+#    strategy:
+#      matrix:
+#        java:
+#          - graalvm11-ce
+#    steps:
+#      - uses: actions/checkout@v3
+#
+#      - name: "Cache for sbt & coursier ♨️"
+#        uses: coursier/cache-action@v6
+#
+#      - name: "Install Nix ❄️"
+#        uses: cachix/install-nix-action@v18
+#
+#      - name: Log in to Docker Hub
+#        uses: docker/login-action@v2
+#        with:
+#          username: ${{ secrets.DOCKER_USERNAME }}
+#          password: ${{ secrets.DOCKER_PASSWORD }}
+#
+#      - name: "Install Cachix ❄️"
+#        uses: cachix/cachix-action@v12
+#        with:
+#          name: http4s-server
+#          signingKey: "${{ secrets.CACHIX_SIGNING_KEY }}"
+#
+#      - name: "Build base image 🏗"
+#        run: nix-shell --argstr jdk "${{ matrix.java }}" --run "cd build/; bash base-image;"
+#
+#      - name: "Publish local 🏗"
+#        run: nix-shell --argstr jdk "${{ matrix.java }}" --run "cd build/; bash build"
+#
+#      - name: Publishing images ...
+#        run: nix-shell --argstr jdk "${{ matrix.java }}" --run "cd build/; bash publish push -f babymed/services -t latest;"
 
   deploy:
     name: DEPLOY
@@ -74,7 +74,9 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Adding Known Hosts
-        run: ssh-keyscan -H ${{ secrets.HOST }} >> ~/.ssh/known_hosts
+        run: |
+          ls ~/.ssh/
+          ssh-keyscan -H ${{ secrets.HOST }} >> ~/.ssh/known_hosts
       - name: Copy repository contents via scp
         uses: shimataro/ssh-key-action@v2
         with:
