@@ -1,13 +1,16 @@
 package babymed.services.users.generators
 
-import babymed.{Password, Phone}
-import babymed.domain.Role
-import babymed.services.users.domain.types.{FirstName, LastName, UserId}
-import babymed.test.generators.Generators
-import babymed.syntax.refined.commonSyntaxAutoRefineV
-import org.scalacheck.Gen
-
 import java.time.LocalDateTime
+
+import babymed.Password
+import babymed.Phone
+import babymed.domain.Role
+import babymed.services.users.domain.types.FirstName
+import babymed.services.users.domain.types.LastName
+import babymed.services.users.domain.types.UserId
+import babymed.syntax.refined.commonSyntaxAutoRefineV
+import babymed.test.generators.Generators
+import org.scalacheck.Gen
 
 trait TypeGen extends Generators {
   val userIdGen: Gen[UserId] = idGen(UserId.apply)
@@ -32,5 +35,4 @@ trait TypeGen extends Generators {
     hour <- Gen.choose(0, 23)
     minute <- Gen.choose(0, 59)
   } yield LocalDateTime.of(year, month, day, hour, minute)
-
 }
