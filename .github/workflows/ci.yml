@@ -73,15 +73,21 @@ jobs:
 #    needs: [ build ]
     runs-on: ubuntu-latest
     steps:
-      - name: Adding Known Hosts
-        run: |
-          ls ~/.ssh/
-          ssh-keyscan -H ${{ secrets.HOST }} >> ~/.ssh/known_hosts
+      - name: Enter to build folder
+        run: cd build/
       - name: Copy repository contents via scp
-        uses: shimataro/ssh-key-action@v2
+        uses: appleboy/scp-action@master
         with:
+          host: ${{ secrets.HOST }}
+          username: ${{ secrets.USERNAME }}
           key: ${{ secrets.SSH_PRIVATE_KEY }}
-          name: timeweb
-          config: ${{ secrets.CONFIG }}
-      - name: rsync over SSH
-        run: rsync -r ./build/ timeweb:babymed/
+          source: "."
+          target: "babymed"
+
+      - name: Install SSH key of timeweb
+        uses: appleboy/ssh-action@master
+        with:
+          host: ${{ secrets.HOST }}
+          username: ${{ secrets.USERNAME }}
+          key: ${{ secrets.SSH_PRIVATE_KEY }}
+          script: ls
