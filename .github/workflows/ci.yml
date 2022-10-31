@@ -1,4 +1,4 @@
-name: Scala
+name: Pipeline
 on:
   pull_request: { }
   push:
@@ -67,3 +67,19 @@ jobs:
 
       - name: Publishing images ...
         run: nix-shell --argstr jdk "${{ matrix.java }}" --run "cd build/; bash publish push -f babymed/services -t latest;"
+
+  deploy:
+    name: DEPLOY
+    needs: [ build ]
+    runs-on: ubuntu-latest
+    steps:
+      - name: Adding Known Hosts
+        run: ssh-keyscan -H ${{ secrets.HOST }} >> ~/.ssh/known_hosts
+      - name: Copy repository contents via scp
+        uses: shimataro/ssh-key-action@v2
+        with:
+          key: ${{ secrets.SSH_PRIVATE_KEY }}
+          name: timeweb
+          config: ${{ secrets.CONFIG }}
+      - name: rsync over SSH
+        run: rsync -r ./build/ timeweb:babymed/
