@@ -1,9 +1,6 @@
 package babymed.support.skunk.syntax
 
-import scala.language.implicitConversions
-import cats.effect.Concurrent
-import cats.effect.MonadCancel
-import cats.effect.Resource
+import cats.effect._
 import cats.implicits._
 import eu.timepit.refined.auto.autoUnwrap
 import eu.timepit.refined.types.numeric.NonNegInt

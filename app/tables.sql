@@ -482,6 +482,7 @@ CREATE TABLE customers
 CREATE TABLE payments
 (
     id           UUID PRIMARY KEY,
+    created_at TIMESTAMP NOT NULL,
     customers_id UUID      NOT NULL
         CONSTRAINT fk_customers_id REFERENCES customers (id) ON UPDATE CASCADE ON DELETE NO ACTION,
     price        NUMERIC   NOT NULL,

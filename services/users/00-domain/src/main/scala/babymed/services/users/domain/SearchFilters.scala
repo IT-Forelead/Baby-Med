@@ -12,7 +12,6 @@ import babymed.services.users.domain.types.TownId
 import derevo.circe.magnolia.decoder
 import derevo.circe.magnolia.encoder
 import derevo.derive
-import eu.timepit.refined.cats._
 import eu.timepit.refined.types.numeric.NonNegInt
 import io.circe.refined._
 

@@ -6,7 +6,6 @@ import babymed.support.services.service
 import babymed.support.services.syntax.marshaller.codec
 import eu.timepit.refined.cats._
 import higherkindness.mu.rpc.protocol.Custom
-import io.circe.refined._
 
 @service(Custom)
 trait Customers[F[_]] {

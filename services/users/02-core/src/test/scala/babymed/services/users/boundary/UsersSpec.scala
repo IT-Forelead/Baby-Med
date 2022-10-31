@@ -9,7 +9,7 @@ import cats.effect.kernel.Sync
 
 object UsersSpec extends TestSuite with UserGenerators {
   val userRepo: UsersRepository[F] = new UsersRepository[F] {
-    override def create(createUser: CreateUser): UsersSpec.F[User] =
+    override def create(createUser: CreateUser): F[User] =
       Sync[F].delay(userGen.get)
     override def findByPhone(phone: Phone): F[Option[UserAndHash]] =
       Sync[F].delay(userAndHashGen.getOpt)

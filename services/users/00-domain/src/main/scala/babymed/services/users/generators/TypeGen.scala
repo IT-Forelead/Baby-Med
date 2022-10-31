@@ -1,7 +1,5 @@
 package babymed.services.users.generators
 
-import java.time.LocalDateTime
-
 import babymed.domain.Role
 import babymed.refinements.Password
 import babymed.services.users.domain.types._

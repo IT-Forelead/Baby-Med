@@ -8,7 +8,6 @@ import babymed.services.users.domain.types._
 import derevo.circe.magnolia.decoder
 import derevo.circe.magnolia.encoder
 import derevo.derive
-import eu.timepit.refined.cats._
 import io.circe.refined._
 
 @derive(decoder, encoder)

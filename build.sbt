@@ -26,7 +26,8 @@ lazy val common = project
         Ciris.all ++
         Derevo.all ++
         Seq(
-          Libraries.`monocle-core`
+          Libraries.`monocle-core`,
+            Libraries.squants
         ),
   )
 
