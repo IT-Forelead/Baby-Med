@@ -11,13 +11,13 @@ trait TypeGen extends Generators {
   val userIdGen: Gen[UserId] = idGen(UserId.apply)
   val regionIdGen: Gen[RegionId] = idGen(RegionId.apply)
   val townIdGen: Gen[TownId] = idGen(TownId.apply)
-  val regionGen: Gen[Region] = nonEmptyString.map(Region(_))
-  val townGen: Gen[Town] = nonEmptyString.map(Town(_))
   val addressGen: Gen[Address] = nonEmptyString.map(Address(_))
   val customerIdGen: Gen[CustomerId] = idGen(CustomerId.apply)
   val firstNameGen: Gen[FirstName] = nonEmptyString.map(FirstName(_))
   val lastNameGen: Gen[LastName] = nonEmptyString.map(LastName(_))
   val roleGen: Gen[Role] = Gen.oneOf(Role.values)
+  val regionNameGen: Gen[RegionName] = nonEmptyString.map(RegionName(_))
+  val townNameGen: Gen[TownName] = nonEmptyString.map(TownName(_))
 
   lazy val passwordGen: Gen[Password] = for {
     s1 <- Gen.oneOf("123456789ABCDEFGHJKLMNPQRSTUVWXYZabcdefghjkmnpqrstuvwxyz")

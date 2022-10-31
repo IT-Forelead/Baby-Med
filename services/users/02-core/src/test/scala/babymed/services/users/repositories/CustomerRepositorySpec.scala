@@ -1,20 +1,23 @@
 package babymed.services.users.repositories
 
-import java.time.LocalDateTime
+import babymed.services.users.domain.types.{RegionId, TownId}
 
-import babymed.services.users.domain.Customer
-import babymed.services.users.domain.SearchFilters
+import java.time.LocalDateTime
+import babymed.services.users.domain.{CreateCustomer, SearchFilters}
 import babymed.services.users.generators.CustomerGenerators
 import babymed.test.DBSuite
-import cats.effect.IO
+
+import java.util.UUID
 
 object CustomerRepositorySpec extends DBSuite with CustomerGenerators {
-  val createCustomer: Customer.CreateCustomer = createCustomerGen.get
-
   test("Create Customer") { implicit postgres =>
     val repo = CustomersRepository.make[F]
+    val createCustomer: CreateCustomer = createCustomerGen.get
+    val defaultRegionId: RegionId = RegionId(UUID.fromString("ad514b71-3096-4be5-a455-d87abbb081b2"))
+    val defaultTownId: TownId = TownId(UUID.fromString("0d073b76-08ce-4b78-a88c-a0cb6f80eaf9"))
+
     repo
-      .create(createCustomer)
+      .create(createCustomer.copy(regionId = defaultRegionId, townId = defaultTownId))
       .map { c =>
         assert(c.createdAt.isBefore(LocalDateTime.now()))
       }
@@ -23,22 +26,31 @@ object CustomerRepositorySpec extends DBSuite with CustomerGenerators {
       }
   }
 
-  test("Get Customer") { implicit postgres =>
+  test("Get Customers") { implicit postgres =>
     val repo = CustomersRepository.make[F]
-    repo.create(createCustomer) *>
+    val createCustomer: CreateCustomer = createCustomerGen.get
+    val defaultRegionId: RegionId = RegionId(UUID.fromString("ad514b71-3096-4be5-a455-d87abbb081b2"))
+    val defaultTownId: TownId = TownId(UUID.fromString("0d073b76-08ce-4b78-a88c-a0cb6f80eaf9"))
+
+    repo.create(createCustomer.copy(regionId = defaultRegionId, townId = defaultTownId)) *>
       repo
         .get(SearchFilters.Empty)
         .map { customers =>
-          assert(customers.exists(_.phone == createCustomer.phone))
+          assert(customers.exists(_.customer.firstname == createCustomer.firstname))
         }
-        .handleError {
-          fail("Test failed.")
+        .handleError { error =>
+          println("ERROR::::::::::::::::::: " + error)
+          failure("Test failed.")
         }
   }
 
   test("Get Customer Total") { implicit postgres =>
     val repo = CustomersRepository.make[F]
-    repo.create(createCustomer) *>
+    val createCustomer: CreateCustomer = createCustomerGen.get
+    val defaultRegionId: RegionId = RegionId(UUID.fromString("ad514b71-3096-4be5-a455-d87abbb081b2"))
+    val defaultTownId: TownId = TownId(UUID.fromString("0d073b76-08ce-4b78-a88c-a0cb6f80eaf9"))
+
+    repo.create(createCustomer.copy(regionId = defaultRegionId, townId = defaultTownId)) *>
       repo
         .getTotal(SearchFilters.Empty)
         .map { total =>

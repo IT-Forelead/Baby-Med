@@ -29,8 +29,8 @@ object types {
   @derive(decoder, encoder, eqv)
   @newtype case class Address(value: NonEmptyString)
   @derive(decoder, encoder, eqv)
-  @newtype case class Region(value: NonEmptyString)
+  @newtype case class RegionName(value: NonEmptyString)
   @derive(decoder, encoder, eqv)
-  @newtype case class Town(value: NonEmptyString)
+  @newtype case class TownName(value: NonEmptyString)
 
 }

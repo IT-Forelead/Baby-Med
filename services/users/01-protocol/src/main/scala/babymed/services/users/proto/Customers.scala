@@ -1,10 +1,8 @@
 package babymed.services.users.proto
 
-import babymed.services.users.domain.Customer._
-import babymed.services.users.domain.{Customer, SearchFilters}
+import babymed.services.users.domain.{CreateCustomer, Customer, CustomerWithAddress, SearchFilters}
 import babymed.support.services.service
 import babymed.support.services.syntax.marshaller.codec
-import eu.timepit.refined.cats._
 import higherkindness.mu.rpc.protocol.Custom
 
 @service(Custom)
