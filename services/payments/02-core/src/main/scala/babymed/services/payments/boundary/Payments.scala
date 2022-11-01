@@ -10,5 +10,6 @@ class Payments[F[_]](paymentsRepository: PaymentsRepository[F]) extends proto.Pa
     paymentsRepository.create(createPayment)
   override def get(searchFilters: SearchFilters): F[List[PaymentWithCustomer]] =
     paymentsRepository.get(searchFilters)
-
+  override def getPaymentsTotal(searchFilters: SearchFilters): F[Long] =
+    paymentsRepository.getPaymentsTotal(searchFilters)
 }

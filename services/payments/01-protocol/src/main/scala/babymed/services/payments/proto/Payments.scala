@@ -9,6 +9,7 @@ import higherkindness.mu.rpc.protocol.Custom
 trait Payments[F[_]] {
   def create(createPayment: CreatePayment): F[Payment]
   def get(searchFilters: SearchFilters): F[List[PaymentWithCustomer]]
+  def getPaymentsTotal(searchFilters: SearchFilters): F[Long]
 }
 
 object Payments {}

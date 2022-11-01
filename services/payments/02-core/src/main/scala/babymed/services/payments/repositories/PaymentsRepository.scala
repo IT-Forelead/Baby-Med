@@ -9,11 +9,13 @@ import babymed.support.skunk.syntax.all._
 import cats.effect.{Concurrent, MonadCancel, Resource}
 import cats.implicits._
 import skunk._
+import skunk.codec.all.int8
 import skunk.implicits._
 
 trait PaymentsRepository[F[_]] {
   def create(createPayment: CreatePayment): F[Payment]
   def get(searchFilters: SearchFilters): F[List[PaymentWithCustomer]]
+  def getPaymentsTotal(filters: SearchFilters): F[Long]
 }
 
 object PaymentsRepository {
@@ -33,7 +35,11 @@ object PaymentsRepository {
     override def get(searchFilters: SearchFilters): F[List[PaymentWithCustomer]] = {
       val query = PaymentsSql.select(searchFilters).paginateOpt(searchFilters.limit, searchFilters.page)
       query.fragment.query(PaymentsSql.decPaymentWithCustomer).queryList(query.argument)
+    }
 
+    override def getPaymentsTotal(filters: SearchFilters): F[Long] = {
+      val query = PaymentsSql.total(filters)
+      query.fragment.query(int8).queryUnique(query.argument)
     }
 
   }

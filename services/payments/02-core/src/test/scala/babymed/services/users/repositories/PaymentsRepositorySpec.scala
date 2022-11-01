@@ -11,7 +11,7 @@ import java.util.UUID
 
 object PaymentsRepositorySpec extends DBSuite with PaymentGenerator{
 
-  test("Create Customer") { implicit postgres =>
+  test("Create Payment") { implicit postgres =>
     val repo = PaymentsRepository.make[F]
     val defaultCustomerId = CustomerId(UUID.fromString("f4484324-e6cd-4e48-8d24-638f0a4fabaa"))
     repo
@@ -33,6 +33,22 @@ object PaymentsRepositorySpec extends DBSuite with PaymentGenerator{
         .get(SearchFilters.Empty)
         .map { payments =>
           assert(payments.exists(_.payment.price == createPaymentData.price))
+        }
+        .handleError {
+          fail("Test failed.")
+        }
+  }
+
+  test("Get Payment Total") { implicit postgres =>
+    val repo = PaymentsRepository.make[F]
+    val defaultCustomerId = CustomerId(UUID.fromString("f4484324-e6cd-4e48-8d24-638f0a4fabaa"))
+    val createPaymentData = createPaymentGen.get
+
+    repo.create(createPaymentData.copy(customerId = defaultCustomerId)) *>
+      repo
+        .getPaymentsTotal(SearchFilters.Empty)
+        .map { total =>
+          assert(total >= 1)
         }
         .handleError {
           fail("Test failed.")

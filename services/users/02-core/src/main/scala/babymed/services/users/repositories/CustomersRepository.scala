@@ -43,9 +43,7 @@ object CustomersRepository {
             .raiseError[F, Customer]
       }
 
-    override def get(
-        filters: SearchFilters
-      ): F[List[CustomerWithAddress]] = {
+    override def get(filters: SearchFilters): F[List[CustomerWithAddress]] = {
       val query = CustomersSql.select(filters).paginateOpt(filters.limit, filters.page)
       query.fragment.query(CustomersSql.decCustomerWithAddress).queryList(query.argument)
     }

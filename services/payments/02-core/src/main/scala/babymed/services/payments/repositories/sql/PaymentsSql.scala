@@ -66,4 +66,9 @@ object PaymentsSql {
     baseQuery(Void).whereAndOpt(searchFilter(filters): _*)
   }
 
+  def total(filters: SearchFilters): AppliedFragment = {
+    val baseQuery: Fragment[Void] = sql"""SELECT count(*) FROM payments"""
+    baseQuery(Void).whereAndOpt(searchFilter(filters): _*)
+  }
+
 }
