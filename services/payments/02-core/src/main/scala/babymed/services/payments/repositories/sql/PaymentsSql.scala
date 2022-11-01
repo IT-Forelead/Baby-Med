@@ -2,6 +2,11 @@ package babymed.services.payments.repositories.sql
 
 import java.time.LocalDateTime
 
+import skunk._
+import skunk.codec.all.date
+import skunk.codec.all.timestamp
+import skunk.implicits._
+
 import babymed.services.payments.domain.CreatePayment
 import babymed.services.payments.domain.Payment
 import babymed.services.payments.domain.PaymentWithCustomer
@@ -13,10 +18,6 @@ import babymed.services.users.domain.types.RegionId
 import babymed.services.users.domain.types.TownId
 import babymed.support.skunk.codecs.phone
 import babymed.support.skunk.syntax.all.skunkSyntaxFragmentOps
-import skunk._
-import skunk.codec.all.date
-import skunk.codec.all.timestamp
-import skunk.implicits._
 
 object PaymentsSql {
   val paymentId: Codec[PaymentId] = identity[PaymentId]

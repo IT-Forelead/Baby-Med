@@ -1,10 +1,11 @@
 package babymed.services.payments.generators
 
+import org.scalacheck.Gen
+
 import babymed.domain.Role
 import babymed.services.users.domain.types._
 import babymed.syntax.refined.commonSyntaxAutoRefineV
 import babymed.test.generators.Generators
-import org.scalacheck.Gen
 
 trait UsersTypeGen extends Generators {
   val userIdGen: Gen[UserId] = idGen(UserId.apply)

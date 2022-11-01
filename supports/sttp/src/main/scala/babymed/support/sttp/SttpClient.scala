@@ -2,7 +2,6 @@ package babymed.support.sttp
 
 import java.net.URI
 
-import babymed.support.sttp.SttpRequestBody._
 import cats.Show
 import cats.effect.Sync
 import cats.implicits._
@@ -13,6 +12,8 @@ import org.typelevel.log4cats.slf4j.Slf4jLogger
 import sttp.client3._
 import sttp.client3.circe._
 import sttp.model._
+
+import babymed.support.sttp.SttpRequestBody._
 
 /** Wrapper around SttpBackend, that has built-in auth mechanisms and support for streaming of paginated responses
   *

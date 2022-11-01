@@ -2,8 +2,9 @@ package babymed.util
 
 import java.net.URI
 
-import babymed.domain.AppMode
 import ciris.ConfigDecoder
+
+import babymed.domain.AppMode
 
 object ConfigDecoders {
   implicit val javaNetUriConfigDecoder: ConfigDecoder[String, URI] =

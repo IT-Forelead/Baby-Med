@@ -4,11 +4,12 @@ import java.io.ByteArrayInputStream
 import java.io.InputStream
 import java.nio.charset.StandardCharsets
 
-import babymed.syntax.all.circeSyntaxDecoderOps
-import babymed.syntax.all.genericSyntaxGenericTypeOps
 import io.circe.Decoder
 import io.circe.Encoder
 import io.grpc.MethodDescriptor
+
+import babymed.syntax.all.circeSyntaxDecoderOps
+import babymed.syntax.all.genericSyntaxGenericTypeOps
 
 trait MarshallerSyntax {
   implicit def codec[T: Encoder: Decoder]: MethodDescriptor.Marshaller[T] =

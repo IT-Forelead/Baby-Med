@@ -1,16 +1,17 @@
 package babymed.services.payments.setup
 
+import cats.effect.Async
+import cats.implicits._
+import ciris.env
+import ciris.refined.refTypeConfigDecoder
+import eu.timepit.refined.types.string.NonEmptyString
+
 import babymed.domain.AppMode
 import babymed.support.services.http4s.HttpServerConfig
 import babymed.support.services.rpc.GrpcServerConfig
 import babymed.support.skunk.DataBaseConfig
 import babymed.syntax.all.circeConfigDecoder
 import babymed.syntax.refined.commonSyntaxAutoRefineV
-import cats.effect.Async
-import cats.implicits._
-import ciris.env
-import ciris.refined.refTypeConfigDecoder
-import eu.timepit.refined.types.string.NonEmptyString
 
 object ConfigLoader {
   def load[F[_]: Async]: F[Config] = (

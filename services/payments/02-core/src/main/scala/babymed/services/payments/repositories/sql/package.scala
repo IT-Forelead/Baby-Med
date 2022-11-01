@@ -1,16 +1,17 @@
 package babymed.services.payments.repositories
 
+import eu.timepit.refined.types.string.NonEmptyString
+import skunk._
+import skunk.codec.all._
+import skunk.data.Type
+import squants.Money
+
 import babymed.domain.Role
 import babymed.effects.IsUUID
 import babymed.services.payments.domain.types.UZS
 import babymed.services.users.domain.types.Address
 import babymed.services.users.domain.types.FirstName
 import babymed.services.users.domain.types.LastName
-import eu.timepit.refined.types.string.NonEmptyString
-import skunk._
-import skunk.codec.all._
-import skunk.data.Type
-import squants.Money
 
 package object sql {
   def identity[A: IsUUID]: Codec[A] = uuid.imap[A](IsUUID[A].uuid.get)(IsUUID[A].uuid.apply)

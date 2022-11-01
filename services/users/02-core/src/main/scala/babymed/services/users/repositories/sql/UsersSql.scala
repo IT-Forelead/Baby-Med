@@ -2,17 +2,18 @@ package babymed.services.users.repositories.sql
 
 import java.time.LocalDateTime
 
+import skunk._
+import skunk.codec.all.timestamp
+import skunk.implicits._
+import tsec.passwordhashers.PasswordHash
+import tsec.passwordhashers.jca.SCrypt
+
 import babymed.refinements.Phone
 import babymed.services.users.domain.CreateUser
 import babymed.services.users.domain.User
 import babymed.services.users.domain.UserAndHash
 import babymed.services.users.domain.types.UserId
 import babymed.support.skunk.codecs.phone
-import skunk._
-import skunk.codec.all.timestamp
-import skunk.implicits._
-import tsec.passwordhashers.PasswordHash
-import tsec.passwordhashers.jca.SCrypt
 
 object UsersSql {
   val userId: Codec[UserId] = identity[UserId]

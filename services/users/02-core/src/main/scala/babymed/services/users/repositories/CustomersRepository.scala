@@ -1,5 +1,14 @@
 package babymed.services.users.repositories
 
+import cats.effect.Concurrent
+import cats.effect.MonadCancel
+import cats.effect.Resource
+import cats.implicits._
+import skunk.Session
+import skunk._
+import skunk.codec.all.int8
+import skunk.implicits.toIdOps
+
 import babymed.domain.ID
 import babymed.effects.Calendar
 import babymed.effects.GenUUID
@@ -11,14 +20,6 @@ import babymed.services.users.domain.SearchFilters
 import babymed.services.users.domain.types.CustomerId
 import babymed.services.users.repositories.sql.CustomersSql
 import babymed.support.skunk.syntax.all._
-import cats.effect.Concurrent
-import cats.effect.MonadCancel
-import cats.effect.Resource
-import cats.implicits._
-import skunk.Session
-import skunk._
-import skunk.codec.all.int8
-import skunk.implicits.toIdOps
 
 trait CustomersRepository[F[_]] {
   def create(createCustomer: CreateCustomer): F[Customer]

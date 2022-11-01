@@ -1,6 +1,5 @@
 package babymed.services.payments.setup
 
-import babymed.support.skunk.DataBaseConfig
 import cats.effect.Concurrent
 import cats.effect.MonadCancel
 import cats.effect.Resource
@@ -15,6 +14,8 @@ import skunk.SessionPool
 import skunk.codec.all.text
 import skunk.implicits.toStringOps
 import skunk.util.Typer
+
+import babymed.support.skunk.DataBaseConfig
 
 case class ServiceResources[F[_]](
     postgres: Resource[F, Session[F]]

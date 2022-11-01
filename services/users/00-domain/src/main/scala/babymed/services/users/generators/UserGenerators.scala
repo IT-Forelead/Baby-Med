@@ -1,10 +1,11 @@
 package babymed.services.users.generators
 
+import org.scalacheck.Gen
+import tsec.passwordhashers.jca.SCrypt
+
 import babymed.services.users.domain.CreateUser
 import babymed.services.users.domain.User
 import babymed.services.users.domain.UserAndHash
-import org.scalacheck.Gen
-import tsec.passwordhashers.jca.SCrypt
 
 trait UserGenerators extends TypeGen {
   def userGen: Gen[User] =

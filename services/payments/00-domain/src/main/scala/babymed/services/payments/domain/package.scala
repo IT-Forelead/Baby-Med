@@ -1,6 +1,5 @@
 package babymed.services.payments
 
-import babymed.services.payments.domain.types.UZS
 import cats.Eq
 import cats.Monoid
 import cats.Show
@@ -8,6 +7,8 @@ import io.circe.Decoder
 import io.circe.Encoder
 import squants.Money
 import squants.market.Currency
+
+import babymed.services.payments.domain.types.UZS
 
 package object domain {
   implicit val moneyDecoder: Decoder[Money] =

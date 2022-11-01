@@ -1,5 +1,8 @@
 package babymed.services.users.boundary
 
+import cats.effect.kernel.Sync
+import org.scalacheck.Gen
+
 import babymed.services.users.domain.CreateCustomer
 import babymed.services.users.domain.Customer
 import babymed.services.users.domain.CustomerWithAddress
@@ -7,8 +10,6 @@ import babymed.services.users.domain.SearchFilters
 import babymed.services.users.generators.CustomerGenerators
 import babymed.services.users.repositories.CustomersRepository
 import babymed.test.TestSuite
-import cats.effect.kernel.Sync
-import org.scalacheck.Gen
 
 object CustomersSpec extends TestSuite with CustomerGenerators {
   val customerRepo: CustomersRepository[F] = new CustomersRepository[F] {

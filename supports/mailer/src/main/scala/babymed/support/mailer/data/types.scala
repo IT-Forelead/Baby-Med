@@ -1,6 +1,5 @@
 package babymed.support.mailer.data
 
-import babymed.util.configDecoder
 import ciris.refined._
 import derevo.cats.show
 import derevo.circe.magnolia.decoder
@@ -9,6 +8,8 @@ import eu.timepit.refined.cats._
 import eu.timepit.refined.types.string.NonEmptyString
 import io.circe.refined._
 import io.estatico.newtype.macros.newtype
+
+import babymed.util.configDecoder
 
 object types {
   @newtype case class Subtype(value: String)

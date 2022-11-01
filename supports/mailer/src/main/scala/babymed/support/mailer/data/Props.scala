@@ -3,11 +3,12 @@ package babymed.support.mailer.data
 import scala.concurrent.duration.DurationInt
 import scala.concurrent.duration.FiniteDuration
 
+import eu.timepit.refined.auto.autoUnwrap
+import eu.timepit.refined.types.net.SystemPortNumber
+
 import babymed.support.mailer.data.Props._
 import babymed.support.mailer.data.types.Protocol.Smtp
 import babymed.support.mailer.data.types._
-import eu.timepit.refined.auto.autoUnwrap
-import eu.timepit.refined.types.net.SystemPortNumber
 
 final case class Props(values: Map[String, String]) {
   def withSmtpAddress(host: Host, port: SystemPortNumber): Props =

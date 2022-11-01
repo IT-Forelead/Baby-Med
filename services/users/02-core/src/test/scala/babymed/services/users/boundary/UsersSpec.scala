@@ -1,5 +1,7 @@
 package babymed.services.users.boundary
 
+import cats.effect.kernel.Sync
+
 import babymed.refinements.Phone
 import babymed.services.users.domain.CreateUser
 import babymed.services.users.domain.User
@@ -7,7 +9,6 @@ import babymed.services.users.domain.UserAndHash
 import babymed.services.users.generators.UserGenerators
 import babymed.services.users.repositories.UsersRepository
 import babymed.test.TestSuite
-import cats.effect.kernel.Sync
 
 object UsersSpec extends TestSuite with UserGenerators {
   val userRepo: UsersRepository[F] = new UsersRepository[F] {

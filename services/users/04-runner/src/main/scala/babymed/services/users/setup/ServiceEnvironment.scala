@@ -1,15 +1,16 @@
 package babymed.services.users.setup
 
-import babymed.services.users.boundary.Customers
-import babymed.services.users.boundary.Users
-import babymed.services.users.repositories.CustomersRepository
-import babymed.services.users.repositories.UsersRepository
 import cats.MonadThrow
 import cats.effect.Async
 import cats.effect.Resource
 import cats.effect.std.Console
 import org.typelevel.log4cats.Logger
 import skunk.Session
+
+import babymed.services.users.boundary.Customers
+import babymed.services.users.boundary.Users
+import babymed.services.users.repositories.CustomersRepository
+import babymed.services.users.repositories.UsersRepository
 
 case class ServiceEnvironment[F[_]: MonadThrow](
     config: Config,

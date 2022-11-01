@@ -1,13 +1,14 @@
 package babymed.support.mailer
 
-import babymed.refinements.EmailAddress
-import babymed.support.mailer.data.types.Host
-import babymed.support.mailer.data.types.Password
-import babymed.syntax.all.circeConfigDecoder
 import cats.implicits._
 import ciris._
 import eu.timepit.refined.types.net.SystemPortNumber
 import io.circe.refined._
+
+import babymed.refinements.EmailAddress
+import babymed.support.mailer.data.types.Host
+import babymed.support.mailer.data.types.Password
+import babymed.syntax.all.circeConfigDecoder
 
 case class MailerConfig(
     host: Host,

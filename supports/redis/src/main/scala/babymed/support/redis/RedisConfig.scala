@@ -1,8 +1,9 @@
 package babymed.support.redis
 
-import babymed.refinements.UriAddress
 import ciris._
 import ciris.refined.refTypeConfigDecoder
+
+import babymed.refinements.UriAddress
 
 case class RedisConfig(uri: UriAddress)
 object RedisConfig {

@@ -1,15 +1,16 @@
 package babymed.services.auth.impl
 
+import cats.effect._
+import dev.profunktor.auth.jwt._
+import eu.timepit.refined.auto._
+import pdi.jwt._
+
 import babymed.services.auth.JwtConfig
 import babymed.services.auth.domain.types.UserJwtAuth
 import babymed.services.auth.utils.JwtExpire
 import babymed.services.auth.utils.Tokens
 import babymed.services.users.proto.Users
 import babymed.support.redis.RedisClient
-import cats.effect._
-import dev.profunktor.auth.jwt._
-import eu.timepit.refined.auto._
-import pdi.jwt._
 
 object Security {
   def make[F[_]: Sync](
