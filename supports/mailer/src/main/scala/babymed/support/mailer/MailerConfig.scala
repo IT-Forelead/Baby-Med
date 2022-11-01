@@ -1,12 +1,11 @@
 package babymed.support.mailer
 
-import cats.implicits.catsSyntaxTuple6Parallel
-import babymed.EmailAddress
-import babymed.syntax.config.listConfigDecoder
+import cats.implicits._
+import babymed.refinements.EmailAddress
 import babymed.support.mailer.data.types.Host
 import babymed.support.mailer.data.types.Password
+import babymed.syntax.all.circeConfigDecoder
 import ciris._
-import ciris.refined.refTypeConfigDecoder
 import eu.timepit.refined.types.net.SystemPortNumber
 import io.circe.refined._
 
