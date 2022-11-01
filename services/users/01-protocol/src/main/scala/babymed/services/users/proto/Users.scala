@@ -6,7 +6,6 @@ import babymed.services.users.domain.User
 import babymed.services.users.domain.UserAndHash
 import babymed.support.services.service
 import babymed.support.services.syntax.marshaller.codec
-import higherkindness.mu.rpc.protocol.Custom
 import io.circe.refined._
 
 @service(Custom)
