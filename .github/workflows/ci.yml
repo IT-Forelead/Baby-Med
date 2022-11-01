@@ -1,10 +1,9 @@
-name: Pipeline
+name: Continuous Integration
 on:
   push:
     branches: [ "master" ]
-    # Publish semver tags as releases.
-#  pull_request:
-#    branches: [ "master" ]
+  pull_request:
+    branches: [ "master" ]
 jobs:
   test:
     name: TEST
@@ -28,69 +27,46 @@ jobs:
           name: http4s-server
           signingKey: "${{ secrets.CACHIX_SIGNING_KEY }}"
 
-  #      - name: "Testing 🏝"
-  #        run: nix-shell --argstr jdk "${{ matrix.java }}" --run "sbt -mem 3000 test"
+      - name: "Testing 🏝"
+        run: nix-shell --argstr jdk "${{ matrix.java }}" --run "sbt -mem 3000 test"
 
-  build:
-    name: BUILD
-    needs: [ test ]
-    runs-on: ubuntu-latest
+  scalafmt:
+    name: Scalafmt and Scalastyle
     strategy:
       matrix:
-        java:
-          - graalvm11-ce
+        os: [ ubuntu-latest ]
+        scala: [ 2.13.10 ]
+        java: [ temurin@11 ]
+    runs-on: ${{ matrix.os }}
     steps:
-      - uses: actions/checkout@v3
+      - name: Checkout current branch (fast)
+        uses: actions/checkout@v2
 
-      - name: "Cache for sbt & coursier ♨️"
-        uses: coursier/cache-action@v6
-
-      - name: "Install Nix ❄️"
-        uses: cachix/install-nix-action@v18
-
-      - name: Log in to Docker Hub
-        uses: docker/login-action@v2
+      - name: Download Java (temurin@11)
+        id: download-java-temurin-11
+        uses: typelevel/download-java@v1
         with:
-          username: ${{ secrets.DOCKER_USERNAME }}
-          password: ${{ secrets.DOCKER_PASSWORD }}
+          distribution: temurin
+          java-version: 11
 
-      - name: "Install Cachix ❄️"
-        uses: cachix/cachix-action@v12
+      - name: Setup Java (temurin@11)
+        uses: actions/setup-java@v2
         with:
-          name: http4s-server
-          signingKey: "${{ secrets.CACHIX_SIGNING_KEY }}"
+          distribution: jdkfile
+          java-version: 11
+          jdkFile: ${{ steps.download-java-temurin-11.outputs.jdkFile }}
 
-      - name: "Build base image 🏗"
-        run: nix-shell --argstr jdk "${{ matrix.java }}" --run "cd build/; bash base-image;"
-
-      - name: "Publish local 🏗"
-        run: nix-shell --argstr jdk "${{ matrix.java }}" --run "cd build/; bash build"
-
-      - name: Publishing images ...
-        run: nix-shell --argstr jdk "${{ matrix.java }}" --run "cd build/; bash publish push -f babymed/services -t latest;"
-
-  deploy:
-    name: DEPLOY
-#    needs: [ build ]
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v3
-      - name: Copy repository contents via scp
-        uses: appleboy/scp-action@master
+      - name: Cache sbt
+        uses: actions/cache@v2
         with:
-          host: ${{ secrets.HOST }}
-          username: ${{ secrets.USERNAME }}
-          key: ${{ secrets.SSH_PRIVATE_KEY }}
-          source: ".env, ./build/*"
-          target: "babymed"
+          path: |
+            ~/.sbt
+            ~/.ivy2/cache
+            ~/.coursier/cache/v1
+            ~/.cache/coursier/v1
+            ~/AppData/Local/Coursier/Cache/v1
+            ~/Library/Caches/Coursier/v1
+          key: ${{ runner.os }}-sbt-cache-v2-${{ hashFiles('**/*.sbt') }}-${{ hashFiles('project/build.properties') }}
 
-      - name: Install SSH key of timeweb
-        uses: appleboy/ssh-action@master
-        with:
-          host: ${{ secrets.HOST }}
-          username: ${{ secrets.USERNAME }}
-          key: ${{ secrets.SSH_PRIVATE_KEY }}
-          script: |
-            docker login -p ${{ secrets.DOCKER_PASSWORD }} -u ${{ secrets.DOCKER_USERNAME }}
-            cd ~/babymed/build/
-            bash run
+      - name: Scalafmt and Scalastyle tests
+        run: sbt '++${{ matrix.scala }}' +scalafmtCheckAll scalafmtSbtCheck scalastyle
