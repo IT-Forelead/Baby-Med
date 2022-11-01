@@ -68,9 +68,7 @@ object AuthServiceSpec extends HttpSuite with CommonGenerators with UserGenerato
       .map { token =>
         assert(token.value.nonEmpty)
       }
-      .handleError( error =>
-        failure(error.toString)
-      )
+      .handleError(error => failure(error.toString))
   }
 
   test("Login - incorrect login") {

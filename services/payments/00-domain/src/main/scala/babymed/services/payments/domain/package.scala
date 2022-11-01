@@ -1,8 +1,11 @@
 package babymed.services.payments
 
 import babymed.services.payments.domain.types.UZS
-import cats.{Eq, Monoid, Show}
-import io.circe.{Decoder, Encoder}
+import cats.Eq
+import cats.Monoid
+import cats.Show
+import io.circe.Decoder
+import io.circe.Encoder
 import squants.Money
 import squants.market.Currency
 

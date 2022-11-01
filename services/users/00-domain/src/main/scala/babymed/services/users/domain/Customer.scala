@@ -12,13 +12,13 @@ import io.circe.refined._
 
 @derive(decoder, encoder)
 case class Customer(
-  id: CustomerId,
-  createdAt: LocalDateTime,
-  firstname: FirstName,
-  lastname: LastName,
-  regionId: RegionId,
-  townId: TownId,
-  address: Address,
-  birthday: LocalDate,
-  phone: Phone
-)
+    id: CustomerId,
+    createdAt: LocalDateTime,
+    firstname: FirstName,
+    lastname: LastName,
+    regionId: RegionId,
+    townId: TownId,
+    address: Address,
+    birthday: LocalDate,
+    phone: Phone,
+  )

@@ -1,7 +1,13 @@
 package babymed.services.users.repositories.sql
 
 import java.time.LocalDateTime
-import babymed.services.users.domain.{CreateCustomer, Customer, CustomerWithAddress, Region, SearchFilters, Town}
+
+import babymed.services.users.domain.CreateCustomer
+import babymed.services.users.domain.Customer
+import babymed.services.users.domain.CustomerWithAddress
+import babymed.services.users.domain.Region
+import babymed.services.users.domain.SearchFilters
+import babymed.services.users.domain.Town
 import babymed.services.users.domain.types.CustomerId
 import babymed.services.users.domain.types.RegionId
 import babymed.services.users.domain.types.TownId

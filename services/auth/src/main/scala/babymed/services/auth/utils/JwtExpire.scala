@@ -1,8 +1,8 @@
 package babymed.services.auth.utils
 
+import babymed.services.auth.domain.types.TokenExpiration
 import cats.effect.Sync
 import cats.syntax.all._
-import babymed.services.auth.domain.types.TokenExpiration
 import pdi.jwt.JwtClaim
 
 trait JwtExpire[F[_]] {

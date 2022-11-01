@@ -2,9 +2,9 @@ package babymed.support.redis
 
 import scala.concurrent.duration.FiniteDuration
 
+import babymed.syntax.all.genericSyntaxGenericTypeOps
 import cats._
 import cats.implicits.toFunctorOps
-import babymed.syntax.all.genericSyntaxGenericTypeOps
 import dev.profunktor.redis4cats.RedisCommands
 import io.circe.Encoder
 

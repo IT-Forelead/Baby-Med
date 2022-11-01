@@ -1,19 +1,23 @@
 package babymed.services.users.repositories
 
-import cats.implicits._
-import babymed.refinements.Phone
+import java.time.LocalDateTime
+
 import babymed.domain.ID
-import babymed.syntax.refined.commonSyntaxAutoUnwrapV
+import babymed.refinements.Phone
+import babymed.services.users.domain.CreateUser
+import babymed.services.users.domain.User
+import babymed.services.users.domain.UserAndHash
 import babymed.services.users.domain.types.UserId
-import babymed.services.users.domain.{CreateUser, User, UserAndHash}
 import babymed.support.skunk.syntax.all.skunkSyntaxQueryOps
+import babymed.syntax.refined.commonSyntaxAutoUnwrapV
 import babymed.util.RandomGenerator
-import cats.effect.{MonadCancel, Resource, Sync}
+import cats.effect.MonadCancel
+import cats.effect.Resource
+import cats.effect.Sync
+import cats.implicits._
 import skunk._
 import skunk.implicits.toIdOps
 import tsec.passwordhashers.jca.SCrypt
-
-import java.time.LocalDateTime
 
 trait UsersRepository[F[_]] {
   def create(createUser: CreateUser): F[User]
@@ -38,6 +42,5 @@ object UsersRepository {
 
     override def findByPhone(phone: Phone): F[Option[UserAndHash]] =
       selectByPhone.queryOption(phone)
-
   }
 }

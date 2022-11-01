@@ -27,5 +27,4 @@ package object sql {
   val role: Codec[Role] = `enum`[Role](_.value, Role.find, Type("role"))
   val regionName: Codec[RegionName] = nes.imap[RegionName](RegionName.apply)(_.value)
   val townName: Codec[TownName] = nes.imap[TownName](TownName.apply)(_.value)
-
 }

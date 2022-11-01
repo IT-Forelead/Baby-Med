@@ -1,6 +1,9 @@
 package babymed.services.users.boundary
 
-import babymed.services.users.domain.{CreateCustomer, Customer, CustomerWithAddress, SearchFilters}
+import babymed.services.users.domain.CreateCustomer
+import babymed.services.users.domain.Customer
+import babymed.services.users.domain.CustomerWithAddress
+import babymed.services.users.domain.SearchFilters
 import babymed.services.users.generators.CustomerGenerators
 import babymed.services.users.repositories.CustomersRepository
 import babymed.test.TestSuite
@@ -9,9 +12,8 @@ import org.scalacheck.Gen
 
 object CustomersSpec extends TestSuite with CustomerGenerators {
   val customerRepo: CustomersRepository[F] = new CustomersRepository[F] {
-    override def create(createCustomer: CreateCustomer): F[Customer] = {
+    override def create(createCustomer: CreateCustomer): F[Customer] =
       Sync[F].delay(customerGen.get)
-    }
 
     override def get(filters: SearchFilters): CustomersSpec.F[List[CustomerWithAddress]] =
       Sync[F].delay(List(customerWithAddressGen.get))

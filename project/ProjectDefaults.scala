@@ -1,5 +1,6 @@
 import sbt.Keys._
 import sbt._
+import scalafix.sbt.ScalafixPlugin
 
 object ProjectDefaults extends AutoPlugin {
   object autoImport {
@@ -26,8 +27,8 @@ object ProjectDefaults extends AutoPlugin {
     )
 
   private lazy val other = Seq(
-    publishMavenStyle := true,
-    isSnapshot        := true,
+    publishMavenStyle                      := true,
+    isSnapshot                             := true,
     version                                := "1.0",
     scalaVersion                           := "2.13.10",
     Compile / doc / sources                := Seq.empty,
@@ -76,5 +77,6 @@ object ProjectDefaults extends AutoPlugin {
         "msg=Reference to uninitialized value:error",
     ),
     addCompilerPlugin("org.typelevel" %% "kind-projector" % "0.13.2" cross CrossVersion.full),
+    addCompilerPlugin(ScalafixPlugin.autoImport.scalafixSemanticdb),
   )
 }

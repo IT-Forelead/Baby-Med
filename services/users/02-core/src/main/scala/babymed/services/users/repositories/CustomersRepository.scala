@@ -4,7 +4,10 @@ import babymed.domain.ID
 import babymed.effects.Calendar
 import babymed.effects.GenUUID
 import babymed.exception.CustomerError
-import babymed.services.users.domain.{CreateCustomer, Customer, CustomerWithAddress, SearchFilters}
+import babymed.services.users.domain.CreateCustomer
+import babymed.services.users.domain.Customer
+import babymed.services.users.domain.CustomerWithAddress
+import babymed.services.users.domain.SearchFilters
 import babymed.services.users.domain.types.CustomerId
 import babymed.services.users.repositories.sql.CustomersSql
 import babymed.support.skunk.syntax.all._

@@ -1,9 +1,12 @@
 import com.typesafe.sbt.packager.Keys._
 import com.typesafe.sbt.packager.archetypes.JavaAppPackaging
-import com.typesafe.sbt.packager.docker.{DockerChmodType, DockerPlugin}
-import com.typesafe.sbt.packager.docker.DockerPlugin.autoImport.{Docker, dockerChmodType}
+import com.typesafe.sbt.packager.docker.DockerChmodType
+import com.typesafe.sbt.packager.docker.DockerPlugin
+import com.typesafe.sbt.packager.docker.DockerPlugin.autoImport.Docker
+import com.typesafe.sbt.packager.docker.DockerPlugin.autoImport.dockerChmodType
+import sbt.Def
 import sbt.Keys._
-import sbt.{Def, _}
+import sbt._
 
 object DockerImagePlugin extends AutoPlugin {
   object autoImport {

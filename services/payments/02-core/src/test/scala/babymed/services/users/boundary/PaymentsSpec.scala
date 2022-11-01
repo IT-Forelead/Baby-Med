@@ -1,9 +1,12 @@
 package babymed.services.users.boundary
 
 import babymed.services.payments.boundary.Payments
-import babymed.services.payments.domain.{CreatePayment, Payment, PaymentWithCustomer, SearchFilters}
-import babymed.services.payments.repositories.PaymentsRepository
+import babymed.services.payments.domain.CreatePayment
+import babymed.services.payments.domain.Payment
+import babymed.services.payments.domain.PaymentWithCustomer
+import babymed.services.payments.domain.SearchFilters
 import babymed.services.payments.generators.PaymentGenerator
+import babymed.services.payments.repositories.PaymentsRepository
 import babymed.test.TestSuite
 import cats.effect.kernel.Sync
 import org.scalacheck.Gen
@@ -52,5 +55,4 @@ object PaymentsSpec extends TestSuite with PaymentGenerator {
           .as(failure("Test failed!"))
       }
   }
-
 }

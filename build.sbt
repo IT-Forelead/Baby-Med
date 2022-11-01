@@ -27,7 +27,7 @@ lazy val common = project
         Derevo.all ++
         Seq(
           Libraries.`monocle-core`,
-            Libraries.squants
+          Libraries.squants,
         ),
   )
 
@@ -59,3 +59,11 @@ lazy val `test-tools` = project
         Libraries.Skunk.all,
   )
   .dependsOn(common)
+
+Global / lintUnusedKeysOnLoad := false
+Global / onChangedBuildSource := ReloadOnSourceChanges
+
+ThisBuild / scalafixDependencies += Dependencies.Libraries.`organize-imports`
+ThisBuild / scalafixScalaBinaryVersion := scalaBinaryVersion.value
+ThisBuild / semanticdbEnabled          := true
+ThisBuild / semanticdbVersion          := scalafixSemanticdb.revision

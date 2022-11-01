@@ -21,7 +21,6 @@ import io.circe.refined._
 import io.estatico.newtype.macros.newtype
 
 object types {
-
   @derive(configDecoder, show)
   @newtype case class JwtAccessTokenKey(secret: NonEmptyString)
   @newtype case class TokenExpiration(value: FiniteDuration)

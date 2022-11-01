@@ -1,14 +1,14 @@
 package babymed.services.users.setup
 
-import cats.effect.Async
-import cats.implicits._
 import babymed.domain.AppMode
-import babymed.util.ConfigDecoders.appModeConfigDecoder
-import babymed.syntax.refined.commonSyntaxAutoRefineV
 import babymed.support.services.http4s.HttpServerConfig
 import babymed.support.services.rpc.GrpcServerConfig
 import babymed.support.skunk.DataBaseConfig
 import babymed.syntax.all.circeConfigDecoder
+import babymed.syntax.refined.commonSyntaxAutoRefineV
+import babymed.util.ConfigDecoders.appModeConfigDecoder
+import cats.effect.Async
+import cats.implicits._
 import ciris._
 import ciris.refined.refTypeConfigDecoder
 import eu.timepit.refined.types.string.NonEmptyString

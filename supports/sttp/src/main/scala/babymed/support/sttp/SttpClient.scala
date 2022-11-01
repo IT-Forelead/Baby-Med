@@ -2,10 +2,10 @@ package babymed.support.sttp
 
 import java.net.URI
 
+import babymed.support.sttp.SttpRequestBody._
 import cats.Show
 import cats.effect.Sync
 import cats.implicits._
-import babymed.support.sttp.SttpRequestBody._
 import io.circe.Decoder
 import io.circe.Json
 import org.typelevel.log4cats.Logger

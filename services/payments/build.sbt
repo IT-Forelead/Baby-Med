@@ -1,6 +1,6 @@
 import Dependencies.Libraries
 
-name := "users"
+name         := "payments"
 organization := "baby-med"
 scalaVersion := "2.13.10"
 scalacOptions += "-language:higherKinds"
@@ -15,13 +15,13 @@ lazy val `services_payments-domain` = project
         Libraries.Circe.all ++
         Seq(
           Libraries.`tsec-pass-hasher`,
-          Libraries.newtype
-        )
+          Libraries.newtype,
+        ),
   )
   .dependsOn(
     LocalProject("common"),
     LocalProject("services_users-domain"),
-    LocalProject("test-tools")
+    LocalProject("test-tools"),
   )
 
 lazy val `services_payments-protocol` =
@@ -32,7 +32,7 @@ lazy val `services_payments-protocol` =
       scalacOptions ++= Seq("-Ymacro-annotations"),
       libraryDependencies ++= Seq(
         Libraries.`cats-tagless-macros`
-      )
+      ),
     )
     .enablePlugins(SrcGenPlugin)
 
@@ -45,7 +45,7 @@ lazy val `services_payments-core` =
     .dependsOn(
       `services_payments-protocol`,
       LocalProject("supports_skunk"),
-      LocalProject("test-tools") % Test
+      LocalProject("test-tools") % Test,
     )
 
 lazy val `services_payments-server` =
@@ -70,5 +70,5 @@ aggregateProjects(
   `services_payments-protocol`,
   `services_payments-core`,
   `services_payments-server`,
-  `services_payments-runner`
+  `services_payments-runner`,
 )

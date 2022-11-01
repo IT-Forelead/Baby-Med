@@ -1,6 +1,6 @@
 import Dependencies.Libraries
 
-name := "users"
+name         := "users"
 organization := "baby-med"
 scalaVersion := "2.13.10"
 
@@ -13,12 +13,12 @@ lazy val `services_users-domain` = project
         Libraries.Circe.all ++
         Seq(
           Libraries.`tsec-pass-hasher`,
-          Libraries.newtype
+          Libraries.newtype,
         )
   )
   .dependsOn(
     LocalProject("common"),
-    LocalProject("test-tools")
+    LocalProject("test-tools"),
   )
 
 lazy val `services_users-protocol` =
@@ -29,7 +29,7 @@ lazy val `services_users-protocol` =
       scalacOptions ++= Seq("-Ymacro-annotations"),
       libraryDependencies ++= Seq(
         Libraries.`cats-tagless-macros`
-      )
+      ),
     )
     .enablePlugins(SrcGenPlugin)
 
@@ -42,7 +42,7 @@ lazy val `services_users-core` =
     .dependsOn(
       `services_users-protocol`,
       LocalProject("supports_skunk"),
-      LocalProject("test-tools") % Test
+      LocalProject("test-tools") % Test,
     )
 
 lazy val `services_users-server` =
@@ -67,5 +67,5 @@ aggregateProjects(
   `services_users-protocol`,
   `services_users-core`,
   `services_users-server`,
-  `services_users-runner`
+  `services_users-runner`,
 )

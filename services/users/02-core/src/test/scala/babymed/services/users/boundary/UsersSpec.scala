@@ -1,7 +1,9 @@
 package babymed.services.users.boundary
 
 import babymed.refinements.Phone
-import babymed.services.users.domain.{CreateUser, User, UserAndHash}
+import babymed.services.users.domain.CreateUser
+import babymed.services.users.domain.User
+import babymed.services.users.domain.UserAndHash
 import babymed.services.users.generators.UserGenerators
 import babymed.services.users.repositories.UsersRepository
 import babymed.test.TestSuite
@@ -38,5 +40,4 @@ object UsersSpec extends TestSuite with UserGenerators {
           .as(failure("Test failed!"))
       }
   }
-
 }

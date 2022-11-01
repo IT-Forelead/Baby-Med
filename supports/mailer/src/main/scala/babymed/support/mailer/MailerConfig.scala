@@ -1,10 +1,10 @@
 package babymed.support.mailer
 
-import cats.implicits._
 import babymed.refinements.EmailAddress
 import babymed.support.mailer.data.types.Host
 import babymed.support.mailer.data.types.Password
 import babymed.syntax.all.circeConfigDecoder
+import cats.implicits._
 import ciris._
 import eu.timepit.refined.types.net.SystemPortNumber
 import io.circe.refined._
@@ -18,7 +18,6 @@ case class MailerConfig(
     recipients: List[EmailAddress],
   )
 object MailerConfig {
-
   def configValues(serviceName: String): ConfigValue[Effect, MailerConfig] = (
     env(s"${serviceName}_MAILER_HOST").as[Host],
     env(s"${serviceName}_MAILER_PORT").as[SystemPortNumber],

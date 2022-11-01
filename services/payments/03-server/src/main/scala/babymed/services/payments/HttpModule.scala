@@ -1,5 +1,8 @@
 package babymed.services.payments
 
+import babymed.support.services.http4s.HealthHttpRoutes
+import babymed.support.services.http4s.HttpServer
+import babymed.support.services.http4s.HttpServerConfig
 import cats.Monad
 import cats.MonadThrow
 import cats.data.NonEmptyList
@@ -7,9 +10,6 @@ import cats.effect.Async
 import cats.effect.ExitCode
 import cats.effect.kernel.Resource
 import cats.implicits.toFunctorOps
-import babymed.support.services.http4s.HealthHttpRoutes
-import babymed.support.services.http4s.HttpServer
-import babymed.support.services.http4s.HttpServerConfig
 import org.http4s.HttpRoutes
 import org.http4s.circe.JsonDecoder
 import org.typelevel.log4cats.Logger

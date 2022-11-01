@@ -183,10 +183,12 @@ object Dependencies {
     lazy val `monocle-core` = "dev.optics"             %% "monocle-core"  % Versions.monocle
     lazy val `http4s-jwt-auth` = "dev.profunktor" %% "http4s-jwt-auth" % Versions.`http4s-jwt-auth`
     lazy val mailer = "javax.mail"                 % "mail"            % Versions.mailer
-    lazy val squants = "org.typelevel"            %% "squants" % Versions.squants
+    lazy val squants = "org.typelevel"            %% "squants"         % Versions.squants
     lazy val izumi = "dev.zio"                    %% "izumi-reflect"   % Versions.izumi
 
     lazy val `cats-tagless-macros` =
       "org.typelevel" %% "cats-tagless-macros" % Versions.`cats-tagless`
+
+    lazy val `organize-imports` = "com.github.liancheng" %% "organize-imports" % "0.6.0"
   }
 }

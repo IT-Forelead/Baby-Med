@@ -1,8 +1,8 @@
 package babymed.services.auth.utils
 
-import cats.effect.Sync
-
 import java.time.Clock
+
+import cats.effect.Sync
 
 trait JwtClock[F[_]] {
   def utc: F[Clock]

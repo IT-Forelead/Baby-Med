@@ -1,11 +1,11 @@
 package babymed.services.payments.setup
 
-import cats.implicits.toFlatMapOps
-import cats.effect.Concurrent
-import cats.effect.Resource
-import cats.effect.MonadCancel
-import cats.effect.std.Console
 import babymed.support.skunk.DataBaseConfig
+import cats.effect.Concurrent
+import cats.effect.MonadCancel
+import cats.effect.Resource
+import cats.effect.std.Console
+import cats.implicits.toFlatMapOps
 import eu.timepit.refined.auto.autoUnwrap
 import fs2.io.net.Network
 import natchez.Trace.Implicits.noop

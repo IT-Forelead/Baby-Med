@@ -12,19 +12,19 @@ import scala.concurrent.duration.DurationInt
 import scala.concurrent.duration.DurationLong
 import scala.jdk.CollectionConverters.MapHasAsJava
 
-import cats.effect.Async
-import cats.effect.Sync
-import cats.implicits._
 import babymed.support.mailer.data.Props.SmtpConnectionTimeoutKey
 import babymed.support.mailer.data._
 import babymed.support.mailer.exception.DeliverFailure.AuthenticationFailed
 import babymed.support.mailer.exception.InvalidAddress
 import babymed.support.mailer.retries.Retry
+import cats.effect.Async
+import cats.effect.Sync
+import cats.implicits._
+import eu.timepit.refined.auto.autoUnwrap
 import org.typelevel.log4cats.Logger
 import retry.RetryPolicies.exponentialBackoff
 import retry.RetryPolicies.limitRetries
 import retry.RetryPolicy
-import eu.timepit.refined.auto.autoUnwrap
 
 trait Mailer[F[_]] {
   def send(email: Email): F[Unit]

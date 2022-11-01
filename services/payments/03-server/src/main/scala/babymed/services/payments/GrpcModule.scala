@@ -1,11 +1,11 @@
 package babymed.services.payments
 
 import babymed.services.payments.boundary.Payments
+import babymed.support.services.rpc.GrpcServer
+import babymed.support.services.rpc.GrpcServerConfig
 import cats.effect.Async
 import cats.effect.ExitCode
 import cats.effect.Resource
-import babymed.support.services.rpc.GrpcServer
-import babymed.support.services.rpc.GrpcServerConfig
 import io.grpc.ServerServiceDefinition
 
 case class GrpcModule(services: List[ServerServiceDefinition]) {

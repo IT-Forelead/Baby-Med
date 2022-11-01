@@ -1,6 +1,10 @@
 package babymed.services.users.generators
 
-import babymed.services.users.domain.{CreateCustomer, Customer, CustomerWithAddress, Region, Town}
+import babymed.services.users.domain.CreateCustomer
+import babymed.services.users.domain.Customer
+import babymed.services.users.domain.CustomerWithAddress
+import babymed.services.users.domain.Region
+import babymed.services.users.domain.Town
 import org.scalacheck.Gen
 
 trait CustomerGenerators extends TypeGen {
@@ -31,14 +35,14 @@ trait CustomerGenerators extends TypeGen {
   def regionGen: Gen[Region] =
     Region(
       id = regionIdGen.get,
-      name = regionNameGen.get
+      name = regionNameGen.get,
     )
 
   def townGen: Gen[Town] =
     Town(
       id = townIdGen.get,
       regionId = regionIdGen.get,
-      name = townNameGen.get
+      name = townNameGen.get,
     )
 
   def customerWithAddressGen: Gen[CustomerWithAddress] =

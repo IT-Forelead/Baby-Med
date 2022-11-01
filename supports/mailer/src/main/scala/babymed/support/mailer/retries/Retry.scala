@@ -3,7 +3,9 @@ package babymed.support.mailer.retries
 import java.net.SocketTimeoutException
 import java.net.UnknownHostException
 import javax.mail.MessagingException
-import cats.{Applicative, MonadError}
+
+import cats.Applicative
+import cats.MonadError
 import cats.effect.Temporal
 import org.typelevel.log4cats.Logger
 import retry.RetryDetails._

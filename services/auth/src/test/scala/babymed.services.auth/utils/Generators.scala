@@ -5,7 +5,7 @@ import babymed.syntax.refined.commonSyntaxAutoRefineV
 import babymed.test.generators.CommonGenerators
 import org.scalacheck.Gen
 
-object Generators extends CommonGenerators{
+object Generators extends CommonGenerators {
   val credentialsGen: Gen[Credentials] = for {
     s0 <- phoneGen
     s1 <- nonEmptyStringGen(8)

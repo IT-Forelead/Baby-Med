@@ -17,5 +17,4 @@ trait UsersTypeGen extends Generators {
   val roleGen: Gen[Role] = Gen.oneOf(Role.values)
   val regionNameGen: Gen[RegionName] = nonEmptyString.map(RegionName(_))
   val townNameGen: Gen[TownName] = nonEmptyString.map(TownName(_))
-
 }

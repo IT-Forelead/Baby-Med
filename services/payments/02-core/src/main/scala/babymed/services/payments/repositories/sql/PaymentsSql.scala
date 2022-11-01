@@ -1,16 +1,22 @@
 package babymed.services.payments.repositories.sql
 
-import babymed.services.payments.domain.{CreatePayment, Payment, PaymentWithCustomer, SearchFilters}
+import java.time.LocalDateTime
+
+import babymed.services.payments.domain.CreatePayment
+import babymed.services.payments.domain.Payment
+import babymed.services.payments.domain.PaymentWithCustomer
+import babymed.services.payments.domain.SearchFilters
 import babymed.services.payments.domain.types.PaymentId
 import babymed.services.users.domain.Customer
-import babymed.services.users.domain.types.{CustomerId, RegionId, TownId}
+import babymed.services.users.domain.types.CustomerId
+import babymed.services.users.domain.types.RegionId
+import babymed.services.users.domain.types.TownId
 import babymed.support.skunk.codecs.phone
 import babymed.support.skunk.syntax.all.skunkSyntaxFragmentOps
 import skunk._
-import skunk.codec.all.{date, timestamp}
+import skunk.codec.all.date
+import skunk.codec.all.timestamp
 import skunk.implicits._
-
-import java.time.LocalDateTime
 
 object PaymentsSql {
   val paymentId: Codec[PaymentId] = identity[PaymentId]
@@ -43,12 +49,13 @@ object PaymentsSql {
   }
 
   val insert: Query[PaymentId ~ LocalDateTime ~ CreatePayment, Payment] =
-    sql"""INSERT INTO payments VALUES ($encoder) RETURNING id, created_at, customer_id, price""".query(decoder)
+    sql"""INSERT INTO payments VALUES ($encoder) RETURNING id, created_at, customer_id, price"""
+      .query(decoder)
 
   private def searchFilter(filters: SearchFilters): List[Option[AppliedFragment]] =
     List(
       filters.startDate.map(sql"created_at >= $timestamp"),
-      filters.endDate.map(sql"created_at <= $timestamp")
+      filters.endDate.map(sql"created_at <= $timestamp"),
     )
 
   def select(filters: SearchFilters): AppliedFragment = {
@@ -70,5 +77,4 @@ object PaymentsSql {
     val baseQuery: Fragment[Void] = sql"""SELECT count(*) FROM payments"""
     baseQuery(Void).whereAndOpt(searchFilter(filters): _*)
   }
-
 }

@@ -3,7 +3,9 @@ package babymed.services.payments.repositories
 import babymed.domain.Role
 import babymed.effects.IsUUID
 import babymed.services.payments.domain.types.UZS
-import babymed.services.users.domain.types.{Address, FirstName, LastName}
+import babymed.services.users.domain.types.Address
+import babymed.services.users.domain.types.FirstName
+import babymed.services.users.domain.types.LastName
 import eu.timepit.refined.types.string.NonEmptyString
 import skunk._
 import skunk.codec.all._
@@ -20,5 +22,4 @@ package object sql {
   val lastName: Codec[LastName] = nes.imap[LastName](LastName.apply)(_.value)
   val address: Codec[Address] = nes.imap[Address](Address.apply)(_.value)
   val role: Codec[Role] = `enum`[Role](_.value, Role.find, Type("role"))
-
 }

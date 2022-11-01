@@ -1,11 +1,11 @@
 package babymed.services.users
 
+import babymed.services.users.setup.ServiceEnvironment
 import cats.effect.ExitCode
 import cats.effect.IO
 import cats.effect.IOApp
 import cats.effect.Resource
 import cats.implicits.toTraverseOps
-import babymed.services.users.setup.ServiceEnvironment
 import org.typelevel.log4cats.Logger
 import org.typelevel.log4cats.slf4j.Slf4jLogger
 

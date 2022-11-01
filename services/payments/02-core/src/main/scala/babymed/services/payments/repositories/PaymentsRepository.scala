@@ -1,12 +1,18 @@
 package babymed.services.payments.repositories
 
 import babymed.domain.ID
-import babymed.effects.{Calendar, GenUUID}
+import babymed.effects.Calendar
+import babymed.effects.GenUUID
+import babymed.services.payments.domain.CreatePayment
+import babymed.services.payments.domain.Payment
+import babymed.services.payments.domain.PaymentWithCustomer
+import babymed.services.payments.domain.SearchFilters
 import babymed.services.payments.domain.types.PaymentId
-import babymed.services.payments.domain.{CreatePayment, Payment, PaymentWithCustomer, SearchFilters}
 import babymed.services.payments.repositories.sql.PaymentsSql
 import babymed.support.skunk.syntax.all._
-import cats.effect.{Concurrent, MonadCancel, Resource}
+import cats.effect.Concurrent
+import cats.effect.MonadCancel
+import cats.effect.Resource
 import cats.implicits._
 import skunk._
 import skunk.codec.all.int8
@@ -20,11 +26,10 @@ trait PaymentsRepository[F[_]] {
 
 object PaymentsRepository {
   def make[F[_]: GenUUID: Calendar: Concurrent](
-    implicit
-    session: Resource[F, Session[F]],
-    F: MonadCancel[F, Throwable],
-  ): PaymentsRepository[F] = new PaymentsRepository[F] {
-
+      implicit
+      session: Resource[F, Session[F]],
+      F: MonadCancel[F, Throwable],
+    ): PaymentsRepository[F] = new PaymentsRepository[F] {
     override def create(createPayment: CreatePayment): F[Payment] =
       for {
         id <- ID.make[F, PaymentId]
@@ -33,7 +38,8 @@ object PaymentsRepository {
       } yield payment
 
     override def get(searchFilters: SearchFilters): F[List[PaymentWithCustomer]] = {
-      val query = PaymentsSql.select(searchFilters).paginateOpt(searchFilters.limit, searchFilters.page)
+      val query =
+        PaymentsSql.select(searchFilters).paginateOpt(searchFilters.limit, searchFilters.page)
       query.fragment.query(PaymentsSql.decPaymentWithCustomer).queryList(query.argument)
     }
 
@@ -41,6 +47,5 @@ object PaymentsRepository {
       val query = PaymentsSql.total(filters)
       query.fragment.query(int8).queryUnique(query.argument)
     }
-
   }
 }

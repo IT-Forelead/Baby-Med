@@ -1,11 +1,11 @@
 package babymed.services.users.repositories
 
+import java.time.LocalDateTime
+
 import babymed.services.users.generators.UserGenerators
 import babymed.test.DBSuite
 import cats.effect.IO
 import weaver.Expectations
-
-import java.time.LocalDateTime
 
 object UserRepositorySpec extends DBSuite with UserGenerators {
   test("Create User") { implicit postgres =>
@@ -31,5 +31,4 @@ object UserRepositorySpec extends DBSuite with UserGenerators {
         }
         .handleError(fail("Should return product exchange"))
   }
-
 }

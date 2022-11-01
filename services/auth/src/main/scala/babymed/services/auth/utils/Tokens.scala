@@ -1,11 +1,12 @@
 package babymed.services.auth.utils
 
 import babymed.effects.GenUUID
-import cats.Monad
-import cats.syntax.all._
 import babymed.services.auth.domain.types.JwtAccessTokenKey
 import babymed.services.auth.domain.types.TokenExpiration
-import babymed.syntax.all.{genericSyntaxGenericTypeOps, optionSyntaxFunctorBooleanOps}
+import babymed.syntax.all.genericSyntaxGenericTypeOps
+import babymed.syntax.all.optionSyntaxFunctorBooleanOps
+import cats.Monad
+import cats.syntax.all._
 import dev.profunktor.auth.jwt._
 import eu.timepit.refined.auto._
 import pdi.jwt._

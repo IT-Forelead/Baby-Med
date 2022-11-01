@@ -3,10 +3,10 @@ package babymed.support.redis
 import scala.collection.mutable
 import scala.concurrent.duration.FiniteDuration
 
+import babymed.syntax.all.genericSyntaxGenericTypeOps
 import cats.effect.Sync
 import cats.implicits.catsSyntaxApplicativeId
 import cats.implicits.toFunctorOps
-import babymed.syntax.all.genericSyntaxGenericTypeOps
 import io.circe.Encoder
 
 object RedisClientMock {

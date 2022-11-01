@@ -9,5 +9,5 @@ lazy val services_payments = project.in(file("payments"))
 aggregateProjects(
   services_auth,
   services_users,
-  services_payments
+  services_payments,
 )

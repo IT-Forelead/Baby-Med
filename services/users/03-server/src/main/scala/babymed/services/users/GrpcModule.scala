@@ -1,11 +1,11 @@
 package babymed.services.users;
 
-import cats.effect.Async
-import cats.effect.ExitCode
-import cats.effect.Resource
 import babymed.services.users.boundary.Users
 import babymed.support.services.rpc.GrpcServer
 import babymed.support.services.rpc.GrpcServerConfig
+import cats.effect.Async
+import cats.effect.ExitCode
+import cats.effect.Resource
 import io.grpc.ServerServiceDefinition
 
 case class GrpcModule(services: List[ServerServiceDefinition]) {
