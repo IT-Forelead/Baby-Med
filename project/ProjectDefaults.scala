@@ -66,6 +66,7 @@ object ProjectDefaults extends AutoPlugin {
       "-Ywarn-value-discard", // Warn when non-Unit expression results are unused.
       "-Yrangepos",
       "-Ymacro-annotations",
+//      "-Xfatal-warnings",
       "-Wconf:" +
         "cat=deprecation:ws," +
         "cat=other-match-analysis:error," +

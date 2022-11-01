@@ -6,6 +6,7 @@ import babymed.services.payments.domain.PaymentWithCustomer
 import babymed.services.payments.domain.SearchFilters
 import babymed.support.services.service
 import babymed.support.services.syntax.marshaller.codec
+import higherkindness.mu.rpc.protocol.Custom
 
 @service(Custom)
 trait Payments[F[_]] {
