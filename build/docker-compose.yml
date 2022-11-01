@@ -4,7 +4,7 @@ services:
     image: nginx
     container_name: babymed_nginx
     volumes:
-      - /srv/nginx_conf:/etc/nginx/conf.d
+      - ./nginx:/etc/nginx/conf.d
     networks:
       - baby-net
       - external-net
@@ -65,7 +65,7 @@ services:
 
   babymed_services-users:
     restart: always
-    image: babymed_services-users:latest
+    image: babymed/services-users:latest
     container_name: babymed_services-users
     environment:
       APP_MODE: ${APP_MODE}

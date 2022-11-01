@@ -80,7 +80,7 @@ jobs:
           host: ${{ secrets.HOST }}
           username: ${{ secrets.USERNAME }}
           key: ${{ secrets.SSH_PRIVATE_KEY }}
-          source: "./build/*"
+          source: ".env, ./build/*"
           target: "babymed"
 
       - name: Install SSH key of timeweb
@@ -89,4 +89,7 @@ jobs:
           host: ${{ secrets.HOST }}
           username: ${{ secrets.USERNAME }}
           key: ${{ secrets.SSH_PRIVATE_KEY }}
-          script: ls
+          script: |
+            docker login -p ${{ secrets.DOCKER_PASSWORD }} -u ${{ secrets.DOCKER_USERNAME }}
+            cd ~/babymed/build/
+            bash run
