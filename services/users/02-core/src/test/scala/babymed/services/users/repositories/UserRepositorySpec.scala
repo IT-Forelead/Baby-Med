@@ -5,7 +5,6 @@ import java.time.LocalDateTime
 import babymed.services.users.generators.UserGenerators
 import babymed.test.DBSuite
 import cats.effect.IO
-import weaver.Expectations
 
 object UserRepositorySpec extends DBSuite with UserGenerators {
   test("Create User") { implicit postgres =>

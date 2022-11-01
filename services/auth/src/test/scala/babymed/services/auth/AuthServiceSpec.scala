@@ -12,6 +12,7 @@ import babymed.services.auth.impl.Auth
 import babymed.services.auth.utils.Generators.credentialsGen
 import babymed.services.auth.utils.JwtExpire
 import babymed.services.auth.utils.Tokens
+import babymed.services.users.domain.CreateUser
 import babymed.services.users.domain.User
 import babymed.services.users.domain.UserAndHash
 import babymed.services.users.generators.UserGenerators
@@ -41,7 +42,7 @@ object AuthServiceSpec extends HttpSuite with CommonGenerators with UserGenerato
   lazy val password: Password = passwordGen.sample.get
   lazy val credentials: Credentials = credentialsGen.sample.get
 
-  def users[F[_]: Sync](
+  def users(
       user: User,
       pass: Password,
       errorType: Option[String] = None,
@@ -60,6 +61,7 @@ object AuthServiceSpec extends HttpSuite with CommonGenerators with UserGenerato
           }
         case _ => Sync[F].raiseError(new Exception("Error type not found"))
       }
+    override def create(createUser: CreateUser): F[User] = ???
   }
 
   test("Login - success") {

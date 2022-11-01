@@ -9,15 +9,10 @@ import derevo.cats.show
 import derevo.derive
 import dev.profunktor.auth.jwt.JwtSymmetricAuth
 import dev.profunktor.auth.jwt.JwtToken
-import eu.timepit.refined.api.Refined
-import eu.timepit.refined.boolean.And
 import eu.timepit.refined.cats._
-import eu.timepit.refined.collection.NonEmpty
-import eu.timepit.refined.string.MatchesRegex
 import eu.timepit.refined.types.string.NonEmptyString
 import io.circe.Codec
 import io.circe.generic.semiauto.deriveCodec
-import io.circe.refined._
 import io.estatico.newtype.macros.newtype
 
 object types {

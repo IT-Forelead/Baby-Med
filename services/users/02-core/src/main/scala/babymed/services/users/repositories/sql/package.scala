@@ -3,15 +3,12 @@ package babymed.services.users.repositories
 import babymed.domain.Role
 import babymed.effects.IsUUID
 import babymed.services.users.domain.types._
-import cats.implicits._
 import eu.timepit.refined.types.string.NonEmptyString
 import skunk._
 import skunk.codec.all._
-import skunk.codec.all.int4
 import skunk.codec.all.uuid
 import skunk.codec.all.varchar
 import skunk.data.Type
-import skunk.implicits._
 import tsec.passwordhashers.PasswordHash
 import tsec.passwordhashers.jca.SCrypt
 

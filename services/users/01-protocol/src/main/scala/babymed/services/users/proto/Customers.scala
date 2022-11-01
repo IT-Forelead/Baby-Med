@@ -6,7 +6,6 @@ import babymed.services.users.domain.CustomerWithAddress
 import babymed.services.users.domain.SearchFilters
 import babymed.support.services.service
 import babymed.support.services.syntax.marshaller.codec
-import higherkindness.mu.rpc.protocol.Custom
 
 @service(Custom)
 trait Customers[F[_]] {

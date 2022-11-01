@@ -2,7 +2,6 @@ package babymed.services.auth.impl
 
 import scala.concurrent.duration.DurationInt
 
-import babymed.exception.AuthError
 import babymed.exception.AuthError.NoSuchUser
 import babymed.exception.AuthError.PasswordDoesNotMatch
 import babymed.services.auth.domain.Credentials
