@@ -3,8 +3,8 @@ on:
   push:
     branches: [ "master" ]
     # Publish semver tags as releases.
-  pull_request:
-    branches: [ "master" ]
+#  pull_request:
+#    branches: [ "master" ]
 jobs:
   test:
     name: TEST
