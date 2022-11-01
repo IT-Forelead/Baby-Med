@@ -1,19 +1,8 @@
-import Dependencies.Libraries._
 import Dependencies.Libraries
-
-lazy val projectSettings = Seq(
-  version           := "1.0",
-  scalaVersion      := "2.13.10",
-  organization      := "IT-Forelead",
-  scalafmtOnCompile := true,
-  scalacOptions ++= CompilerOptions.cOptions,
-  Test / compile / coverageEnabled    := true,
-  Compile / compile / coverageEnabled := false,
-)
+import Dependencies.Libraries._
 
 lazy val root = project
   .in(file("."))
-  .settings(projectSettings: _*)
   .settings(
     name := "baby-med"
   )
@@ -24,12 +13,27 @@ lazy val root = project
     `test-tools`,
   )
 
+addCommandAlias(
+  "styleCheck",
+  "all scalafmtSbtCheck; scalafmtCheckAll; Test / compile; scalafixAll --check",
+)
+
 lazy val common = project
   .in(file("common"))
-  .settings(projectSettings: _*)
   .settings(
     name := "common",
-    libraryDependencies ++= Cats.all ++ Logging.all ++ Circe.all,
+    libraryDependencies ++=
+      Cats.all ++
+        Logging.all ++
+        Circe.all ++
+        Refined.all ++
+        Enumeratum.all ++
+        Ciris.all ++
+        Derevo.all ++
+        Seq(
+          Libraries.`monocle-core`,
+          Libraries.squants,
+        ),
   )
 
 lazy val integrations = project
@@ -53,5 +57,18 @@ lazy val services = project
 lazy val `test-tools` = project
   .in(file("test"))
   .settings(
-    name := "test-tools"
+    name := "test-tools",
+    libraryDependencies ++=
+      Libraries.Testing.all ++
+        Libraries.Http4s.all ++
+        Libraries.Skunk.all,
   )
+  .dependsOn(common)
+
+Global / lintUnusedKeysOnLoad := false
+Global / onChangedBuildSource := ReloadOnSourceChanges
+
+ThisBuild / scalafixDependencies += Dependencies.Libraries.`organize-imports`
+ThisBuild / scalafixScalaBinaryVersion := scalaBinaryVersion.value
+ThisBuild / semanticdbEnabled          := true
+ThisBuild / semanticdbVersion          := scalafixSemanticdb.revision

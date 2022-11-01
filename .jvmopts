@@ -1,0 +1,8 @@
+-Xss1G
+-Xms1G
+-Xmx16G
+-XX:+UseG1GC
+-Duser.timezone="GMT"
+-XX:ReservedCodeCacheSize=384m
+-XX:+UseCodeCacheFlushing
+-XshowSettings:vm

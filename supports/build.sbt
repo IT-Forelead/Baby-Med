@@ -1,5 +1,6 @@
 name         := "supports"
 scalaVersion := "2.13.10"
+
 lazy val supports_sttp = project.in(file("sttp"))
 lazy val supports_redis = project.in(file("redis"))
 lazy val supports_services = project.in(file("services"))
