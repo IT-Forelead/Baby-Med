@@ -2,8 +2,8 @@
 docker network create external-net
 
 cd efk || exit
-docker-compose down
-docker-compose up -d
+docker compose down
+docker compose up -d
 
 #docker exec -ti efk_elasticsearch_1 bash bin/elasticsearch-setup-passwords auto
 #docker exec -ti efk_elasticsearch_1 bash bin/elasticsearch-certutil ca -s
