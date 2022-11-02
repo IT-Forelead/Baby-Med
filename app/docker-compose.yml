@@ -1,98 +1,126 @@
+version: "3.9"
+
+volumes:
+  esdata:
+
 services:
-  #  babymed:
-  #    restart: always
-  #    image: babymed:latest
-  #    network_mode: host
-  #    environment:
-  #      POSTGRES_HOST: ${POSTGRES_HOST}
-  #      POSTGRES_PORT: ${POSTGRES_PORT}
-  #      POSTGRES_USER: ${POSTGRES_USER}
-  #      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
-  #      POSTGRES_DATABASE: ${POSTGRES_DATABASE}
-  #      POSTGRES_POOL_SIZE: ${POSTGRES_POOL_SIZE}
-  #      HTTP_HEADER_LOG: ${HTTP_HEADER_LOG}
-  #      HTTP_BODY_LOG: ${HTTP_BODY_LOG}
-  #      HTTP_HOST: ${HTTP_HOST}
-  ##      HTTP_PORT: ${HTTP_PORT}
-  ##      REDIS_SERVER_URI: ${REDIS_SERVER_URI}
-  ##      ACCESS_TOKEN_SECRET_KEY: ${ACCESS_TOKEN_SECRET_KEY}
-  ##      JWT_SECRET_KEY: ${JWT_SECRET_KEY}
-  ##      JWT_TOKEN_EXPIRATION: ${JWT_TOKEN_EXPIRATION}
-  ##      ADMIN_USER_TOKEN: ${ADMIN_USER_TOKEN}
-  ##      PASSWORD_SALT: ${PASSWORD_SALT}
-  ##      MAILER_HOST: ${MAILER_HOST}
-  ##      MAILER_PORT: ${MAILER_PORT}
-  ##      MAILER_USERNAME: ${MAILER_USERNAME}
-  ##      MAILER_PASSWORD: ${MAILER_PASSWORD}
-  ##      MESSAGE_BROKER_API: ${MESSAGE_BROKER_API}
-  ##      MESSAGE_BROKER_USERNAME: ${MESSAGE_BROKER_USERNAME}
-  ##      MESSAGE_BROKER_PASSWORD: ${MESSAGE_BROKER_PASSWORD}
-  ##      MESSAGE_BROKER_ENABLED: ${MESSAGE_BROKER_ENABLED}
-  ##      SCHEDULER_START_TIME: ${SCHEDULER_START_TIME}
-  ##      SCHEDULER_PERIOD: ${SCHEDULER_PERIOD}
-  ##      AWS_ACCESS_KEY: ${AWS_ACCESS_KEY}
-  ##      AWS_SECRET_KEY: ${AWS_SECRET_KEY}
-  ##      AWS_ENDPOINT: ${AWS_ENDPOINT}
-  ##      AWS_SIGNING_REGION: ${AWS_SIGNING_REGION}
-  ##      AWS_BUCKET_NAME: ${AWS_BUCKET_NAME}
-  ##      APP_ENV: ${APP_ENV}
-  #    volumes:
-  #      - "/srv/workout/logs:/srv/workout/logs"
+  fluentd:
+    build: ./fluentd
+    container_name: fluentd
+    hostname: fluentd
+    links:
+      - elasticsearch
+    depends_on:
+      - elasticsearch
+    networks:
+      - external-net
+
+  elasticsearch:
+    image: elasticsearch:7.17.0
+    container_name: elasticsearch
+    hostname: elasticsearch
+    environment:
+      ES_JAVA_OPTS: "-Xmx256m -Xms256m"
+      discovery.type: "single-node"
+    volumes:
+      - esdata:/usr/share/elasticsearch/data
+      - ./elasticsearch.yml:/usr/share/elasticsearch/config/elasticsearch.yml
+      - ./elastic-certificates.p12:/usr/share/elasticsearch/config/elastic-certificates.p12
+    networks:
+      - external-net
+
+  kibana:
+    image: kibana:7.17.0
+    hostname: kibana
+    container_name: kibana
+    links:
+      - elasticsearch
+    depends_on:
+      - elasticsearch
+    environment:
+      - ELASTICSEARCH_HOSTS=http://elasticsearch:9200
+    volumes:
+      - ./kibana.yml:/usr/share/kibana/config/kibana.yml
+    networks:
+      - external-net
+
+  nginx-server:
+    depends_on:
+      - fluentd
+    image: nginx
+    container_name: nginx
+    volumes:
+      - ./nginx:/etc/nginx/conf.d
+    networks:
+      - external-net
+    ports:
+      - "80:80"
+    logging:
+      driver: fluentd
+      options:
+        fluentd-address: fluentd:24224
+        fluentd-async-connect: "true"
+        fluentd-retry-wait: 1s
+        fluentd-max-retries: 30
+        tag: fluent
+
   postgres:
+    depends_on:
+     - fluentd
     restart: always
     image: postgres:12
-    container_name: babymed_db
-    ports:
-      - ${POSTGRES_PORT}:5432
+    container_name: postgres
+    hostname: postgres
     environment:
-      POSTGRES_USER: ${POSTGRES_USER}
-      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
-      POSTGRES_DB: ${POSTGRES_DATABASE}
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: 123
     volumes:
-      - ./tables.sql:/docker-entrypoint-initdb.d/init.sql
-      - ./data:/var/lib/postgresql/data
+      - "./data:/var/lib/postgresql/data"
     healthcheck:
-      test: [ "CMD-SHELL", "pg_isready -U ${POSTGRES_USER}" ]
+      test: [ "CMD-SHELL", "pg_isready -U postgres" ]
       interval: 5s
       timeout: 5s
       retries: 5
+    networks:
+      - external-net
+    logging:
+      driver: fluentd
+      options:
+        fluentd-address: fluentd:24224
+        fluentd-async-connect: "true"
+        fluentd-retry-wait: 1s
+        fluentd-max-retries: 30
+        tag: fluent
 
-#  redis:
-#    restart: always
-#    image: redis:6.2.6
-#    ports:
-#      - "6379:6379"
-#    environment:
-#      - DEBUG=false
-#    healthcheck:
-#      test: ["CMD", "redis-cli", "ping"]
-#      interval: 1s
-#      timeout: 3s
-#      retries: 30
+  redis:
+    depends_on:
+      - fluentd
+    restart: always
+    image: redis:6.2.6
+    container_name: redis
+    hostname: redis
+    ports:
+      - "6379:6379"
+    environment:
+      - DEBUG:false
+    healthcheck:
+      test: [ "CMD", "redis-cli", "ping" ]
+      interval: 1s
+      timeout: 3s
+      retries: 30
+    networks:
+      - external-net
+    logging:
+      driver: fluentd
+      options:
+        fluentd-address: fluentd:24224
+        fluentd-async-connect: "true"
+        fluentd-retry-wait: 1s
+        fluentd-max-retries: 30
+        tag: fluent
 
-#  localstack:
-#    container_name: "s3-for-workout"
-#    image: localstack/localstack
-#    network_mode: bridge
-#    ports:
-#      - "127.0.0.1:4566:4566"
-#    environment:
-#      - SERVICES=s3
-#      - DATA_DIR=/srv/workout/s3_storage/data
-#      - DEBUG=1
-#    volumes:
-#      - ./buckets:/docker-entrypoint-initaws.d
-#      - /srv/workout/s3_storage:/tmp/localstack
-#    restart: always
 
-#  frontend:
-#    image: workout-frontend:latest
-#    ports:
-#      - "3001:80"
-#    restart: always
-
-#  nginx-server:
-#    image: nginx
-#    network_mode: host
-#    volumes:
-#      - /srv/nginx_conf:/etc/nginx/conf.d
+networks:
+  external-net:
+    external:
+      name: external-net
