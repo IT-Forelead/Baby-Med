@@ -83,13 +83,15 @@ object CustomersSql {
        towns.name
         FROM customers
         INNER JOIN regions ON customers.region_id = regions.id
-        INNER JOIN towns ON customers.town_id = towns.id"""
+        INNER JOIN towns ON customers.town_id = towns.id
+        WHERE customers.deleted = false"""
 
     baseQuery(Void).whereAndOpt(searchFilter(filters): _*)
   }
 
   def total(filters: SearchFilters): AppliedFragment = {
-    val baseQuery: Fragment[Void] = sql"""SELECT count(*) FROM customers"""
+    val baseQuery: Fragment[Void] =
+      sql"""SELECT count(*) FROM customers WHERE deleted = false"""
     baseQuery(Void).whereAndOpt(searchFilter(filters): _*)
   }
 

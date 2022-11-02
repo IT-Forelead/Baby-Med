@@ -70,12 +70,13 @@ object PaymentsSql {
          customers.address,
          customers.birthday,
          customers.phone FROM payments
-       INNER JOIN customers ON payments.customer_id = customers.id"""
+       INNER JOIN customers ON payments.customer_id = customers.id
+       WHERE payments.deleted = false"""
     baseQuery(Void).whereAndOpt(searchFilter(filters): _*)
   }
 
   def total(filters: SearchFilters): AppliedFragment = {
-    val baseQuery: Fragment[Void] = sql"""SELECT count(*) FROM payments"""
+    val baseQuery: Fragment[Void] = sql"""SELECT count(*) FROM payments WHERE deleted = false"""
     baseQuery(Void).whereAndOpt(searchFilter(filters): _*)
   }
 }
