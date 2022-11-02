@@ -64,4 +64,32 @@ object CustomerRepositorySpec extends DBSuite with CustomerGenerators {
           fail("Test failed.")
         }
   }
+
+  test("Get All Regions") { implicit postgres =>
+    val repo = CustomersRepository.make[F]
+    repo
+      .getRegions
+      .map { regions =>
+        assert(regions.nonEmpty)
+      }
+      .handleError { error =>
+        println("ERROR::::::::::::::::::: " + error)
+        failure("Test failed.")
+      }
+  }
+
+  test("Get Towns by RegionId") { implicit postgres =>
+    val repo = CustomersRepository.make[F]
+    val defaultRegionId: RegionId =
+      RegionId(UUID.fromString("ad514b71-3096-4be5-a455-d87abbb081b2"))
+    repo
+      .getTownsByRegionId(defaultRegionId)
+      .map { towns =>
+        assert(towns.nonEmpty)
+      }
+      .handleError { error =>
+        println("ERROR::::::::::::::::::: " + error)
+        failure("Test failed.")
+      }
+  }
 }

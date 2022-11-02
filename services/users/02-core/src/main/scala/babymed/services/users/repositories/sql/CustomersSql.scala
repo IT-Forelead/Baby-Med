@@ -97,4 +97,12 @@ object CustomersSql {
     sql"""INSERT INTO customers VALUES ($encoder)
          RETURNING id, created_at, firstname, lastname, region_id, town_id, address, birthday, phone"""
       .query(decoder)
+
+  val selectRegions: Query[Void, Region] =
+    sql"""SELECT id, name FROM regions WHERE deleted = false ORDER BY name ASC"""
+      .query(decRegion)
+
+  val selectTownsByRegionId: Query[RegionId, Town] =
+    sql"""SELECT id, region_id, name FROM towns WHERE region_id = $regionId AND deleted = false ORDER BY name ASC"""
+      .query(decTown)
 }
