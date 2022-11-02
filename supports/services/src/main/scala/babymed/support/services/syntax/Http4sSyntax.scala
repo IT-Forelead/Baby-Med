@@ -1,7 +1,6 @@
 package babymed.support.services.syntax
 
-import java.time.ZonedDateTime
-
+import java.time.{LocalDateTime, ZonedDateTime}
 import babymed.exception.MultipartDecodeError
 import babymed.support.services.http4s.utils.MapConvert
 import babymed.support.services.http4s.utils.MapConvert.ValidationResult
@@ -39,6 +38,9 @@ trait Http4sSyntax {
 
   implicit val zonedDateTimeQueryParamDecoder: QueryParamDecoder[ZonedDateTime] =
     QueryParamDecoder[String].map(ZonedDateTime.parse)
+
+  implicit val localDateTimeQueryParamDecoder: QueryParamDecoder[LocalDateTime] =
+    QueryParamDecoder[String].map(LocalDateTime.parse)
 }
 
 final class RequestOps[F[_]: JsonDecoder: MonadThrow](private val request: Request[F])
