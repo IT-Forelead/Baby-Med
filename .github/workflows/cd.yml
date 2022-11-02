@@ -56,13 +56,34 @@ jobs:
         java:
           - graalvm11-ce
     steps:
-      - uses: actions/checkout@v3
+      - name: Checkout current branch (fast)
+        uses: actions/checkout@v3
 
-      - name: "Cache for sbt & coursier ♨️"
-        uses: coursier/cache-action@v6
+      - name: Download Java (temurin@11)
+        id: download-java-temurin-11
+        uses: typelevel/download-java@v1
+        with:
+          distribution: temurin
+          java-version: 11
 
-      - name: "Install Nix ❄️"
-        uses: cachix/install-nix-action@v18
+      - name: Setup Java (temurin@11)
+        uses: actions/setup-java@v2
+        with:
+          distribution: jdkfile
+          java-version: 11
+          jdkFile: ${{ steps.download-java-temurin-11.outputs.jdkFile }}
+
+      - name: Cache sbt
+        uses: actions/cache@v2
+        with:
+          path: |
+            ~/.sbt
+            ~/.ivy2/cache
+            ~/.coursier/cache/v1
+            ~/.cache/coursier/v1
+            ~/AppData/Local/Coursier/Cache/v1
+            ~/Library/Caches/Coursier/v1
+          key: ${{ runner.os }}-sbt-cache-v2-${{ hashFiles('**/*.sbt') }}-${{ hashFiles('project/build.properties') }}
 
       - name: Log in to Docker Hub
         uses: docker/login-action@v2
@@ -70,20 +91,20 @@ jobs:
           username: ${{ secrets.DOCKER_USERNAME }}
           password: ${{ secrets.DOCKER_PASSWORD }}
 
-      - name: "Install Cachix ❄️"
-        uses: cachix/cachix-action@v12
-        with:
-          name: http4s-server
-          signingKey: "${{ secrets.CACHIX_SIGNING_KEY }}"
-
       - name: "Build base image 🏗"
-        run: nix-shell --argstr jdk "${{ matrix.java }}" --run "cd build/; bash base-image;"
+        run: |
+          cd build/
+          bash base-image
 
       - name: "Publish local 🏗"
-        run: nix-shell --argstr jdk "${{ matrix.java }}" --run "cd build/; bash build"
+        run: |
+          cd build/
+          bash build
 
       - name: Publishing images ...
-        run: nix-shell --argstr jdk "${{ matrix.java }}" --run "cd build/; bash publish push -f babymed/services -t latest;"
+        run: |
+          cd build/
+          bash publish push -f babymed/services -t latest
 
   deploy:
     name: DEPLOY

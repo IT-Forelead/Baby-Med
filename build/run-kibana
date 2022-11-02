@@ -5,7 +5,7 @@ cd efk || exit
 docker-compose down
 docker-compose up -d
 
-#echo $(docker exec -ti efk_elasticsearch_1 bash bin/elasticsearch-setup-passwords auto -s) > keys.txt
+#docker exec -ti efk_elasticsearch_1 bash bin/elasticsearch-setup-passwords auto
 #docker exec -ti efk_elasticsearch_1 bash bin/elasticsearch-certutil ca -s
 #docker exec -ti efk_elasticsearch_1 bash bin/elasticsearch-certutil cert --ca elastic-stack-ca.p12 -s
 #docker cp "$(docker-compose ps -q elasticsearch)":/usr/share/elasticsearch/elastic-certificates.p12 .
