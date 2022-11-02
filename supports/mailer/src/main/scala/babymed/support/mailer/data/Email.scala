@@ -1,8 +1,9 @@
 package babymed.support.mailer.data
 
+import cats.data.NonEmptyList
+
 import babymed.refinements.EmailAddress
 import babymed.support.mailer.data.types.Subject
-import cats.data.NonEmptyList
 
 /** Represents the e-mail message itself.
   *

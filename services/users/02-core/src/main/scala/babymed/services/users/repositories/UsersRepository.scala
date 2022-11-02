@@ -2,6 +2,14 @@ package babymed.services.users.repositories
 
 import java.time.LocalDateTime
 
+import cats.effect.MonadCancel
+import cats.effect.Resource
+import cats.effect.Sync
+import cats.implicits._
+import skunk._
+import skunk.implicits.toIdOps
+import tsec.passwordhashers.jca.SCrypt
+
 import babymed.domain.ID
 import babymed.refinements.Phone
 import babymed.services.users.domain.CreateUser
@@ -11,13 +19,6 @@ import babymed.services.users.domain.types.UserId
 import babymed.support.skunk.syntax.all.skunkSyntaxQueryOps
 import babymed.syntax.refined.commonSyntaxAutoUnwrapV
 import babymed.util.RandomGenerator
-import cats.effect.MonadCancel
-import cats.effect.Resource
-import cats.effect.Sync
-import cats.implicits._
-import skunk._
-import skunk.implicits.toIdOps
-import tsec.passwordhashers.jca.SCrypt
 
 trait UsersRepository[F[_]] {
   def create(createUser: CreateUser): F[User]

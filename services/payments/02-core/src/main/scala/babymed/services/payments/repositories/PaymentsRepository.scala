@@ -1,5 +1,13 @@
 package babymed.services.payments.repositories
 
+import cats.effect.Concurrent
+import cats.effect.MonadCancel
+import cats.effect.Resource
+import cats.implicits._
+import skunk._
+import skunk.codec.all.int8
+import skunk.implicits._
+
 import babymed.domain.ID
 import babymed.effects.Calendar
 import babymed.effects.GenUUID
@@ -10,13 +18,6 @@ import babymed.services.payments.domain.SearchFilters
 import babymed.services.payments.domain.types.PaymentId
 import babymed.services.payments.repositories.sql.PaymentsSql
 import babymed.support.skunk.syntax.all._
-import cats.effect.Concurrent
-import cats.effect.MonadCancel
-import cats.effect.Resource
-import cats.implicits._
-import skunk._
-import skunk.codec.all.int8
-import skunk.implicits._
 
 trait PaymentsRepository[F[_]] {
   def create(createPayment: CreatePayment): F[Payment]

@@ -1,8 +1,5 @@
 package babymed.services.users.repositories
 
-import babymed.domain.Role
-import babymed.effects.IsUUID
-import babymed.services.users.domain.types._
 import eu.timepit.refined.types.string.NonEmptyString
 import skunk._
 import skunk.codec.all._
@@ -11,6 +8,10 @@ import skunk.codec.all.varchar
 import skunk.data.Type
 import tsec.passwordhashers.PasswordHash
 import tsec.passwordhashers.jca.SCrypt
+
+import babymed.domain.Role
+import babymed.effects.IsUUID
+import babymed.services.users.domain.types._
 
 package object sql {
   def identity[A: IsUUID]: Codec[A] = uuid.imap[A](IsUUID[A].uuid.get)(IsUUID[A].uuid.apply)

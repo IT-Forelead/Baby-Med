@@ -2,7 +2,6 @@ package babymed.services.users.domain
 
 import java.util.UUID
 
-import babymed.effects.uuid
 import derevo.cats.eqv
 import derevo.cats.show
 import derevo.circe.magnolia.decoder
@@ -12,6 +11,8 @@ import eu.timepit.refined.cats._
 import eu.timepit.refined.types.all.NonEmptyString
 import io.circe.refined._
 import io.estatico.newtype.macros.newtype
+
+import babymed.effects.uuid
 
 object types {
   @derive(decoder, encoder, eqv, show, uuid)

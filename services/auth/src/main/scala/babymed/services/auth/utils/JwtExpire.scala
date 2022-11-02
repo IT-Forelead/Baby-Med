@@ -1,9 +1,10 @@
 package babymed.services.auth.utils
 
-import babymed.services.auth.domain.types.TokenExpiration
 import cats.effect.Sync
 import cats.syntax.all._
 import pdi.jwt.JwtClaim
+
+import babymed.services.auth.domain.types.TokenExpiration
 
 trait JwtExpire[F[_]] {
   def expiresIn(claim: JwtClaim, exp: TokenExpiration): F[JwtClaim]

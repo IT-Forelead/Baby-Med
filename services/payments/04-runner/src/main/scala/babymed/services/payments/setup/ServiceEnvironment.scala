@@ -1,13 +1,14 @@
 package babymed.services.payments.setup
 
-import babymed.services.payments.boundary.Payments
-import babymed.services.payments.repositories.PaymentsRepository
 import cats.MonadThrow
 import cats.effect.Async
 import cats.effect.Resource
 import cats.effect.std.Console
 import org.typelevel.log4cats.Logger
 import skunk.Session
+
+import babymed.services.payments.boundary.Payments
+import babymed.services.payments.repositories.PaymentsRepository
 
 case class ServiceEnvironment[F[_]: MonadThrow](
     config: Config,

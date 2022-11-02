@@ -3,8 +3,9 @@ package babymed.support.services
 import scala.annotation.StaticAnnotation
 import scala.annotation.compileTimeOnly
 
-import babymed.support.services.internal.ServiceDerivationMacro
 import higherkindness.mu.rpc.protocol._
+
+import babymed.support.services.internal.ServiceDerivationMacro
 
 // $COVERAGE-OFF$
 @compileTimeOnly("macros paradise must be enabled")

@@ -6,12 +6,13 @@ import java.time.LocalDateTime
 import java.time.ZonedDateTime
 import java.util.UUID
 
+import com.comcast.ip4s.IpAddress
+import org.scalacheck.Gen
+
 import babymed.refinements.EmailAddress
 import babymed.refinements.Phone
 import babymed.syntax.all.zonedDateTimeOps
 import babymed.syntax.refined.commonSyntaxAutoRefineV
-import com.comcast.ip4s.IpAddress
-import org.scalacheck.Gen
 
 trait CommonGenerators {
   def nonEmptyStringGen(min: Int = 3, max: Int = 100): Gen[String] =

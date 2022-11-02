@@ -2,11 +2,12 @@ package babymed.support.redis
 
 import scala.concurrent.duration.FiniteDuration
 
-import babymed.syntax.all.genericSyntaxGenericTypeOps
 import cats._
 import cats.implicits.toFunctorOps
 import dev.profunktor.redis4cats.RedisCommands
 import io.circe.Encoder
+
+import babymed.syntax.all.genericSyntaxGenericTypeOps
 
 trait RedisClient[F[_]] {
   def put(

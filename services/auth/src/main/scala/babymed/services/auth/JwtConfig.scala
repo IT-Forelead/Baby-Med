@@ -2,12 +2,13 @@ package babymed.services.auth
 
 import scala.concurrent.duration.FiniteDuration
 
-import babymed.services.auth.domain.types.JwtAccessTokenKey
-import babymed.services.auth.domain.types.TokenExpiration
-import babymed.syntax.all.circeConfigDecoder
 import cats.implicits._
 import ciris._
 import io.circe.generic.auto.exportDecoder
+
+import babymed.services.auth.domain.types.JwtAccessTokenKey
+import babymed.services.auth.domain.types.TokenExpiration
+import babymed.syntax.all.circeConfigDecoder
 
 case class JwtConfig(
     tokenKey: Secret[JwtAccessTokenKey],

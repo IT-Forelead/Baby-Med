@@ -2,6 +2,16 @@ package babymed.services.auth
 
 import scala.concurrent.duration.DurationInt
 
+import cats.effect.kernel.Sync
+import cats.implicits._
+import eu.timepit.refined.types.string.NonEmptyString
+import org.http4s.AuthScheme
+import org.http4s.Credentials.Token
+import org.http4s.Request
+import org.http4s.headers.Authorization
+import org.http4s.implicits.http4sLiteralsSyntax
+import tsec.passwordhashers.jca.SCrypt
+
 import babymed.exception.AuthError
 import babymed.refinements.Password
 import babymed.refinements.Phone
@@ -21,15 +31,6 @@ import babymed.support.redis.RedisClientMock
 import babymed.syntax.refined.commonSyntaxAutoRefineV
 import babymed.test.HttpSuite
 import babymed.test.generators.CommonGenerators
-import cats.effect.kernel.Sync
-import cats.implicits._
-import eu.timepit.refined.types.string.NonEmptyString
-import org.http4s.AuthScheme
-import org.http4s.Credentials.Token
-import org.http4s.Request
-import org.http4s.headers.Authorization
-import org.http4s.implicits.http4sLiteralsSyntax
-import tsec.passwordhashers.jca.SCrypt
 
 object AuthServiceSpec extends HttpSuite with CommonGenerators with UserGenerators {
   lazy val tokens: Tokens[F] = Tokens

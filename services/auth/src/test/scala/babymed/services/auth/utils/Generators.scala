@@ -1,9 +1,10 @@
 package babymed.services.auth.utils
 
+import org.scalacheck.Gen
+
 import babymed.services.auth.domain.Credentials
 import babymed.syntax.refined.commonSyntaxAutoRefineV
 import babymed.test.generators.CommonGenerators
-import org.scalacheck.Gen
 
 object Generators extends CommonGenerators {
   val credentialsGen: Gen[Credentials] = for {

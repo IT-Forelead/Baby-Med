@@ -4,12 +4,13 @@ import java.util.UUID
 
 import scala.concurrent.duration.DurationInt
 
-import babymed.services.auth.domain.types.JwtAccessTokenKey
-import babymed.services.auth.domain.types.TokenExpiration
-import babymed.syntax.refined.commonSyntaxAutoRefineV
 import pdi.jwt.JwtClaim
 import weaver.SimpleIOSuite
 import weaver.scalacheck.Checkers
+
+import babymed.services.auth.domain.types.JwtAccessTokenKey
+import babymed.services.auth.domain.types.TokenExpiration
+import babymed.syntax.refined.commonSyntaxAutoRefineV
 
 object CreateTokenSpec extends SimpleIOSuite with Checkers {
   test("Create jwt token") {

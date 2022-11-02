@@ -4,10 +4,11 @@ import java.util.UUID
 
 import scala.concurrent.duration.DurationInt
 
-import babymed.services.auth.domain.types.TokenExpiration
 import pdi.jwt.JwtClaim
 import weaver.SimpleIOSuite
 import weaver.scalacheck.Checkers
+
+import babymed.services.auth.domain.types.TokenExpiration
 
 object JwtExpireSpec extends SimpleIOSuite with Checkers {
   test("Add token expiration") {

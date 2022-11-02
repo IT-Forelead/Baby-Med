@@ -1,11 +1,12 @@
 package babymed.services.users.generators
 
+import org.scalacheck.Gen
+
 import babymed.services.users.domain.CreateCustomer
 import babymed.services.users.domain.Customer
 import babymed.services.users.domain.CustomerWithAddress
 import babymed.services.users.domain.Region
 import babymed.services.users.domain.Town
-import org.scalacheck.Gen
 
 trait CustomerGenerators extends TypeGen {
   def customerGen: Gen[Customer] =

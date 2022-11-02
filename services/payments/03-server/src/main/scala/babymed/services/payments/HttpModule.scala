@@ -1,8 +1,5 @@
 package babymed.services.payments
 
-import babymed.support.services.http4s.HealthHttpRoutes
-import babymed.support.services.http4s.HttpServer
-import babymed.support.services.http4s.HttpServerConfig
 import cats.Monad
 import cats.MonadThrow
 import cats.data.NonEmptyList
@@ -13,6 +10,10 @@ import cats.implicits.toFunctorOps
 import org.http4s.HttpRoutes
 import org.http4s.circe.JsonDecoder
 import org.typelevel.log4cats.Logger
+
+import babymed.support.services.http4s.HealthHttpRoutes
+import babymed.support.services.http4s.HttpServer
+import babymed.support.services.http4s.HttpServerConfig
 
 object HttpModule {
   private def allRoutes[F[_]: Monad: MonadThrow: JsonDecoder: Logger]: NonEmptyList[HttpRoutes[F]] =

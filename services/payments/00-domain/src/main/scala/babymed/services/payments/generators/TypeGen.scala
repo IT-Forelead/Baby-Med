@@ -1,11 +1,12 @@
 package babymed.services.payments.generators
 
-import babymed.services.payments.domain.types.PaymentId
-import babymed.services.payments.domain.types.UZS
-import babymed.test.generators.Generators
 import eu.timepit.refined.types.numeric.NonNegInt
 import org.scalacheck.Gen
 import squants.Money
+
+import babymed.services.payments.domain.types.PaymentId
+import babymed.services.payments.domain.types.UZS
+import babymed.test.generators.Generators
 
 trait TypeGen extends Generators {
   val paymentIdGen: Gen[PaymentId] = idGen(PaymentId.apply)

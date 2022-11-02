@@ -13,6 +13,11 @@ lazy val root = project
     `test-tools`,
   )
 
+addCommandAlias(
+  "styleCheck",
+  "all scalafmtSbtCheck; scalafmtCheckAll; Test / compile; scalafixAll --check",
+)
+
 lazy val common = project
   .in(file("common"))
   .settings(

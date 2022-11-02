@@ -2,9 +2,10 @@ package babymed.services.users.repositories
 
 import java.time.LocalDateTime
 
+import cats.effect.IO
+
 import babymed.services.users.generators.UserGenerators
 import babymed.test.DBSuite
-import cats.effect.IO
 
 object UserRepositorySpec extends DBSuite with UserGenerators {
   test("Create User") { implicit postgres =>

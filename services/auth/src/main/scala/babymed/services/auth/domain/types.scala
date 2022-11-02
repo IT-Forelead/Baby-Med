@@ -2,7 +2,6 @@ package babymed.services.auth.domain
 
 import scala.concurrent.duration.FiniteDuration
 
-import babymed.util.configDecoder
 import cats.Eq
 import ciris.refined._
 import derevo.cats.show
@@ -14,6 +13,8 @@ import eu.timepit.refined.types.string.NonEmptyString
 import io.circe.Codec
 import io.circe.generic.semiauto.deriveCodec
 import io.estatico.newtype.macros.newtype
+
+import babymed.util.configDecoder
 
 object types {
   @derive(configDecoder, show)

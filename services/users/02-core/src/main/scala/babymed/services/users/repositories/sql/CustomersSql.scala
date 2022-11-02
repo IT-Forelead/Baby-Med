@@ -2,6 +2,10 @@ package babymed.services.users.repositories.sql
 
 import java.time.LocalDateTime
 
+import skunk._
+import skunk.codec.all._
+import skunk.implicits._
+
 import babymed.services.users.domain.CreateCustomer
 import babymed.services.users.domain.Customer
 import babymed.services.users.domain.CustomerWithAddress
@@ -13,9 +17,6 @@ import babymed.services.users.domain.types.RegionId
 import babymed.services.users.domain.types.TownId
 import babymed.support.skunk.codecs._
 import babymed.support.skunk.syntax.all.skunkSyntaxFragmentOps
-import skunk._
-import skunk.codec.all._
-import skunk.implicits._
 
 object CustomersSql {
   val customerId: Codec[CustomerId] = identity[CustomerId]
