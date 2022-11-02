@@ -1,7 +1,6 @@
 package babymed.services.auth.impl
 
 import scala.concurrent.duration.DurationInt
-
 import cats.conversions.all.autoWidenFunctor
 import cats.data.OptionT
 import cats.effect.Sync
@@ -12,9 +11,9 @@ import eu.timepit.refined.auto.autoUnwrap
 import org.http4s.Request
 import org.http4s.server
 import tsec.passwordhashers.jca.SCrypt
-
 import babymed.exception.AuthError.NoSuchUser
 import babymed.exception.AuthError.PasswordDoesNotMatch
+import babymed.refinements.Phone
 import babymed.services.auth.domain.Credentials
 import babymed.services.auth.domain.types.UserJwtAuth
 import babymed.services.auth.utils.AuthMiddleware
