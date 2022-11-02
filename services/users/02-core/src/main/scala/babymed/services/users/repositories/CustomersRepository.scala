@@ -26,6 +26,7 @@ import babymed.support.skunk.syntax.all._
 
 trait CustomersRepository[F[_]] {
   def create(createCustomer: CreateCustomer): F[Customer]
+  def getCustomerById(customerId: CustomerId): F[Option[CustomerWithAddress]]
   def get(filters: SearchFilters): F[List[CustomerWithAddress]]
   def getTotal(filters: SearchFilters): F[Long]
   def getRegions: F[List[Region]]
@@ -51,6 +52,9 @@ object CustomersRepository {
             .CustomerPhoneInUse(createCustomer.phone.value)
             .raiseError[F, Customer]
       }
+
+    override def getCustomerById(customerId: CustomerId): F[Option[CustomerWithAddress]] =
+      selectById.queryOption(customerId)
 
     override def get(filters: SearchFilters): F[List[CustomerWithAddress]] = {
       val query = CustomersSql.select(filters).paginateOpt(filters.limit, filters.page)
