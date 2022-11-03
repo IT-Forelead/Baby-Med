@@ -28,7 +28,6 @@ import babymed.services.users.domain.UserAndHash
 import babymed.services.users.generators.UserGenerators
 import babymed.services.users.proto.Users
 import babymed.support.redis.RedisClientMock
-import babymed.syntax.refined.commonSyntaxAutoRefineV
 import babymed.syntax.refined.commonSyntaxAutoUnwrapV
 import babymed.test.HttpSuite
 import babymed.test.generators.CommonGenerators
