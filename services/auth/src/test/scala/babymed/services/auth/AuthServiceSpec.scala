@@ -62,7 +62,7 @@ object AuthServiceSpec extends HttpSuite with CommonGenerators with UserGenerato
           }
         case _ => Sync[F].raiseError(new Exception("Error type not found"))
       }
-    override def create(createUser: CreateUser): F[User] = ???
+    override def validationAndCreate(createUser: CreateUser): F[User] = ???
   }
 
   test("Login - success") {

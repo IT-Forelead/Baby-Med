@@ -1,9 +1,5 @@
 package babymed.services.babymed.api.routes
 
-import babymed.services.auth.impl.Security
-import babymed.services.users.domain.{CreateCustomer, SearchFilters, User}
-import babymed.services.users.proto.Customers
-import babymed.support.services.syntax.all._
 import cats.effect.Async
 import cats.implicits._
 import eu.timepit.refined.types.numeric.NonNegInt
@@ -12,6 +8,13 @@ import org.http4s.circe.JsonDecoder
 import org.http4s.dsl.Http4sDsl
 import org.http4s.server.Router
 import org.typelevel.log4cats.Logger
+
+import babymed.services.auth.impl.Security
+import babymed.services.users.domain.CreateCustomer
+import babymed.services.users.domain.SearchFilters
+import babymed.services.users.domain.User
+import babymed.services.users.proto.Customers
+import babymed.support.services.syntax.all._
 
 final case class CustomerRouters[F[_]: Async: JsonDecoder](
     security: Security[F],
@@ -31,7 +34,14 @@ final case class CustomerRouters[F[_]: Async: JsonDecoder](
     case ar @ POST -> Root / "report" :? page(index) +& limit(limit) as _ =>
       ar.req.decodeR[SearchFilters] { req =>
         customers
-          .getCustomers(SearchFilters(req.startDate, req.endDate, page = Some(NonNegInt.unsafeFrom(index)), limit = Some(NonNegInt.unsafeFrom(limit))))
+          .getCustomers(
+            SearchFilters(
+              req.startDate,
+              req.endDate,
+              page = Some(NonNegInt.unsafeFrom(index)),
+              limit = Some(NonNegInt.unsafeFrom(limit)),
+            )
+          )
           .flatMap(Ok(_))
       }
 
@@ -44,5 +54,4 @@ final case class CustomerRouters[F[_]: Async: JsonDecoder](
   lazy val routes: HttpRoutes[F] = Router(
     prefixPath -> security.auth.usersMiddleware(security.userJwtAuth)(privateRoutes)
   )
-
 }

@@ -1,6 +1,20 @@
 package babymed.services.babymed.api.routes
 
 import scala.concurrent.duration.DurationInt
+
+import cats.effect.kernel.Sync
+import ciris.Secret
+import dev.profunktor.auth.jwt.JwtToken
+import eu.timepit.refined.types.string.NonEmptyString
+import org.http4s.Method.POST
+import org.http4s.Request
+import org.http4s.Status
+import org.http4s.client.dsl.io._
+import org.http4s.implicits.http4sLiteralsSyntax
+import org.scalacheck.Gen
+import tsec.passwordhashers.jca.SCrypt
+import weaver.Expectations
+
 import babymed.domain.Role
 import babymed.domain.Role.Admin
 import babymed.domain.Role.TechAdmin
@@ -22,18 +36,6 @@ import babymed.services.users.proto.Users
 import babymed.support.redis.RedisClientMock
 import babymed.support.services.syntax.all._
 import babymed.test.HttpSuite
-import cats.effect.kernel.Sync
-import ciris.Secret
-import dev.profunktor.auth.jwt.JwtToken
-import eu.timepit.refined.types.string.NonEmptyString
-import org.http4s.Method.POST
-import org.http4s.Request
-import org.http4s.Status
-import org.http4s.client.dsl.io._
-import org.http4s.implicits.http4sLiteralsSyntax
-import org.scalacheck.Gen
-import tsec.passwordhashers.jca.SCrypt
-import weaver.Expectations
 
 object PaymentRoutersSpec extends HttpSuite with PaymentGenerator with UserGenerators {
   val jwtConfig: JwtConfig =
@@ -61,7 +63,7 @@ object PaymentRoutersSpec extends HttpSuite with PaymentGenerator with UserGener
       Sync[F].pure(
         Option(UserAndHash(user.copy(role = role), SCrypt.hashpwUnsafe(passwordGen.get.value)))
       )
-    override def create(createUser: CreateUser): F[User] = ???
+    override def validationAndCreate(createUser: CreateUser): F[User] = ???
   }
 
   val payments: Payments[F] = new Payments[F] {

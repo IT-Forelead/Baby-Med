@@ -1,6 +1,8 @@
 package babymed.support.services.syntax
 
-import java.time.{LocalDateTime, ZonedDateTime}
+import java.time.LocalDateTime
+import java.time.ZonedDateTime
+
 import cats.MonadThrow
 import cats.effect.Async
 import cats.effect.Sync
@@ -16,6 +18,7 @@ import org.http4s.headers.Authorization
 import org.http4s.headers.`Content-Type`
 import org.http4s.multipart.Part
 import org.typelevel.log4cats.Logger
+
 import babymed.exception.MultipartDecodeError
 import babymed.support.services.http4s.utils.MapConvert
 import babymed.support.services.http4s.utils.MapConvert.ValidationResult

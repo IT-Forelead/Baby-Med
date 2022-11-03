@@ -1,23 +1,7 @@
 package babymed.services.babymed.api.routes
 
 import scala.concurrent.duration.DurationInt
-import babymed.domain.Role
-import babymed.domain.Role.Admin
-import babymed.domain.Role.TechAdmin
-import babymed.refinements.Phone
-import babymed.services.auth.JwtConfig
-import babymed.services.auth.domain.Credentials
-import babymed.services.auth.domain.types._
-import babymed.services.auth.impl.Security
-import babymed.services.users.domain._
-import babymed.services.users.generators.{CustomerGenerators, UserGenerators}
-import babymed.services.users.proto.Customers
-import babymed.services.users.proto.Users
-import babymed.support.redis.RedisClientMock
-import babymed.support.services.syntax.all.deriveEntityDecoder
-import babymed.support.services.syntax.all.deriveEntityEncoder
-import babymed.support.services.syntax.all.http4SyntaxReqOps
-import babymed.test.HttpSuite
+
 import cats.effect.kernel.Sync
 import ciris.Secret
 import dev.profunktor.auth.jwt.JwtToken
@@ -30,6 +14,27 @@ import org.http4s.implicits.http4sLiteralsSyntax
 import org.scalacheck.Gen
 import tsec.passwordhashers.jca.SCrypt
 import weaver.Expectations
+
+import babymed.domain.Role
+import babymed.domain.Role.Admin
+import babymed.domain.Role.TechAdmin
+import babymed.refinements.Phone
+import babymed.services.auth.JwtConfig
+import babymed.services.auth.domain.Credentials
+import babymed.services.auth.domain.types._
+import babymed.services.auth.impl.Security
+import babymed.services.users.domain._
+import babymed.services.users.domain.types.CustomerId
+import babymed.services.users.domain.types.RegionId
+import babymed.services.users.generators.CustomerGenerators
+import babymed.services.users.generators.UserGenerators
+import babymed.services.users.proto.Customers
+import babymed.services.users.proto.Users
+import babymed.support.redis.RedisClientMock
+import babymed.support.services.syntax.all.deriveEntityDecoder
+import babymed.support.services.syntax.all.deriveEntityEncoder
+import babymed.support.services.syntax.all.http4SyntaxReqOps
+import babymed.test.HttpSuite
 
 object CustomerRoutersSpec extends HttpSuite with CustomerGenerators with UserGenerators {
   val jwtConfig: JwtConfig =
@@ -46,8 +51,10 @@ object CustomerRoutersSpec extends HttpSuite with CustomerGenerators with UserGe
 
   def users(role: Role): Users[F] = new Users[F] {
     override def find(phone: Phone): F[Option[UserAndHash]] =
-      Sync[F].pure(Option(UserAndHash(user.copy(role = role), SCrypt.hashpwUnsafe(passwordGen.get.value))))
-    override def create(createUser: CreateUser): F[User] = ???
+      Sync[F].pure(
+        Option(UserAndHash(user.copy(role = role), SCrypt.hashpwUnsafe(passwordGen.get.value)))
+      )
+    override def validationAndCreate(createUser: CreateUser): F[User] = ???
   }
 
   val customers: Customers[F] = new Customers[F] {
@@ -57,6 +64,9 @@ object CustomerRoutersSpec extends HttpSuite with CustomerGenerators with UserGe
       Sync[F].delay(List(customerWithAddress))
     override def getTotalCustomers(filters: SearchFilters): F[Long] =
       Sync[F].delay(Gen.long.get)
+    override def getCustomerById(customerId: CustomerId): F[Option[CustomerWithAddress]] = ???
+    override def getRegions: F[List[Region]] = ???
+    override def getTownsByRegionId(regionId: RegionId): F[List[Town]] = ???
   }
 
   def authedReq(

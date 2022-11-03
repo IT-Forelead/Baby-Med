@@ -11,5 +11,5 @@ aggregateProjects(
   services_auth,
   services_users,
   services_payments,
-  `services_babymed-api`
+  `services_babymed-api`,
 )
