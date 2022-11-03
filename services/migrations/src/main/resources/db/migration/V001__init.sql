@@ -1,4 +1,4 @@
-CREATE TYPE ROLE AS ENUM ('super_manager', 'tech_admin', 'admin');
+CREATE TYPE ROLE AS ENUM ('super_manager', 'doctor', 'tech_admin', 'admin');
 
 CREATE TABLE IF NOT EXISTS regions
 (
