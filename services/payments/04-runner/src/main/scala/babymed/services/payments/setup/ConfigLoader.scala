@@ -12,7 +12,6 @@ import babymed.support.services.rpc.GrpcServerConfig
 import babymed.support.skunk.DataBaseConfig
 import babymed.syntax.all.circeConfigDecoder
 import babymed.syntax.refined.commonSyntaxAutoRefineV
-import babymed.util.ConfigDecoders.appModeConfigDecoder
 
 object ConfigLoader {
   def load[F[_]: Async]: F[Config] = (

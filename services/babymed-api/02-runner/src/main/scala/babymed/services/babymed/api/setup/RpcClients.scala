@@ -1,11 +1,10 @@
 package babymed.services.babymed.api.setup
 
-import cats.effect.Async
-import cats.effect.Resource
-
 import babymed.services.babymed.api.Services
 import babymed.services.payments.proto.Payments
 import babymed.services.users.proto._
+import cats.effect.Async
+import cats.effect.Resource
 
 case class RpcClients[F[_]](
     users: Users[F],

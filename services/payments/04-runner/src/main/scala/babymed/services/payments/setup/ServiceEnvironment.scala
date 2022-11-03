@@ -9,7 +9,6 @@ import skunk.Session
 
 import babymed.services.payments.boundary.Payments
 import babymed.services.payments.repositories.PaymentsRepository
-import babymed.support.database.Migrations
 
 case class ServiceEnvironment[F[_]: MonadThrow](
     config: Config,
@@ -20,8 +19,6 @@ object ServiceEnvironment {
   def make[F[_]: Async: Console: Logger]: Resource[F, ServiceEnvironment[F]] =
     for {
       config <- Resource.eval(ConfigLoader.load[F])
-      _ <- Resource.eval(Migrations.make[F](config.migrations))
-
       resource <- ServiceResources.make[F](config)
       paymentRepository = {
         implicit val session: Resource[F, Session[F]] = resource.postgres

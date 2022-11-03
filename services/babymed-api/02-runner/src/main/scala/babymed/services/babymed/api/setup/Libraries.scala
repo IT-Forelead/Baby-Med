@@ -1,10 +1,9 @@
 package babymed.services.babymed.api.setup
 
+import babymed.support.redis.RedisClient
 import cats.effect.Async
 import dev.profunktor.redis4cats.RedisCommands
 import org.typelevel.log4cats.Logger
-
-import babymed.support.redis.RedisClient
 
 final case class Libraries[F[_]](
     redis: RedisClient[F]

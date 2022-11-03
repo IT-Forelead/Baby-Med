@@ -3,14 +3,14 @@ import sbt._
 
 object Dependencies {
   object Versions {
-    lazy val cats = "2.8.0"
-    lazy val `cats-effect` = "3.3.14"
+    lazy val cats = "2.7.0"
+    lazy val `cats-effect` = "3.3.5"
     lazy val circe = "0.14.1"
-    lazy val fs2 = "3.3.0"
+    lazy val fs2 = "3.2.4"
     lazy val http4s = "0.23.10"
     lazy val log4cats = "2.5.0"
     lazy val skunk = "0.2.3"
-    lazy val logback = "1.4.4"
+    lazy val logback = "1.2.10"
     lazy val ciris = "2.3.2"
     lazy val refined = "0.10.1"
     lazy val tsec = "0.4.0"
@@ -26,12 +26,11 @@ object Dependencies {
     lazy val `http4s-jwt-auth` = "1.0.0"
     lazy val `meow-mtl` = "0.5.0"
     lazy val mailer = "1.4.7"
-    lazy val izumi = "2.2.1"
+    lazy val izumi = "2.2.0"
     lazy val enumeratum = "1.7.0"
-    lazy val flyway = "9.6.0"
 
     lazy val weaver = "0.8.0"
-    lazy val `test-container` = "1.17.4"
+    lazy val `test-container` = "1.17.3"
     lazy val postgresql = "42.5.0"
   }
 
@@ -158,10 +157,6 @@ object Dependencies {
       lazy val circe: ModuleID = enumeratum("enumeratum-circe")
       lazy val cats: ModuleID = enumeratum("enumeratum-cats")
       override def all: Seq[ModuleID] = Seq(core, circe, cats)
-    }
-
-    object Flyway {
-      val `flyway-core` = "org.flywaydb" % "flyway-core" % Versions.flyway
     }
 
     object Testing extends LibGroup {

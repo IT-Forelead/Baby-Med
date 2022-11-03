@@ -3,12 +3,11 @@ package babymed.services.babymed.api.setup
 import cats.effect.Async
 import cats.effect.Resource
 import cats.effect.std.Console
-import dev.profunktor.redis4cats.log4cats._
-import org.typelevel.log4cats.Logger
-
 import babymed.services.auth.impl.Security
 import babymed.services.babymed.api.ServerEnvironment
 import babymed.support.services.file.FileLoader
+import dev.profunktor.redis4cats.log4cats._
+import org.typelevel.log4cats.Logger
 
 case class ServiceEnvironment[F[_]: Async: FileLoader](
     config: Config,

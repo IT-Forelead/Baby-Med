@@ -1,5 +1,11 @@
 package babymed.services.babymed.api.routes
 
+import babymed.exception.AuthError
+import babymed.services.auth.impl.Security
+import babymed.services.auth.domain.Credentials
+import babymed.services.auth.domain.types.tokenCodec
+import babymed.services.users.domain.User
+import babymed.support.services.syntax.all.http4SyntaxReqOps
 import cats.Monad
 import cats.MonadThrow
 import cats.implicits._
@@ -9,13 +15,6 @@ import org.http4s.circe.JsonDecoder
 import org.http4s.dsl.Http4sDsl
 import org.http4s.server.Router
 import org.typelevel.log4cats.Logger
-
-import babymed.exception.AuthError
-import babymed.services.auth.domain.Credentials
-import babymed.services.auth.domain.types.tokenCodec
-import babymed.services.auth.impl.Security
-import babymed.services.users.domain.User
-import babymed.support.services.syntax.all.http4SyntaxReqOps
 
 final case class AuthRoutes[F[_]: Monad: JsonDecoder: MonadThrow](
     security: Security[F]
@@ -53,4 +52,5 @@ final case class AuthRoutes[F[_]: Monad: JsonDecoder: MonadThrow](
       .auth
       .usersMiddleware(security.userJwtAuth)(privateRoutes))
   )
+
 }
