@@ -46,6 +46,7 @@ object UsersSql {
       .query(decoder)
 
   val selectByPhone: Query[Phone, UserAndHash] =
-    sql"""SELECT id, created_at, firstname, lastname, phone, role, password FROM users WHERE phone = $phone"""
+    sql"""SELECT id, created_at, firstname, lastname, phone, role, password FROM users
+         WHERE phone = $phone AND deleted = false"""
       .query(decoderUserAndHash)
 }

@@ -1,7 +1,6 @@
 package babymed.services.auth.impl
 
 import scala.concurrent.duration.DurationInt
-
 import cats.conversions.all.autoWidenFunctor
 import cats.data.OptionT
 import cats.effect.Sync
@@ -9,13 +8,12 @@ import cats.syntax.all._
 import dev.profunktor.auth.AuthHeaders
 import dev.profunktor.auth.jwt.JwtToken
 import eu.timepit.refined.auto.autoUnwrap
-import eu.timepit.refined.types.string.NonEmptyString
 import org.http4s.Request
 import org.http4s.server
 import tsec.passwordhashers.jca.SCrypt
-
 import babymed.exception.AuthError.NoSuchUser
 import babymed.exception.AuthError.PasswordDoesNotMatch
+import babymed.refinements.Phone
 import babymed.services.auth.domain.Credentials
 import babymed.services.auth.domain.types.UserJwtAuth
 import babymed.services.auth.utils.AuthMiddleware
@@ -28,7 +26,7 @@ import babymed.syntax.all.circeSyntaxDecoderOps
 
 trait Auth[F[_]] {
   def login(credentials: Credentials): F[JwtToken]
-  def destroySession(request: Request[F], login: NonEmptyString): F[Unit]
+  def destroySession(request: Request[F], phone: Phone): F[Unit]
   def usersMiddleware(userJwtAuth: UserJwtAuth): server.AuthMiddleware[F, User]
 }
 
@@ -58,10 +56,10 @@ object Auth {
             )
         }
 
-      override def destroySession(request: Request[F], login: NonEmptyString): F[Unit] =
+      override def destroySession(request: Request[F], phone: Phone): F[Unit] =
         AuthHeaders
           .getBearerToken(request)
-          .traverse_(token => redis.del(token.value, login))
+          .traverse_(token => redis.del(token.value, phone))
 
       override def usersMiddleware(userJwtAuth: UserJwtAuth): server.AuthMiddleware[F, User] = {
         def findUser(token: JwtToken): F[Option[User]] =
