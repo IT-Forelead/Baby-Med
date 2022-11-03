@@ -5,11 +5,12 @@ import cats.effect.Async
 import cats.effect.ExitCode
 import cats.effect.kernel.Resource
 import cats.implicits.toFunctorOps
-import babymed.services.babymed.api.routes._
-import babymed.support.services.http4s.HttpServer
 import org.http4s.HttpRoutes
 import org.http4s.circe.JsonDecoder
 import org.typelevel.log4cats.Logger
+
+import babymed.services.babymed.api.routes._
+import babymed.support.services.http4s.HttpServer
 
 object HttpModule {
   private def allRoutes[F[_]: Async: JsonDecoder: Logger](

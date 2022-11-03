@@ -16,7 +16,6 @@ import tsec.passwordhashers.jca.SCrypt
 import weaver.Expectations
 
 import babymed.domain.Role
-import babymed.domain.Role.Admin
 import babymed.domain.Role.Doctor
 import babymed.domain.Role.TechAdmin
 import babymed.refinements.Phone

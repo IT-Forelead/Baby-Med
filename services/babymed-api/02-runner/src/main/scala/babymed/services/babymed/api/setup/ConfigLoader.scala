@@ -2,14 +2,15 @@ package babymed.services.babymed.api.setup
 
 import cats.effect.Async
 import cats.implicits._
+import ciris._
+
 import babymed.domain.AppMode
-import babymed.syntax.refined._
 import babymed.services.auth.JwtConfig
 import babymed.support.redis.RedisConfig
 import babymed.support.services.ServiceConfig
 import babymed.support.services.http4s.HttpServerConfig
 import babymed.syntax.all.circeConfigDecoder
-import ciris._
+import babymed.syntax.refined._
 
 object ConfigLoader {
   private def loadServicesConfig: ConfigValue[Effect, Config.ServicesConfig] = (

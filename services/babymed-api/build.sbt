@@ -12,7 +12,7 @@ lazy val `services_babymed-api-core` =
       LocalProject("supports_services"),
       LocalProject("services_users-protocol"),
       LocalProject("services_payments-protocol"),
-      LocalProject("services_auth")
+      LocalProject("services_auth"),
     )
     .settings(
       libraryDependencies ++= Libraries.Logging.all
@@ -33,5 +33,5 @@ lazy val `services_babymed-api-runner` =
 aggregateProjects(
   `services_babymed-api-core`,
   `services_babymed-api-server`,
-  `services_babymed-api-runner`
+  `services_babymed-api-runner`,
 )
