@@ -1,13 +1,13 @@
-CREATE TYPE ROLE AS ENUM ('super_manager', 'tech_admin', 'admin');
+CREATE TYPE ROLE AS ENUM ('super_manager', 'doctor', 'tech_admin', 'admin');
 
-CREATE TABLE regions
+CREATE TABLE IF NOT EXISTS regions
 (
     id      UUID PRIMARY KEY,
     name    VARCHAR NOT NULL,
     deleted BOOLEAN NOT NULL DEFAULT false
 );
 
-CREATE TABLE towns
+CREATE TABLE IF NOT EXISTS towns
 (
     id        UUID PRIMARY KEY,
     name      VARCHAR NOT NULL,
@@ -451,7 +451,7 @@ VALUES ('a144cd37-c743-47fc-88ec-c670b4fde1e7', 'Yashnobod tumani', 'dac35ec3-a9
 INSERT INTO "towns" ("id", "name", "region_id")
 VALUES ('f4989b83-fc64-4844-bd57-e721a7f0e4aa', 'Yunusobod tumani', 'dac35ec3-a904-42d7-af20-5d7e853fe1f6');
 
-CREATE TABLE users
+CREATE TABLE IF NOT EXISTS users
 (
     id         UUID PRIMARY KEY,
     created_at TIMESTAMP NOT NULL,
@@ -463,7 +463,8 @@ CREATE TABLE users
     deleted    BOOLEAN   NOT NULL DEFAULT false
 );
 
-CREATE TABLE customers
+
+CREATE TABLE IF NOT EXISTS customers
 (
     id         UUID PRIMARY KEY,
     created_at TIMESTAMP NOT NULL,
@@ -479,7 +480,7 @@ CREATE TABLE customers
     deleted    BOOLEAN   NOT NULL DEFAULT false
 );
 
-CREATE TABLE payments
+CREATE TABLE IF NOT EXISTS payments
 (
     id           UUID PRIMARY KEY,
     created_at TIMESTAMP NOT NULL,

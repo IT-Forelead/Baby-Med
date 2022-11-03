@@ -2,7 +2,8 @@ package babymed.services.babymed.api.routes
 
 import scala.concurrent.duration.DurationInt
 
-import cats.effect.Sync
+import cats.effect.kernel.Sync
+import cats.implicits._
 import ciris.Secret
 import dev.profunktor.auth.jwt.JwtToken
 import eu.timepit.refined.types.string.NonEmptyString
@@ -11,6 +12,7 @@ import org.http4s.Method.POST
 import org.http4s.Status
 import org.http4s.client.dsl.io._
 import org.http4s.implicits.http4sLiteralsSyntax
+import tsec.passwordhashers.jca.SCrypt
 
 import babymed.refinements.Phone
 import babymed.services.auth.JwtConfig
@@ -24,6 +26,7 @@ import babymed.services.users.generators.UserGenerators
 import babymed.services.users.proto.Users
 import babymed.support.redis.RedisClientMock
 import babymed.support.services.syntax.all._
+import babymed.syntax.refined.commonSyntaxAutoUnwrapV
 import babymed.test.HttpSuite
 
 object AuthRoutersSpec extends HttpSuite with UserGenerators {
@@ -37,35 +40,44 @@ object AuthRoutersSpec extends HttpSuite with UserGenerators {
   lazy val credentials: Credentials =
     Credentials(phoneGen.get, NonEmptyString.unsafeFrom(nonEmptyStringGen(8).get))
 
-  def users(isCorrectLogin: Boolean): Users[F] = new Users[F] {
+  def users(errorType: Option[String] = None): Users[F] = new Users[F] {
     override def find(phone: Phone): F[Option[UserAndHash]] =
-      if (isCorrectLogin)
-        Sync[F].pure(Option(userAndHash))
-      else
-        Sync[F].pure(None)
-    override def validationAndCreate(createUser: CreateUser): AuthRoutersSpec.F[User] = ???
+      errorType match {
+        case Some("userNotFound") =>
+          Sync[F].pure(None)
+        case Some("wrongPassword") =>
+          SCrypt.hashpw[F](nonEmptyStringGen(8).get).map { hash =>
+            UserAndHash(user, hash).some
+          }
+        case None =>
+          SCrypt.hashpw[F](credentials.password).map { hash =>
+            UserAndHash(user.copy(phone = credentials.phone), hash).some
+          }
+        case _ => Sync[F].raiseError(new Exception("Error type not found"))
+      }
+    override def validationAndCreate(createUser: CreateUser): F[User] = ???
   }
 
   test("Authorization - Login [ OK ]") {
-    val security = Security.make[F](jwtConfig, users(true), RedisClientMock[F])
+    val security = Security.make[F](jwtConfig, users(), RedisClientMock[F])
     val request = POST(credentials, uri"/auth/login")
     expectHttpStatus(AuthRoutes[F](security).routes, request)(Status.Ok)
   }
 
   test("Authorization - Incorrect login") {
-    val security = Security.make[F](jwtConfig, users(false), RedisClientMock[F])
+    val security = Security.make[F](jwtConfig, users("userNotFound".some), RedisClientMock[F])
     val request = POST(credentials, uri"/auth/login")
     expectHttpStatus(AuthRoutes[F](security).routes, request)(Status.Forbidden)
   }
 
   test("Authorization - Incorrect password") {
-    val security = Security.make[F](jwtConfig, users(true), RedisClientMock[F])
+    val security = Security.make[F](jwtConfig, users("wrongPassword".some), RedisClientMock[F])
     val request = POST(credentials, uri"/auth/login")
     expectHttpStatus(AuthRoutes[F](security).routes, request)(Status.Forbidden)
   }
 
-  test("Logout - Success") {
-    val security = Security.make[F](jwtConfig, users(true), RedisClientMock[F])
+  test("Authorization - Logout [ OK ]") {
+    val security = Security.make[F](jwtConfig, users(), RedisClientMock[F])
     val routes = AuthRoutes[F](security).routes
     routes
       .run(POST(credentials, uri"/auth/login"))
@@ -83,8 +95,8 @@ object AuthRoutersSpec extends HttpSuite with UserGenerators {
 
   }
 
-  test("Logout - Unauthorized") {
-    val security = Security.make[F](jwtConfig, users(true), RedisClientMock[F])
+  test("Authorization - Logout [ Unauthorized ]") {
+    val security = Security.make[F](jwtConfig, users(), RedisClientMock[F])
     expectHttpStatus(AuthRoutes[F](security).routes, GET(uri"/auth/logout"))(Status.Forbidden)
       .handleError {
         fail("Test failed")

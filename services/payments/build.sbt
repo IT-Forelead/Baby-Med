@@ -56,7 +56,7 @@ lazy val `services_payments-server` =
 lazy val `services_payments-runner` =
   project
     .in(file("04-runner"))
-    .dependsOn(`services_payments-server`)
+    .dependsOn(`services_payments-server`, LocalProject("support_database"))
     .settings(
       libraryDependencies ++= Seq(
         Libraries.GRPC.server

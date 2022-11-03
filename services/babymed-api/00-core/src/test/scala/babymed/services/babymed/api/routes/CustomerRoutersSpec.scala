@@ -16,7 +16,7 @@ import tsec.passwordhashers.jca.SCrypt
 import weaver.Expectations
 
 import babymed.domain.Role
-import babymed.domain.Role.Admin
+import babymed.domain.Role.Doctor
 import babymed.domain.Role.TechAdmin
 import babymed.refinements.Phone
 import babymed.services.auth.JwtConfig
@@ -34,6 +34,7 @@ import babymed.support.redis.RedisClientMock
 import babymed.support.services.syntax.all.deriveEntityDecoder
 import babymed.support.services.syntax.all.deriveEntityEncoder
 import babymed.support.services.syntax.all.http4SyntaxReqOps
+import babymed.syntax.refined.commonSyntaxAutoUnwrapV
 import babymed.test.HttpSuite
 
 object CustomerRoutersSpec extends HttpSuite with CustomerGenerators with UserGenerators {
@@ -48,13 +49,16 @@ object CustomerRoutersSpec extends HttpSuite with CustomerGenerators with UserGe
     Credentials(phoneGen.get, NonEmptyString.unsafeFrom(nonEmptyStringGen(8).get))
   lazy val customer: Customer = customerGen.get
   lazy val customerWithAddress: CustomerWithAddress = customerWithAddressGen.get
+  lazy val region: Region = regionGen.get
+  lazy val town: Town = townGen.get
+  lazy val total: Long = Gen.long.get
 
   def users(role: Role): Users[F] = new Users[F] {
     override def find(phone: Phone): F[Option[UserAndHash]] =
       Sync[F].pure(
-        Option(UserAndHash(user.copy(role = role), SCrypt.hashpwUnsafe(passwordGen.get.value)))
+        Option(UserAndHash(user.copy(role = role), SCrypt.hashpwUnsafe(credentials.password)))
       )
-    override def validationAndCreate(createUser: CreateUser): F[User] = ???
+    override def validationAndCreate(createUser: CreateUser): F[User] = Sync[F].delay(user)
   }
 
   val customers: Customers[F] = new Customers[F] {
@@ -63,10 +67,14 @@ object CustomerRoutersSpec extends HttpSuite with CustomerGenerators with UserGe
     override def getCustomers(filters: SearchFilters): F[List[CustomerWithAddress]] =
       Sync[F].delay(List(customerWithAddress))
     override def getTotalCustomers(filters: SearchFilters): F[Long] =
-      Sync[F].delay(Gen.long.get)
-    override def getCustomerById(customerId: CustomerId): F[Option[CustomerWithAddress]] = ???
-    override def getRegions: F[List[Region]] = ???
-    override def getTownsByRegionId(regionId: RegionId): F[List[Town]] = ???
+      Sync[F].delay(total)
+    override def getCustomerById(
+        customerId: types.CustomerId
+      ): CustomerRoutersSpec.F[Option[CustomerWithAddress]] =
+      Sync[F].delay(Option(customerWithAddress))
+    override def getRegions: CustomerRoutersSpec.F[List[Region]] = Sync[F].delay(List(region))
+    override def getTownsByRegionId(regionId: types.RegionId): CustomerRoutersSpec.F[List[Town]] =
+      Sync[F].delay(List(town))
   }
 
   def authedReq(
@@ -92,7 +100,7 @@ object CustomerRoutersSpec extends HttpSuite with CustomerGenerators with UserGe
   }
 
   test("Create customer with incorrect role") {
-    authedReq(Admin) { token =>
+    authedReq(Doctor) { token =>
       POST(createCustomerGen.get, uri"/customer").bearer(NonEmptyString.unsafeFrom(token.value))
     } {
       case request -> security =>
@@ -131,7 +139,7 @@ object CustomerRoutersSpec extends HttpSuite with CustomerGenerators with UserGe
     } {
       case request -> security =>
         expectHttpBodyAndStatus(CustomerRouters[F](security, customers).routes, request)(
-          Gen.long.get,
+          total,
           Status.Ok,
         )
     }

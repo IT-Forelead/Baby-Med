@@ -1,68 +1,5 @@
 version: '3.9'
 services:
-  nginx-server:
-    image: nginx
-    container_name: babymed_nginx
-    volumes:
-      - ./nginx:/etc/nginx/conf.d
-    networks:
-      - baby-net
-      - external-net
-    ports:
-      - "80:80"
-    logging:
-      driver: "fluentd"
-      options:
-        fluentd-address: localhost:24224
-        tag: babymed
-
-  postgres:
-    restart: always
-    image: postgres:12
-    container_name: babymed-postgres
-    hostname: babymed-postgres
-    environment:
-      POSTGRES_USER: ${POSTGRES_USER}
-      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
-      POSTGRES_DB: ${POSTGRES_DATABASE}
-    volumes:
-      - "../app/tables.sql:/docker-entrypoint-initdb.d/init.sql"
-      - "./data:/var/lib/postgresql/data"
-    healthcheck:
-      test: [ "CMD-SHELL", "pg_isready -U ${POSTGRES_USER}" ]
-      interval: 5s
-      timeout: 5s
-      retries: 5
-    networks:
-      - baby-net
-    logging:
-      driver: "fluentd"
-      options:
-        fluentd-address: localhost:24224
-        tag: babymed
-
-  redis:
-    restart: always
-    image: redis:6.2.6
-    container_name: babymed-redis
-    hostname: babymed-redis
-    ports:
-      - "6379:6379"
-    environment:
-      - DEBUG:false
-    healthcheck:
-      test: [ "CMD", "redis-cli", "ping" ]
-      interval: 1s
-      timeout: 3s
-      retries: 30
-    networks:
-      - baby-net
-    logging:
-      driver: "fluentd"
-      options:
-        fluentd-address: localhost:24224
-        tag: babymed
-
   babymed_services-users:
     restart: always
     image: babymed/services-users:latest
@@ -73,25 +10,25 @@ services:
       USERS_HTTP_PORT: ${USERS_HTTP_PORT}
       HTTP_HEADER_LOG: ${HTTP_HEADER_LOG}
       HTTP_BODY_LOG: ${HTTP_BODY_LOG}
-      POSTGRES_HOST: babymed-postgres
+      POSTGRES_HOST: postgres
       POSTGRES_PORT: 5432
       POSTGRES_USER: ${POSTGRES_USER}
       POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
       POSTGRES_DATABASE: ${POSTGRES_DATABASE}
       POSTGRES_POOL_SIZE: ${POSTGRES_POOL_SIZE}
     networks:
-      - baby-net
+      - external-net
     logging:
       driver: "fluentd"
       options:
-        fluentd-address: localhost:24224
+        fluentd-address: fluentd:24224
+        fluentd-async-connect: "true"
+        fluentd-retry-wait: 1s
+        fluentd-max-retries: 30
         tag: babymed
 
 
 networks:
-  baby-net:
-    name: baby-net
-    driver: bridge
   external-net:
     driver: bridge
     external:
