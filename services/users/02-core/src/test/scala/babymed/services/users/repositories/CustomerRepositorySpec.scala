@@ -28,6 +28,27 @@ object CustomerRepositorySpec extends DBSuite with CustomerGenerators {
       }
   }
 
+  test("Get Customer by Id") { implicit postgres =>
+    val repo = CustomersRepository.make[F]
+    val createCustomer: CreateCustomer = createCustomerGen.get
+    val defaultRegionId: RegionId =
+      RegionId(UUID.fromString("ad514b71-3096-4be5-a455-d87abbb081b2"))
+    val defaultTownId: TownId = TownId(UUID.fromString("0d073b76-08ce-4b78-a88c-a0cb6f80eaf9"))
+
+    repo.create(createCustomer.copy(regionId = defaultRegionId, townId = defaultTownId)).flatMap {
+      customer =>
+        repo
+          .getCustomerById(customer.id)
+          .map { customers =>
+            assert(customers.exists(_.customer.id == customer.id))
+          }
+          .handleError { error =>
+            println("ERROR::::::::::::::::::: " + error)
+            failure("Test failed.")
+          }
+    }
+  }
+
   test("Get Customers") { implicit postgres =>
     val repo = CustomersRepository.make[F]
     val createCustomer: CreateCustomer = createCustomerGen.get
@@ -63,5 +84,33 @@ object CustomerRepositorySpec extends DBSuite with CustomerGenerators {
         .handleError {
           fail("Test failed.")
         }
+  }
+
+  test("Get All Regions") { implicit postgres =>
+    val repo = CustomersRepository.make[F]
+    repo
+      .getRegions
+      .map { regions =>
+        assert(regions.nonEmpty)
+      }
+      .handleError { error =>
+        println("ERROR::::::::::::::::::: " + error)
+        failure("Test failed.")
+      }
+  }
+
+  test("Get Towns by RegionId") { implicit postgres =>
+    val repo = CustomersRepository.make[F]
+    val defaultRegionId: RegionId =
+      RegionId(UUID.fromString("ad514b71-3096-4be5-a455-d87abbb081b2"))
+    repo
+      .getTownsByRegionId(defaultRegionId)
+      .map { towns =>
+        assert(towns.nonEmpty)
+      }
+      .handleError { error =>
+        println("ERROR::::::::::::::::::: " + error)
+        failure("Test failed.")
+      }
   }
 }
