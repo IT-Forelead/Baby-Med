@@ -53,15 +53,15 @@ object CustomersSql {
 
   private def searchFilter(filters: SearchFilters): List[Option[AppliedFragment]] =
     List(
-      filters.startDate.map(sql"created_at >= $zonedDateTime"),
-      filters.endDate.map(sql"created_at <= $zonedDateTime"),
-      filters.customerFirstName.map(sql"firstname like $firstName"),
-      filters.customerLastName.map(sql"lastname like $lastName"),
-      filters.regionId.map(sql"region_id = $regionId"),
-      filters.townId.map(sql"town_id = $townId"),
-      filters.address.map(sql"address like $address"),
-      filters.birthday.map(sql"birthday = $date"),
-      filters.phone.map(sql"phone like $phone"),
+      filters.startDate.map(sql"customers.created_at >= $zonedDateTime"),
+      filters.endDate.map(sql"customers.created_at <= $zonedDateTime"),
+      filters.customerFirstName.map(sql"customers.firstname like $firstName"),
+      filters.customerLastName.map(sql"customers.lastname like $lastName"),
+      filters.regionId.map(sql"customers.region_id = $regionId"),
+      filters.townId.map(sql"customers.town_id = $townId"),
+      filters.address.map(sql"customers.address like $address"),
+      filters.birthday.map(sql"customers.birthday = $date"),
+      filters.phone.map(sql"customers.phone like $phone"),
     )
 
   def select(filters: SearchFilters): AppliedFragment = {
@@ -83,18 +83,50 @@ object CustomersSql {
        towns.name
         FROM customers
         INNER JOIN regions ON customers.region_id = regions.id
-        INNER JOIN towns ON customers.town_id = towns.id"""
+        INNER JOIN towns ON customers.town_id = towns.id
+        WHERE customers.deleted = false"""
 
-    baseQuery(Void).whereAndOpt(searchFilter(filters): _*)
+    baseQuery(Void).andOpt(searchFilter(filters): _*)
   }
 
   def total(filters: SearchFilters): AppliedFragment = {
-    val baseQuery: Fragment[Void] = sql"""SELECT count(*) FROM customers"""
-    baseQuery(Void).whereAndOpt(searchFilter(filters): _*)
+    val baseQuery: Fragment[Void] =
+      sql"""SELECT count(*) FROM customers WHERE deleted = false"""
+    baseQuery(Void).andOpt(searchFilter(filters): _*)
   }
+
+  val selectById: Query[CustomerId, CustomerWithAddress] =
+    sql"""SELECT
+       customers.id,
+       customers.created_at,
+       customers.firstname,
+       customers.lastname,
+       customers.region_id,
+       customers.town_id,
+       customers.address,
+       customers.birthday,
+       customers.phone,
+       regions.id,
+       regions.name,
+       towns.id,
+       towns.region_id,
+       towns.name
+        FROM customers
+        INNER JOIN regions ON customers.region_id = regions.id
+        INNER JOIN towns ON customers.town_id = towns.id
+        WHERE customers.id = $customerId AND customers.deleted = false"""
+      .query(decCustomerWithAddress)
 
   val insert: Query[CustomerId ~ LocalDateTime ~ CreateCustomer, Customer] =
     sql"""INSERT INTO customers VALUES ($encoder)
          RETURNING id, created_at, firstname, lastname, region_id, town_id, address, birthday, phone"""
       .query(decoder)
+
+  val selectRegions: Query[Void, Region] =
+    sql"""SELECT id, name FROM regions WHERE deleted = false ORDER BY name ASC"""
+      .query(decRegion)
+
+  val selectTownsByRegionId: Query[RegionId, Town] =
+    sql"""SELECT id, region_id, name FROM towns WHERE region_id = $regionId AND deleted = false ORDER BY name ASC"""
+      .query(decTown)
 }

@@ -55,8 +55,8 @@ object PaymentsSql {
 
   private def searchFilter(filters: SearchFilters): List[Option[AppliedFragment]] =
     List(
-      filters.startDate.map(sql"created_at >= $timestamp"),
-      filters.endDate.map(sql"created_at <= $timestamp"),
+      filters.startDate.map(sql"payments.created_at >= $timestamp"),
+      filters.endDate.map(sql"payments.created_at <= $timestamp"),
     )
 
   def select(filters: SearchFilters): AppliedFragment = {
@@ -70,12 +70,13 @@ object PaymentsSql {
          customers.address,
          customers.birthday,
          customers.phone FROM payments
-       INNER JOIN customers ON payments.customer_id = customers.id"""
-    baseQuery(Void).whereAndOpt(searchFilter(filters): _*)
+       INNER JOIN customers ON payments.customer_id = customers.id
+       WHERE payments.deleted = false"""
+    baseQuery(Void).andOpt(searchFilter(filters): _*)
   }
 
   def total(filters: SearchFilters): AppliedFragment = {
-    val baseQuery: Fragment[Void] = sql"""SELECT count(*) FROM payments"""
-    baseQuery(Void).whereAndOpt(searchFilter(filters): _*)
+    val baseQuery: Fragment[Void] = sql"""SELECT count(*) FROM payments WHERE deleted = false"""
+    baseQuery(Void).andOpt(searchFilter(filters): _*)
   }
 }
