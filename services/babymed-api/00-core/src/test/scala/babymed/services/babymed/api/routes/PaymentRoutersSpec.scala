@@ -1,8 +1,23 @@
 package babymed.services.babymed.api.routes
 
 import scala.concurrent.duration.DurationInt
+
+import cats.effect.kernel.Sync
+import ciris.Secret
+import dev.profunktor.auth.jwt.JwtToken
+import eu.timepit.refined.types.string.NonEmptyString
+import org.http4s.Method.POST
+import org.http4s.Request
+import org.http4s.Status
+import org.http4s.client.dsl.io._
+import org.http4s.implicits.http4sLiteralsSyntax
+import org.scalacheck.Gen
+import tsec.passwordhashers.jca.SCrypt
+import weaver.Expectations
+
 import babymed.domain.Role
 import babymed.domain.Role.Admin
+import babymed.domain.Role.Doctor
 import babymed.domain.Role.TechAdmin
 import babymed.refinements.Phone
 import babymed.services.auth.JwtConfig
@@ -21,19 +36,8 @@ import babymed.services.users.generators.UserGenerators
 import babymed.services.users.proto.Users
 import babymed.support.redis.RedisClientMock
 import babymed.support.services.syntax.all._
+import babymed.syntax.refined.commonSyntaxAutoUnwrapV
 import babymed.test.HttpSuite
-import cats.effect.kernel.Sync
-import ciris.Secret
-import dev.profunktor.auth.jwt.JwtToken
-import eu.timepit.refined.types.string.NonEmptyString
-import org.http4s.Method.POST
-import org.http4s.Request
-import org.http4s.Status
-import org.http4s.client.dsl.io._
-import org.http4s.implicits.http4sLiteralsSyntax
-import org.scalacheck.Gen
-import tsec.passwordhashers.jca.SCrypt
-import weaver.Expectations
 
 object PaymentRoutersSpec extends HttpSuite with PaymentGenerator with UserGenerators {
   val jwtConfig: JwtConfig =
@@ -55,11 +59,12 @@ object PaymentRoutersSpec extends HttpSuite with PaymentGenerator with UserGener
   lazy val payment: Payment = paymentGen.get
   lazy val createPayment: CreatePayment = createPaymentGen.get
   lazy val paymentWithCustomer: PaymentWithCustomer = paymentWithCustomerGen.get
+  lazy val total: Long = Gen.long.get
 
   def users(role: Role): Users[F] = new Users[F] {
     override def find(phone: Phone): F[Option[UserAndHash]] =
       Sync[F].pure(
-        Option(UserAndHash(user.copy(role = role), SCrypt.hashpwUnsafe(passwordGen.get.value)))
+        Option(UserAndHash(user.copy(role = role), SCrypt.hashpwUnsafe(credentials.password)))
       )
     override def create(createUser: CreateUser): F[User] = ???
   }
@@ -70,7 +75,7 @@ object PaymentRoutersSpec extends HttpSuite with PaymentGenerator with UserGener
     override def get(filters: SearchFilters): F[List[PaymentWithCustomer]] =
       Sync[F].delay(List(paymentWithCustomer))
     override def getPaymentsTotal(filters: SearchFilters): F[Long] =
-      Sync[F].delay(Gen.long.get)
+      Sync[F].delay(total)
   }
 
   def authedReq(
@@ -95,8 +100,8 @@ object PaymentRoutersSpec extends HttpSuite with PaymentGenerator with UserGener
       }
   }
 
-  test("Create customer with incorrect role") {
-    authedReq(Admin) { token =>
+  test("Create payment with incorrect role") {
+    authedReq(Doctor) { token =>
       POST(createPayment, uri"/payment").bearer(NonEmptyString.unsafeFrom(token.value))
     } {
       case request -> security =>
@@ -104,7 +109,7 @@ object PaymentRoutersSpec extends HttpSuite with PaymentGenerator with UserGener
     }
   }
 
-  test("Create customer with correct role") {
+  test("Create payment with correct role") {
     authedReq() { token =>
       POST(createPayment, uri"/payment").bearer(NonEmptyString.unsafeFrom(token.value))
     } {
@@ -113,7 +118,7 @@ object PaymentRoutersSpec extends HttpSuite with PaymentGenerator with UserGener
     }
   }
 
-  test("Get customers") {
+  test("Get payments") {
     authedReq() { token =>
       POST(SearchFilters.Empty, uri"/payment/report").bearer(
         NonEmptyString.unsafeFrom(token.value)
@@ -127,7 +132,7 @@ object PaymentRoutersSpec extends HttpSuite with PaymentGenerator with UserGener
     }
   }
 
-  test("Get customers total") {
+  test("Get payments total") {
     authedReq() { token =>
       POST(SearchFilters.Empty, uri"/payment/report/summary").bearer(
         NonEmptyString.unsafeFrom(token.value)
@@ -135,7 +140,7 @@ object PaymentRoutersSpec extends HttpSuite with PaymentGenerator with UserGener
     } {
       case request -> security =>
         expectHttpBodyAndStatus(PaymentRouters[F](security, payments).routes, request)(
-          Gen.long.get,
+          total,
           Status.Ok,
         )
     }

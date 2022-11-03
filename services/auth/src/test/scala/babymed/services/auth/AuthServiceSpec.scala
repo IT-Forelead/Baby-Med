@@ -29,6 +29,7 @@ import babymed.services.users.generators.UserGenerators
 import babymed.services.users.proto.Users
 import babymed.support.redis.RedisClientMock
 import babymed.syntax.refined.commonSyntaxAutoRefineV
+import babymed.syntax.refined.commonSyntaxAutoUnwrapV
 import babymed.test.HttpSuite
 import babymed.test.generators.CommonGenerators
 
@@ -53,11 +54,11 @@ object AuthServiceSpec extends HttpSuite with CommonGenerators with UserGenerato
         case Some("userNotFound") =>
           Sync[F].pure(None)
         case Some("wrongPassword") =>
-          SCrypt.hashpw[F](pass.value).map { hash =>
+          SCrypt.hashpw[F](pass).map { hash =>
             UserAndHash(user, hash).some
           }
         case None =>
-          SCrypt.hashpw[F](credentials.password.value).map { hash =>
+          SCrypt.hashpw[F](credentials.password).map { hash =>
             UserAndHash(user.copy(phone = credentials.phone), hash).some
           }
         case _ => Sync[F].raiseError(new Exception("Error type not found"))
@@ -98,15 +99,15 @@ object AuthServiceSpec extends HttpSuite with CommonGenerators with UserGenerato
     val redis = RedisClientMock[F]
     (for {
       _ <- redis.put("token", "user", 1.minute)
-      _ <- redis.put("login", "token", 1.minute)
-      tokenBeforeDestroy <- redis.get("login")
+      _ <- redis.put(user.phone, "token", 1.minute)
+      tokenBeforeDestroy <- redis.get(user.phone)
       request = Request[F](uri = uri"/test")
         .withHeaders(Authorization(Token(AuthScheme.Bearer, "token")))
-      _ <- Auth[F](tokens, users(user, password), redis).destroySession(request, "login")
-      tokenAfterDestroy <- redis.get("login")
+      _ <- Auth[F](tokens, users(user, password), redis).destroySession(request, user.phone)
+      tokenAfterDestroy <- redis.get(user.phone)
     } yield assert.all(tokenBeforeDestroy.contains("token"), tokenAfterDestroy.isEmpty))
-      .handleError {
-        fail("Test failure")
+      .handleError { error =>
+        failure(error.toString)
       }
   }
 }

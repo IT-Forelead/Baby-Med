@@ -1,5 +1,6 @@
 package babymed.services.babymed.api.routes
 
+import babymed.domain.Role.Doctor
 import babymed.services.auth.impl.Security
 import babymed.services.users.domain.{CreateCustomer, SearchFilters, User}
 import babymed.services.users.proto.Customers
@@ -23,7 +24,7 @@ final case class CustomerRouters[F[_]: Async: JsonDecoder](
 
   private[this] val privateRoutes: AuthedRoutes[User, F] = AuthedRoutes.of {
 
-    case ar @ POST -> Root as _ =>
+    case ar @ POST -> Root as user if user.role != Doctor  =>
       ar.req.decodeR[CreateCustomer] { createCustomer =>
         customers.createCustomers(createCustomer) *> NoContent()
       }
