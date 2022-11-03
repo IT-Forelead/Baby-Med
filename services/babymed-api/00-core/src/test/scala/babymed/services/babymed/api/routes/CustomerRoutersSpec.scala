@@ -24,8 +24,6 @@ import babymed.services.auth.domain.Credentials
 import babymed.services.auth.domain.types._
 import babymed.services.auth.impl.Security
 import babymed.services.users.domain._
-import babymed.services.users.domain.types.CustomerId
-import babymed.services.users.domain.types.RegionId
 import babymed.services.users.generators.CustomerGenerators
 import babymed.services.users.generators.UserGenerators
 import babymed.services.users.proto.Customers
