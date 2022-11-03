@@ -2,6 +2,7 @@ package babymed.services.users.boundary
 
 import cats.effect.kernel.Sync
 import org.scalacheck.Gen
+
 import babymed.services.users.domain.CreateCustomer
 import babymed.services.users.domain.Customer
 import babymed.services.users.domain.CustomerWithAddress

@@ -53,7 +53,11 @@ lazy val `services_users-server` =
 lazy val `services_users-runner` =
   project
     .in(file("04-runner"))
-    .dependsOn(`services_users-server`)
+    .dependsOn(
+      `services_users-server`,
+      LocalProject("support_database"),
+      LocalProject("services_migrations"),
+    )
     .settings(
       libraryDependencies ++= Seq(
         Libraries.GRPC.server

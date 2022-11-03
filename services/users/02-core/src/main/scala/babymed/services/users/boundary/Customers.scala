@@ -6,7 +6,8 @@ import babymed.services.users.domain.CustomerWithAddress
 import babymed.services.users.domain.Region
 import babymed.services.users.domain.SearchFilters
 import babymed.services.users.domain.Town
-import babymed.services.users.domain.types.{CustomerId, RegionId}
+import babymed.services.users.domain.types.CustomerId
+import babymed.services.users.domain.types.RegionId
 import babymed.services.users.proto
 import babymed.services.users.repositories.CustomersRepository
 

@@ -5,12 +5,13 @@ import cats.effect.Resource
 import cats.effect.std.Console
 import cats.implicits.toFlatMapOps
 import cats.implicits.toFoldableOps
-import babymed.support.redis.RedisConfig
 import dev.profunktor.redis4cats.Redis
 import dev.profunktor.redis4cats.RedisCommands
 import dev.profunktor.redis4cats.effect.MkRedis
 import fs2.io.net.Network
 import org.typelevel.log4cats.Logger
+
+import babymed.support.redis.RedisConfig
 
 case class ServiceResources[F[_]](
     redis: RedisCommands[F, String, String]
