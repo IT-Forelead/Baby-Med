@@ -37,7 +37,7 @@ CREATE TABLE users
     created_at TIMESTAMP NOT NULL,
     firstname  VARCHAR   NOT NULL,
     lastname   VARCHAR   NOT NULL,
-    phone      VARCHAR   NOT NULL,
+    phone      VARCHAR   NOT NULL UNIQUE,
     role       ROLE      NOT NULL,
     password   VARCHAR   NOT NULL,
     deleted    BOOLEAN   NOT NULL DEFAULT false

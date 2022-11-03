@@ -8,8 +8,8 @@ import babymed.services.users.proto
 import babymed.services.users.repositories.UsersRepository
 
 class Users[F[_]](usersRepository: UsersRepository[F]) extends proto.Users[F] {
-  override def create(createUser: CreateUser): F[User] =
-    usersRepository.create(createUser)
+  override def validationAndCreate(createUser: CreateUser): F[User] =
+    usersRepository.validationAndCreate(createUser)
   override def find(phone: Phone): F[Option[UserAndHash]] =
     usersRepository.findByPhone(phone)
 }

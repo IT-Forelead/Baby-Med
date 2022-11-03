@@ -11,7 +11,7 @@ import babymed.support.services.syntax.marshaller.codec
 
 @service(Custom)
 trait Users[F[_]] {
-  def create(createUser: CreateUser): F[User]
+  def validationAndCreate(createUser: CreateUser): F[User]
   def find(phone: Phone): F[Option[UserAndHash]]
 }
 

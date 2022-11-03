@@ -12,7 +12,7 @@ import babymed.test.TestSuite
 
 object UsersSpec extends TestSuite with UserGenerators {
   val userRepo: UsersRepository[F] = new UsersRepository[F] {
-    override def create(createUser: CreateUser): F[User] =
+    override def validationAndCreate(createUser: CreateUser): F[User] =
       Sync[F].delay(userGen.get)
     override def findByPhone(phone: Phone): F[Option[UserAndHash]] =
       Sync[F].delay(userAndHashGen.getOpt)
@@ -22,7 +22,7 @@ object UsersSpec extends TestSuite with UserGenerators {
 
   loggedTest("Create User") { logger =>
     users
-      .create(createUserGen.get)
+      .validationAndCreate(createUserGen.get)
       .as(success)
       .handleErrorWith { error =>
         logger

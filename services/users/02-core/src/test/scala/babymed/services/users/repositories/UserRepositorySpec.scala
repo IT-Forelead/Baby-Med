@@ -11,7 +11,7 @@ object UserRepositorySpec extends DBSuite with UserGenerators {
   test("Create User") { implicit postgres =>
     UsersRepository
       .make[F]
-      .create(createUserGen.get)
+      .validationAndCreate(createUserGen.get)
       .map { pr =>
         assert(pr.createdAt.isBefore(LocalDateTime.now()))
       }
@@ -23,7 +23,7 @@ object UserRepositorySpec extends DBSuite with UserGenerators {
   test("Find User by Phone") { implicit postgres =>
     val repo = UsersRepository.make[IO]
     val createUser = createUserGen.get
-    repo.create(createUser) >>
+    repo.validationAndCreate(createUser) >>
       repo
         .findByPhone(createUser.phone)
         .map { optUser =>
