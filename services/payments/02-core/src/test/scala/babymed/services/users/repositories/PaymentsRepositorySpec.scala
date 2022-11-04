@@ -7,9 +7,11 @@ import babymed.services.payments.domain.SearchFilters
 import babymed.services.payments.generators.PaymentGenerator
 import babymed.services.payments.repositories.PaymentsRepository
 import babymed.services.users.domain.types.CustomerId
-import babymed.test.DBSuite
+import babymed.support.database.DBSuite
 
 object PaymentsRepositorySpec extends DBSuite with PaymentGenerator {
+  override def schemaName: String = "public"
+
   test("Create Payment") { implicit postgres =>
     val repo = PaymentsRepository.make[F]
     val defaultCustomerId = CustomerId(UUID.fromString("f4484324-e6cd-4e48-8d24-638f0a4fabaa"))

@@ -1,4 +1,4 @@
-package babymed.support.skunk;
+package babymed.support.skunk
 
 import cats.implicits.catsSyntaxTuple6Parallel
 import ciris._

@@ -5,9 +5,11 @@ import java.time.LocalDateTime
 import cats.effect.IO
 
 import babymed.services.users.generators.UserGenerators
-import babymed.test.DBSuite
+import babymed.support.database.DBSuite
 
 object UserRepositorySpec extends DBSuite with UserGenerators {
+  override def schemaName: String = "public"
+
   test("Create User") { implicit postgres =>
     UsersRepository
       .make[F]

@@ -1,4 +1,4 @@
-package babymed.test
+package babymed.support.database
 
 import cats.effect.IO
 import cats.effect.Resource
@@ -10,7 +10,6 @@ import skunk.util.Typer
 import weaver.IOSuite
 import weaver.scalacheck.CheckConfig
 import weaver.scalacheck.Checkers
-
 trait DBSuite extends IOSuite with Checkers with Container {
   type Res = Resource[IO, Session[IO]]
 

@@ -1,6 +1,4 @@
-package babymed.test
-
-import scala.io.Source
+package babymed.support.database
 
 import cats.effect.IO
 import cats.effect.Resource
@@ -9,8 +7,10 @@ import org.testcontainers.utility.DockerImageName
 import org.typelevel.log4cats.SelfAwareStructuredLogger
 import org.typelevel.log4cats.noop.NoOpLogger
 import weaver.scalacheck.CheckConfig
-
 trait Container {
+  def schemaName: String
+  def migrationLocation: Option[String] = None
+
   type Res
   lazy val imageName: String = "postgres:12"
   lazy val container: PostgreSQLContainer[Nothing] = new PostgreSQLContainer(
@@ -24,18 +24,6 @@ trait Container {
   implicit val logger: SelfAwareStructuredLogger[IO] = NoOpLogger[IO]
   //  implicit val logger: SelfAwareStructuredLogger[IO] = Slf4jLogger.getLogger[IO]
 
-  def migrateSql(container: PostgreSQLContainer[Nothing]): Unit = {
-    val source = Source.fromFile(getClass.getResource("/tables.sql").getFile)
-    val sqlScripts = source.getLines().mkString
-    source.close()
-    val connection = container.createConnection(
-      s"?user=${container.getUsername}&password=${container.getPassword}"
-    )
-    val stmt = connection.createStatement()
-    stmt.execute(sqlScripts)
-    stmt.closeOnCompletion()
-  }
-
   val dbResource: Resource[IO, PostgreSQLContainer[Nothing]] =
     for {
       container <- Resource.fromAutoCloseable {
@@ -45,7 +33,17 @@ trait Container {
           container
         }
       }
-      _ = migrateSql(container)
       _ <- Resource.eval(logger.info("Container has started"))
+      migrationConfig = MigrationsConfig(
+        hostname = container.getHost,
+        port = container.getFirstMappedPort,
+        database = container.getDatabaseName,
+        username = container.getUsername,
+        password = container.getPassword,
+        schema = schemaName,
+        location = migrationLocation.getOrElse("db/migration"),
+      )
+      _ <- Resource.eval(logger.info(s"Migrating database at ${container.getJdbcUrl}"))
+      _ <- Resource.eval(Migrations.run[IO](migrationConfig))
     } yield container
 }

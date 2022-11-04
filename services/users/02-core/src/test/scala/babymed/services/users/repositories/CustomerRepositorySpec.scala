@@ -8,9 +8,11 @@ import babymed.services.users.domain.SearchFilters
 import babymed.services.users.domain.types.RegionId
 import babymed.services.users.domain.types.TownId
 import babymed.services.users.generators.CustomerGenerators
-import babymed.test.DBSuite
+import babymed.support.database.DBSuite
 
 object CustomerRepositorySpec extends DBSuite with CustomerGenerators {
+  override def schemaName: String = "public"
+
   test("Create Customer") { implicit postgres =>
     val repo = CustomersRepository.make[F]
     val createCustomer: CreateCustomer = createCustomerGen.get

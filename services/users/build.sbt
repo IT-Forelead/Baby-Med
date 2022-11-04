@@ -17,14 +17,17 @@ lazy val `services_users-domain` = project
         )
   )
   .dependsOn(
-    LocalProject("common"),
-    LocalProject("test-tools"),
+    LocalProject("common")     % CompileAndTest,
+    LocalProject("test-tools") % CompileAndTest,
   )
 
 lazy val `services_users-protocol` =
   project
     .in(file("01-protocol"))
-    .dependsOn(`services_users-domain`, LocalProject("supports_services"))
+    .dependsOn(
+      `services_users-domain` % CompileAndTest,
+      LocalProject("supports_services"),
+    )
     .settings(
       scalacOptions ++= Seq("-Ymacro-annotations"),
       libraryDependencies ++= Seq(
@@ -40,9 +43,9 @@ lazy val `services_users-core` =
       libraryDependencies ++= Libraries.Logging.all
     )
     .dependsOn(
-      `services_users-protocol`,
-      LocalProject("supports_skunk"),
-      LocalProject("test-tools") % Test,
+      `services_users-protocol`        % CompileAndTest,
+      LocalProject("support_database") % CompileAndTest,
+      LocalProject("migrations")       % CompileAndTest,
     )
 
 lazy val `services_users-server` =
@@ -53,11 +56,7 @@ lazy val `services_users-server` =
 lazy val `services_users-runner` =
   project
     .in(file("04-runner"))
-    .dependsOn(
-      `services_users-server`,
-      LocalProject("support_database"),
-      LocalProject("services_migrations"),
-    )
+    .dependsOn(`services_users-server`)
     .settings(
       libraryDependencies ++= Seq(
         Libraries.GRPC.server

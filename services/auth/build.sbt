@@ -14,7 +14,7 @@ libraryDependencies ++=
 
 dependsOn(
   LocalProject("common"),
-  LocalProject("services_users-protocol"),
+  LocalProject("services_users-protocol") % CompileAndTest,
   LocalProject("supports_redis"),
-  LocalProject("test-tools") % Test,
+  LocalProject("test-tools") % CompileAndTest,
 )
