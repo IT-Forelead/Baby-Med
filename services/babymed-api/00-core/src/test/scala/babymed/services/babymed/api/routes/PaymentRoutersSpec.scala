@@ -29,6 +29,7 @@ import babymed.services.payments.domain._
 import babymed.services.payments.generators.PaymentGenerator
 import babymed.services.payments.proto.Payments
 import babymed.services.users.domain.CreateUser
+import babymed.services.users.domain.EditUser
 import babymed.services.users.domain.User
 import babymed.services.users.domain.UserAndHash
 import babymed.services.users.domain.UserFilters
@@ -68,6 +69,7 @@ object PaymentRoutersSpec extends HttpSuite with PaymentGenerator with UserGener
         Option(UserAndHash(user.copy(role = role), SCrypt.hashpwUnsafe(credentials.password)))
       )
     override def validationAndCreate(createUser: CreateUser): F[User] = ???
+    override def validationAndEdit(editUser: EditUser): F[Unit] = ???
     override def get(filters: UserFilters): F[List[User]] = ???
     override def delete(userId: UserId): F[Unit] = ???
   }

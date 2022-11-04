@@ -23,6 +23,7 @@ import babymed.services.auth.utils.Generators.credentialsGen
 import babymed.services.auth.utils.JwtExpire
 import babymed.services.auth.utils.Tokens
 import babymed.services.users.domain.CreateUser
+import babymed.services.users.domain.EditUser
 import babymed.services.users.domain.User
 import babymed.services.users.domain.UserAndHash
 import babymed.services.users.domain.UserFilters
@@ -65,6 +66,7 @@ object AuthServiceSpec extends HttpSuite with CommonGenerators with UserGenerato
         case _ => Sync[F].raiseError(new Exception("Error type not found"))
       }
     override def validationAndCreate(createUser: CreateUser): F[User] = ???
+    override def validationAndEdit(editUser: EditUser): F[Unit] = ???
     override def get(filters: UserFilters): F[List[User]] = ???
     override def delete(userId: UserId): F[Unit] = ???
   }

@@ -4,6 +4,7 @@ import org.scalacheck.Gen
 import tsec.passwordhashers.jca.SCrypt
 
 import babymed.services.users.domain.CreateUser
+import babymed.services.users.domain.EditUser
 import babymed.services.users.domain.User
 import babymed.services.users.domain.UserAndHash
 
@@ -20,6 +21,15 @@ trait UserGenerators extends TypeGen {
 
   def createUserGen: Gen[CreateUser] =
     CreateUser(
+      firstname = firstNameGen.get,
+      lastname = lastNameGen.get,
+      role = roleGen.get,
+      phone = phoneGen.get,
+    )
+
+  def editUserGen: Gen[EditUser] =
+    EditUser(
+      id = userIdGen.get,
       firstname = firstNameGen.get,
       lastname = lastNameGen.get,
       role = roleGen.get,

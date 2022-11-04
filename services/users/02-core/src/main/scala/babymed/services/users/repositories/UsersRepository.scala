@@ -14,6 +14,7 @@ import babymed.effects.Calendar
 import babymed.exception.PhoneInUse
 import babymed.refinements.Phone
 import babymed.services.users.domain.CreateUser
+import babymed.services.users.domain.EditUser
 import babymed.services.users.domain.User
 import babymed.services.users.domain.UserAndHash
 import babymed.services.users.domain.UserFilters
@@ -25,6 +26,7 @@ import babymed.util.RandomGenerator
 
 trait UsersRepository[F[_]] {
   def validationAndCreate(createUser: CreateUser): F[User]
+  def validationAndEdit(editUser: EditUser): F[Unit]
   def findByPhone(phone: Phone): F[Option[UserAndHash]]
   def get(filters: UserFilters): F[List[User]]
   def delete(userId: UserId): F[Unit]
@@ -50,6 +52,11 @@ object UsersRepository {
       OptionT(selectOldUser.queryOption(createUser.phone))
         .semiflatMap(_ => PhoneInUse(createUser.phone).raiseError[F, User])
         .getOrElseF(create(createUser))
+
+    override def validationAndEdit(editUser: EditUser): F[Unit] =
+      OptionT(selectOldUser.queryOption(editUser.phone))
+        .semiflatMap(_ => PhoneInUse(editUser.phone).raiseError[F, Unit])
+        .getOrElseF(UsersSql.updateUserSql.execute(editUser))
 
     override def findByPhone(phone: Phone): F[Option[UserAndHash]] =
       selectByPhone.queryOption(phone)

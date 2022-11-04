@@ -4,6 +4,7 @@ import cats.effect.kernel.Sync
 
 import babymed.refinements.Phone
 import babymed.services.users.domain.CreateUser
+import babymed.services.users.domain.EditUser
 import babymed.services.users.domain.User
 import babymed.services.users.domain.UserAndHash
 import babymed.services.users.domain.UserFilters
@@ -16,6 +17,8 @@ object UsersSpec extends TestSuite with UserGenerators {
   val userRepo: UsersRepository[F] = new UsersRepository[F] {
     override def validationAndCreate(createUser: CreateUser): F[User] =
       Sync[F].delay(userGen.get)
+    override def validationAndEdit(editUser: EditUser): F[Unit] =
+      Sync[F].unit
     override def findByPhone(phone: Phone): F[Option[UserAndHash]] =
       Sync[F].delay(userAndHashGen.getOpt)
     override def get(filters: UserFilters): F[List[User]] =
@@ -28,6 +31,17 @@ object UsersSpec extends TestSuite with UserGenerators {
   loggedTest("Create User") { logger =>
     users
       .validationAndCreate(createUserGen.get)
+      .as(success)
+      .handleErrorWith { error =>
+        logger
+          .error("Error occurred!", cause = error)
+          .as(failure("Test failed!"))
+      }
+  }
+
+  loggedTest("Edit User") { logger =>
+    users
+      .validationAndEdit(editUserGen.get)
       .as(success)
       .handleErrorWith { error =>
         logger

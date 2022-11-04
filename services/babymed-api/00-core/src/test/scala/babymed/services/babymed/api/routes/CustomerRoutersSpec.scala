@@ -58,6 +58,7 @@ object CustomerRoutersSpec extends HttpSuite with CustomerGenerators with UserGe
         Option(UserAndHash(user.copy(role = role), SCrypt.hashpwUnsafe(credentials.password)))
       )
     override def validationAndCreate(createUser: CreateUser): F[User] = Sync[F].delay(user)
+    override def validationAndEdit(editUser: EditUser): F[Unit] = ???
     override def get(filters: UserFilters): F[List[User]] = ???
     override def delete(userId: UserId): F[Unit] = ???
   }

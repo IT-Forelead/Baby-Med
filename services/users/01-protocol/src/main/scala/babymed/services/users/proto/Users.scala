@@ -4,6 +4,7 @@ import io.circe.refined._
 
 import babymed.refinements.Phone
 import babymed.services.users.domain.CreateUser
+import babymed.services.users.domain.EditUser
 import babymed.services.users.domain.User
 import babymed.services.users.domain.UserAndHash
 import babymed.services.users.domain.UserFilters
@@ -14,6 +15,7 @@ import babymed.support.services.syntax.marshaller.codec
 @service(Custom)
 trait Users[F[_]] {
   def validationAndCreate(createUser: CreateUser): F[User]
+  def validationAndEdit(editUser: EditUser): F[Unit]
   def find(phone: Phone): F[Option[UserAndHash]]
   def get(filters: UserFilters): F[List[User]]
   def delete(userId: UserId): F[Unit]
