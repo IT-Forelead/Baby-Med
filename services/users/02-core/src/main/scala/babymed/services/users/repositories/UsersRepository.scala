@@ -46,21 +46,9 @@ object UsersRepository {
         user <- insert.queryUnique(id ~ now ~ createUser ~ password)
       } yield user
 
-    private def updateOldUser(id: UserId, createUser: CreateUser): F[User] =
-      for {
-        now <- Calendar[F].currentDateTime
-        password <- SCrypt.hashpw[F](RandomGenerator.randomPassword(6))
-        user <- updateOldUserSql.queryUnique(id ~ now ~ createUser ~ password)
-      } yield user
-
     override def validationAndCreate(createUser: CreateUser): F[User] =
       OptionT(selectOldUser.queryOption(createUser.phone))
-        .semiflatMap(oldUser =>
-          if (oldUser.deleted)
-            updateOldUser(oldUser.id, createUser = createUser)
-          else
-            PhoneInUse(createUser.phone).raiseError[F, User]
-        )
+        .semiflatMap(_ => PhoneInUse(createUser.phone).raiseError[F, User])
         .getOrElseF(create(createUser))
 
     override def findByPhone(phone: Phone): F[Option[UserAndHash]] =
@@ -72,6 +60,6 @@ object UsersRepository {
     }
 
     override def delete(userId: UserId): F[Unit] =
-      updateDeletedStatus.execute(userId)
+      deleteUserSql.execute(userId)
   }
 }

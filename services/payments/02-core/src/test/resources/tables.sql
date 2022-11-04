@@ -39,8 +39,7 @@ CREATE TABLE users
     lastname   VARCHAR   NOT NULL,
     phone      VARCHAR   NOT NULL UNIQUE,
     role       ROLE      NOT NULL,
-    password   VARCHAR   NOT NULL,
-    deleted    BOOLEAN   NOT NULL DEFAULT false
+    password   VARCHAR   NOT NULL
 );
 
 CREATE TABLE customers
