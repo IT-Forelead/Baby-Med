@@ -31,6 +31,8 @@ import babymed.services.payments.proto.Payments
 import babymed.services.users.domain.CreateUser
 import babymed.services.users.domain.User
 import babymed.services.users.domain.UserAndHash
+import babymed.services.users.domain.UserFilters
+import babymed.services.users.domain.types.UserId
 import babymed.services.users.generators.UserGenerators
 import babymed.services.users.proto.Users
 import babymed.support.redis.RedisClientMock
@@ -66,6 +68,8 @@ object PaymentRoutersSpec extends HttpSuite with PaymentGenerator with UserGener
         Option(UserAndHash(user.copy(role = role), SCrypt.hashpwUnsafe(credentials.password)))
       )
     override def validationAndCreate(createUser: CreateUser): F[User] = ???
+    override def get(filters: UserFilters): F[List[User]] = ???
+    override def delete(userId: UserId): F[Unit] = ???
   }
 
   val payments: Payments[F] = new Payments[F] {

@@ -24,6 +24,7 @@ import babymed.services.auth.domain.Credentials
 import babymed.services.auth.domain.types._
 import babymed.services.auth.impl.Security
 import babymed.services.users.domain._
+import babymed.services.users.domain.types.UserId
 import babymed.services.users.generators.CustomerGenerators
 import babymed.services.users.generators.UserGenerators
 import babymed.services.users.proto.Customers
@@ -57,6 +58,8 @@ object CustomerRoutersSpec extends HttpSuite with CustomerGenerators with UserGe
         Option(UserAndHash(user.copy(role = role), SCrypt.hashpwUnsafe(credentials.password)))
       )
     override def validationAndCreate(createUser: CreateUser): F[User] = Sync[F].delay(user)
+    override def get(filters: UserFilters): F[List[User]] = ???
+    override def delete(userId: UserId): F[Unit] = ???
   }
 
   val customers: Customers[F] = new Customers[F] {

@@ -14,8 +14,10 @@ import babymed.services.users.domain.CreateUser
 import babymed.services.users.domain.OldUser
 import babymed.services.users.domain.User
 import babymed.services.users.domain.UserAndHash
+import babymed.services.users.domain.UserFilters
 import babymed.services.users.domain.types.UserId
 import babymed.support.skunk.codecs.phone
+import babymed.support.skunk.syntax.all.skunkSyntaxFragmentOps
 
 object UsersSql {
   val userId: Codec[UserId] = identity[UserId]
@@ -48,6 +50,22 @@ object UsersSql {
       OldUser(id, createdAt, firstName, lastName, phone, role, deleted)
   }
 
+  private def userFilters(filters: UserFilters): List[Option[AppliedFragment]] =
+    List(
+      filters.firstName.map(sql"customers.firstname like $firstName"),
+      filters.lastName.map(sql"customers.lastname like $lastName"),
+      filters.role.map(sql"customers.birthday = $role"),
+      filters.phone.map(sql"customers.phone like $phone"),
+    )
+
+  def select(filters: UserFilters): AppliedFragment = {
+    val baseQuery: Fragment[Void] =
+      sql"""SELECT id, created_at, firstname, lastname, phone, role FROM users
+        WHERE deleted = false"""
+
+    baseQuery(Void).andOpt(userFilters(filters): _*)
+  }
+
   val insert: Query[UserId ~ LocalDateTime ~ CreateUser ~ PasswordHash[SCrypt], User] =
     sql"""INSERT INTO users VALUES ($encoder) RETURNING id, created_at, firstname, lastname, phone, role"""
       .query(decoder)
@@ -77,4 +95,7 @@ object UsersSql {
         case id ~ createdAt ~ cu ~ password =>
           createdAt ~ cu.firstname ~ cu.lastname ~ cu.phone ~ cu.role ~ password ~ id
       }
+
+  val updateDeletedStatus: Command[UserId] =
+    sql"""UPDATE users SET deleted = true WHERE id = $userId""".command
 }

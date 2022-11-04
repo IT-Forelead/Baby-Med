@@ -4,6 +4,8 @@ import java.time.LocalDateTime
 
 import cats.effect.IO
 
+import babymed.services.users.domain.CreateUser
+import babymed.services.users.domain.UserFilters
 import babymed.services.users.generators.UserGenerators
 import babymed.test.DBSuite
 
@@ -30,5 +32,31 @@ object UserRepositorySpec extends DBSuite with UserGenerators {
           assert(optUser.map(_.user.phone).contains(createUser.phone))
         }
         .handleError(fail("Should return product exchange"))
+  }
+
+  test("Get Users") { implicit postgres =>
+    val repo = UsersRepository.make[F]
+    val createUser: CreateUser = createUserGen.get
+
+    repo.validationAndCreate(createUser) *>
+      repo
+        .get(UserFilters.Empty)
+        .map { users =>
+          assert(users.exists(_.phone == createUser.phone))
+        }
+        .handleError { error =>
+          println("ERROR::::::::::::::::::: " + error)
+          failure("Test failed.")
+        }
+  }
+
+  test("Delete User") { implicit postgres =>
+    val repo = UsersRepository.make[IO]
+    val create = createUserGen.get
+    for {
+      createUser <- repo.validationAndCreate(create)
+      _ <- repo.delete(createUser.id)
+      users <- repo.get(UserFilters.Empty)
+    } yield assert(users.exists(_.id != createUser.id))
   }
 }
