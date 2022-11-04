@@ -11,10 +11,10 @@ import tsec.passwordhashers.jca.SCrypt
 
 import babymed.refinements.Phone
 import babymed.services.users.domain.CreateUser
-import babymed.services.users.domain.OldUser
 import babymed.services.users.domain.User
 import babymed.services.users.domain.UserAndHash
 import babymed.services.users.domain.UserFilters
+import babymed.services.users.domain.UserIdWithDeletedStatus
 import babymed.services.users.domain.types.UserId
 import babymed.support.skunk.codecs.phone
 import babymed.support.skunk.syntax.all.skunkSyntaxFragmentOps
@@ -45,9 +45,9 @@ object UsersSql {
       User(id, createdAt, firstName, lastName, phone, role)
   }
 
-  val decOldUser: Decoder[OldUser] = (Columns ~ bool).map {
-    case id ~ createdAt ~ firstName ~ lastName ~ phone ~ role ~ deleted =>
-      OldUser(id, createdAt, firstName, lastName, phone, role, deleted)
+  val decOldUser: Decoder[UserIdWithDeletedStatus] = (userId ~ bool).map {
+    case id ~ deleted =>
+      UserIdWithDeletedStatus(id, deleted)
   }
 
   private def userFilters(filters: UserFilters): List[Option[AppliedFragment]] =
@@ -75,10 +75,8 @@ object UsersSql {
          WHERE phone = $phone AND deleted = false"""
       .query(decoderUserAndHash)
 
-  val selectOldUser: Query[Phone, OldUser] =
-    sql"""SELECT id, created_at, firstname, lastname, phone, role, deleted FROM users
-         WHERE phone = $phone"""
-      .query(decOldUser)
+  val selectOldUser: Query[Phone, UserIdWithDeletedStatus] =
+    sql"""SELECT id, deleted FROM users WHERE phone = $phone""".query(decOldUser)
 
   val updateOldUserSql: Query[UserId ~ LocalDateTime ~ CreateUser ~ PasswordHash[SCrypt], User] =
     sql"""UPDATE users SET created_at = $timestamp,
