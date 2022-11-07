@@ -19,7 +19,7 @@ object RpcClients {
   def make[F[_]: Async](config: Config.ServicesConfig): Resource[F, RpcClients[F]] =
     for {
       userClient <- Users.client[F](config.users.channelAddress)
-      customerClient <- Customers.client[F](config.customer.channelAddress)
+      customerClient <- Customers.client[F](config.users.channelAddress)
       paymentClient <- Payments.client[F](config.payment.channelAddress)
     } yield RpcClients[F](userClient, customerClient, paymentClient)
 }
