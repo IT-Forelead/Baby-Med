@@ -17,12 +17,12 @@ import babymed.util.ConfigDecoders.appModeConfigDecoder
 object ConfigLoader {
   def load[F[_]: Async]: F[Config] = (
     env("APP_MODE").as[AppMode],
-    env("USERS_SERVICE_HOST_NAME")
+    env("PAYMENTS_SERVICE_HOST_NAME")
       .as[NonEmptyString]
       .option
       .map(_.getOrElse[NonEmptyString]("127.0.0.1")),
-    GrpcServerConfig.configValues("USERS"),
-    HttpServerConfig.configValues("USERS"),
+    GrpcServerConfig.configValues("PAYMENTS"),
+    HttpServerConfig.configValues("PAYMENTS"),
     DataBaseConfig.configValues,
   ).parMapN(Config.apply).load[F]
 }

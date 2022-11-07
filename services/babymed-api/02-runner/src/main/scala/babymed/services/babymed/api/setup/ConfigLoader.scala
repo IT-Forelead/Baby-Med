@@ -9,8 +9,8 @@ import babymed.services.auth.JwtConfig
 import babymed.support.redis.RedisConfig
 import babymed.support.services.ServiceConfig
 import babymed.support.services.http4s.HttpServerConfig
-import babymed.syntax.all.circeConfigDecoder
 import babymed.syntax.refined._
+import babymed.util.ConfigDecoders.appModeConfigDecoder
 
 object ConfigLoader {
   private def loadServicesConfig: ConfigValue[Effect, Config.ServicesConfig] = (
