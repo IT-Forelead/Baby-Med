@@ -1,7 +1,5 @@
 package babymed.services.users.setup
 
-import eu.timepit.refined.types.string.NonEmptyString
-
 import babymed.domain.AppMode
 import babymed.support.database.MigrationsConfig
 import babymed.support.services.http4s.HttpServerConfig
@@ -11,7 +9,6 @@ import babymed.syntax.refined.commonSyntaxAutoUnwrapV
 
 case class Config(
     appMode: AppMode,
-    serviceIpAddress: NonEmptyString,
     rpcServer: GrpcServerConfig,
     httpServer: HttpServerConfig,
     database: DataBaseConfig,

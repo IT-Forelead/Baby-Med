@@ -15,7 +15,6 @@ import babymed.util.ConfigDecoders.appModeConfigDecoder
 object ConfigLoader {
   private def loadServicesConfig: ConfigValue[Effect, Config.ServicesConfig] = (
     ServiceConfig.configValues("USERS"),
-    ServiceConfig.configValues("CUSTOMERS"),
     ServiceConfig.configValues("PAYMENTS"),
   ).parMapN(Config.ServicesConfig.apply)
 

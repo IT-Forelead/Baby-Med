@@ -21,7 +21,6 @@ case class Config(
 object Config {
   case class ServicesConfig(
       users: ServiceConfig,
-      customer: ServiceConfig,
       payment: ServiceConfig,
     )
 }

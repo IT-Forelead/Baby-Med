@@ -48,7 +48,7 @@ object UsersSql {
     List(
       filters.firstName.map(sql"customers.firstname like $firstName"),
       filters.lastName.map(sql"customers.lastname like $lastName"),
-      filters.role.map(sql"customers.birthday = $role"),
+      filters.role.map(sql"customers.role = $role"),
       filters.phone.map(sql"customers.phone like $phone"),
     )
 
