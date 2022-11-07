@@ -33,8 +33,7 @@ trait UsersRepository[F[_]] {
 object UsersRepository {
   def make[F[_]: Async](
       implicit
-      session: Resource[F, Session[F]],
-      F: MonadCancel[F, Throwable],
+      session: Resource[F, Session[F]]
     ): UsersRepository[F] = new UsersRepository[F] {
     import sql.UsersSql._
 
