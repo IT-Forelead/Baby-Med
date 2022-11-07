@@ -6,9 +6,11 @@ import cats.effect.kernel.Sync
 import ciris.Secret
 import dev.profunktor.auth.jwt.JwtToken
 import eu.timepit.refined.types.string.NonEmptyString
+import org.http4s.Method.GET
 import org.http4s.Method.POST
 import org.http4s.Request
 import org.http4s.Status
+import org.http4s.Uri
 import org.http4s.client.dsl.io._
 import org.http4s.implicits.http4sLiteralsSyntax
 import org.scalacheck.Gen
@@ -17,6 +19,7 @@ import weaver.Expectations
 
 import babymed.domain.Role
 import babymed.domain.Role.Doctor
+import babymed.domain.Role.SuperManager
 import babymed.domain.Role.TechAdmin
 import babymed.refinements.Phone
 import babymed.services.auth.JwtConfig
@@ -26,6 +29,7 @@ import babymed.services.auth.domain.types.TokenExpiration
 import babymed.services.auth.domain.types.tokenCodec
 import babymed.services.auth.impl.Security
 import babymed.services.payments.domain._
+import babymed.services.payments.domain.types.PaymentId
 import babymed.services.payments.generators.PaymentGenerator
 import babymed.services.payments.proto.Payments
 import babymed.services.users.domain.CreateUser
@@ -81,6 +85,7 @@ object PaymentRoutersSpec extends HttpSuite with PaymentGenerator with UserGener
       Sync[F].delay(List(paymentWithCustomer))
     override def getPaymentsTotal(filters: SearchFilters): F[Long] =
       Sync[F].delay(total)
+    override def delete(paymentId: PaymentId): F[Unit] = Sync[F].unit
   }
 
   def authedReq(
@@ -117,6 +122,19 @@ object PaymentRoutersSpec extends HttpSuite with PaymentGenerator with UserGener
   test("Create payment with correct role") {
     authedReq() { token =>
       POST(createPayment, uri"/payment").bearer(NonEmptyString.unsafeFrom(token.value))
+    } {
+      case request -> security =>
+        expectHttpStatus(PaymentRouters[F](security, payments).routes, request)(Status.NoContent)
+    }
+  }
+
+  test("Delete payment with correct role") {
+    authedReq(SuperManager) { token =>
+      GET(
+        Uri
+          .unsafeFromString(s"/payment/delete/${paymentIdGen.get}")
+          .withQueryParam("x-token", token.value)
+      )
     } {
       case request -> security =>
         expectHttpStatus(PaymentRouters[F](security, payments).routes, request)(Status.NoContent)

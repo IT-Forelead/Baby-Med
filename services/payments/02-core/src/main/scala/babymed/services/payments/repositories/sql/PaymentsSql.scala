@@ -79,4 +79,7 @@ object PaymentsSql {
     val baseQuery: Fragment[Void] = sql"""SELECT count(*) FROM payments WHERE deleted = false"""
     baseQuery(Void).andOpt(searchFilter(filters): _*)
   }
+
+  val deleteSql: Command[PaymentId] =
+    sql"""UPDATE payments SET deleted = true WHERE id = $paymentId""".command
 }

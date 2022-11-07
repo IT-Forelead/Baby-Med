@@ -9,7 +9,7 @@ import org.http4s.dsl.Http4sDsl
 import org.http4s.server.Router
 import org.typelevel.log4cats.Logger
 
-import babymed.domain.Role.Doctor
+import babymed.domain.Role._
 import babymed.services.auth.impl.Security
 import babymed.services.payments.domain.CreatePayment
 import babymed.services.payments.domain.SearchFilters
@@ -50,6 +50,9 @@ final case class PaymentRouters[F[_]: Async: JsonDecoder](
       ar.req.decodeR[SearchFilters] { req =>
         payments.getPaymentsTotal(SearchFilters(req.startDate, req.endDate)).flatMap(Ok(_))
       }
+
+    case GET -> Root / "delete" / PaymentIdVar(paymentId) as user if user.role == SuperManager =>
+      payments.delete(paymentId) >> NoContent()
   }
 
   lazy val routes: HttpRoutes[F] = Router(

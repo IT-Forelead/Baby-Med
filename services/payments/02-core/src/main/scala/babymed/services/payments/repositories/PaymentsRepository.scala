@@ -23,6 +23,7 @@ trait PaymentsRepository[F[_]] {
   def create(createPayment: CreatePayment): F[Payment]
   def get(searchFilters: SearchFilters): F[List[PaymentWithCustomer]]
   def getPaymentsTotal(filters: SearchFilters): F[Long]
+  def delete(paymentId: PaymentId): F[Unit]
 }
 
 object PaymentsRepository {
@@ -48,5 +49,8 @@ object PaymentsRepository {
       val query = PaymentsSql.total(filters)
       query.fragment.query(int8).queryUnique(query.argument)
     }
+
+    override def delete(paymentId: PaymentId): F[Unit] =
+      PaymentsSql.deleteSql.execute(paymentId)
   }
 }
