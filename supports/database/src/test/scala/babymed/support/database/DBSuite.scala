@@ -13,6 +13,8 @@ import weaver.scalacheck.Checkers
 trait DBSuite extends IOSuite with Checkers with Container {
   type Res = Resource[IO, Session[IO]]
 
+  def beforeAll(implicit session: Resource[IO, Session[IO]]): IO[Unit] = IO.unit
+
   override def checkConfig: CheckConfig = CheckConfig.default.copy(minimumSuccessful = 1)
 
   def checkPostgresConnection(
@@ -38,5 +40,6 @@ trait DBSuite extends IOSuite with Checkers with Container {
           strategy = Typer.Strategy.SearchPath,
         )
         .evalTap(checkPostgresConnection)
+      _ <- Resource.eval(beforeAll(session))
     } yield session
 }

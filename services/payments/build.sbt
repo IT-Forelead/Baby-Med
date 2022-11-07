@@ -43,9 +43,10 @@ lazy val `services_payments-core` =
       libraryDependencies ++= Libraries.Logging.all
     )
     .dependsOn(
-      `services_payments-protocol`     % CompileAndTest,
-      LocalProject("support_database") % CompileAndTest,
-      LocalProject("migrations")       % CompileAndTest,
+      `services_payments-protocol`        % CompileAndTest,
+      LocalProject("support_database")    % CompileAndTest,
+      LocalProject("migrations")          % CompileAndTest,
+      LocalProject("services_users-core") % Test,
     )
 
 lazy val `services_payments-server` =

@@ -8,27 +8,27 @@ import babymed.services.users.domain.User
 import babymed.services.users.domain.UserAndHash
 
 trait UserGenerators extends TypeGen {
-  def userGen: Gen[User] =
-    User(
-      id = userIdGen.get,
-      createdAt = localDateTimeGen.get,
-      firstname = firstNameGen.get,
-      lastname = lastNameGen.get,
-      role = roleGen.get,
-      phone = phoneGen.get,
-    )
+  val userGen: Gen[User] =
+    for {
+      id <- userIdGen
+      createdAt <- localDateTimeGen
+      firstname <- firstNameGen
+      lastname <- lastNameGen
+      role <- roleGen
+      phone <- phoneGen
+    } yield User(id, createdAt, firstname, lastname, phone, role)
 
-  def createUserGen: Gen[CreateUser] =
-    CreateUser(
-      firstname = firstNameGen.get,
-      lastname = lastNameGen.get,
-      role = roleGen.get,
-      phone = phoneGen.get,
-    )
+  val createUserGen: Gen[CreateUser] =
+    for {
+      firstname <- firstNameGen
+      lastname <- lastNameGen
+      role <- roleGen
+      phone <- phoneGen
+    } yield CreateUser(firstname, lastname, phone, role)
 
-  def userAndHashGen: Gen[UserAndHash] =
-    UserAndHash(
-      user = userGen.get,
-      password = SCrypt.hashpwUnsafe(passwordGen.get.value),
-    )
+  val userAndHashGen: Gen[UserAndHash] =
+    for {
+      user <- userGen
+      password <- passwordGen
+    } yield UserAndHash(user, SCrypt.hashpwUnsafe(password.value))
 }

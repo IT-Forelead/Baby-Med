@@ -1,9 +1,8 @@
-package babymed.services.users.boundary
+package babymed.services.payments.boundary
 
 import cats.effect.kernel.Sync
 import org.scalacheck.Gen
 
-import babymed.services.payments.boundary.Payments
 import babymed.services.payments.domain.CreatePayment
 import babymed.services.payments.domain.Payment
 import babymed.services.payments.domain.PaymentWithCustomer

@@ -9,6 +9,8 @@ import babymed.syntax.refined.commonSyntaxAutoRefineV
 import babymed.test.generators.Generators
 
 trait TypeGen extends Generators {
+  val passwordChars: Gen[Char] =
+    Gen.oneOf("123456789ABCDEFGHJKLMNPQRSTUVWXYZabcdefghjkmnpqrstuvwxyz")
   val userIdGen: Gen[UserId] = idGen(UserId.apply)
   val regionIdGen: Gen[RegionId] = idGen(RegionId.apply)
   val townIdGen: Gen[TownId] = idGen(TownId.apply)
@@ -20,12 +22,6 @@ trait TypeGen extends Generators {
   val regionNameGen: Gen[RegionName] = nonEmptyString.map(RegionName(_))
   val townNameGen: Gen[TownName] = nonEmptyString.map(TownName(_))
 
-  lazy val passwordGen: Gen[Password] = for {
-    s1 <- Gen.oneOf("123456789ABCDEFGHJKLMNPQRSTUVWXYZabcdefghjkmnpqrstuvwxyz")
-    s2 <- Gen.oneOf("123456789ABCDEFGHJKLMNPQRSTUVWXYZabcdefghjkmnpqrstuvwxyz")
-    s3 <- Gen.oneOf("123456789ABCDEFGHJKLMNPQRSTUVWXYZabcdefghjkmnpqrstuvwxyz")
-    s4 <- Gen.oneOf("123456789ABCDEFGHJKLMNPQRSTUVWXYZabcdefghjkmnpqrstuvwxyz")
-    s5 <- Gen.oneOf("123456789ABCDEFGHJKLMNPQRSTUVWXYZabcdefghjkmnpqrstuvwxyz")
-    s6 <- Gen.oneOf("123456789ABCDEFGHJKLMNPQRSTUVWXYZabcdefghjkmnpqrstuvwxyz")
-  } yield s"$s1$s2$s3$s4$s5$s6"
+  lazy val passwordGen: Gen[Password] =
+    Gen.listOfN(6, passwordChars).map(_.mkString)
 }

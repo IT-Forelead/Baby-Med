@@ -9,47 +9,65 @@ import babymed.services.users.domain.Region
 import babymed.services.users.domain.Town
 
 trait CustomerGenerators extends TypeGen {
-  def customerGen: Gen[Customer] =
-    Customer(
-      id = customerIdGen.get,
-      createdAt = localDateTimeGen.get,
-      firstname = firstNameGen.get,
-      lastname = lastNameGen.get,
-      regionId = regionIdGen.get,
-      townId = townIdGen.get,
-      address = addressGen.get,
-      birthday = dateGen.get,
-      phone = phoneGen.get,
+  lazy val customerGen: Gen[Customer] =
+    for {
+      id <- customerIdGen
+      createdAt <- localDateTimeGen
+      firstname <- firstNameGen
+      lastname <- lastNameGen
+      regionId <- regionIdGen
+      townId <- townIdGen
+      address <- addressGen
+      birthday <- dateGen
+      phone <- phoneGen
+    } yield Customer(
+      id,
+      createdAt,
+      firstname,
+      lastname,
+      regionId,
+      townId,
+      address,
+      birthday,
+      phone,
     )
 
-  def createCustomerGen: Gen[CreateCustomer] =
-    CreateCustomer(
-      firstname = firstNameGen.get,
-      lastname = lastNameGen.get,
-      regionId = regionIdGen.get,
-      townId = townIdGen.get,
-      address = addressGen.get,
-      birthday = dateGen.get,
-      phone = phoneGen.get,
+  lazy val createCustomerGen: Gen[CreateCustomer] =
+    for {
+      firstname <- firstNameGen
+      lastname <- lastNameGen
+      regionId <- regionIdGen
+      townId <- townIdGen
+      address <- addressGen
+      birthday <- dateGen
+      phone <- phoneGen
+    } yield CreateCustomer(
+      firstname,
+      lastname,
+      regionId,
+      townId,
+      address,
+      birthday,
+      phone,
     )
 
-  def regionGen: Gen[Region] =
-    Region(
-      id = regionIdGen.get,
-      name = regionNameGen.get,
-    )
+  lazy val regionGen: Gen[Region] =
+    for {
+      id <- regionIdGen
+      name <- regionNameGen
+    } yield Region(id, name)
 
-  def townGen: Gen[Town] =
-    Town(
-      id = townIdGen.get,
-      regionId = regionIdGen.get,
-      name = townNameGen.get,
-    )
+  lazy val townGen: Gen[Town] =
+    for {
+      id <- townIdGen
+      regionId <- regionIdGen
+      name <- townNameGen
+    } yield Town(id, regionId, name)
 
-  def customerWithAddressGen: Gen[CustomerWithAddress] =
-    CustomerWithAddress(
-      customer = customerGen.get,
-      region = regionGen.get,
-      town = townGen.get,
-    )
+  lazy val customerWithAddressGen: Gen[CustomerWithAddress] =
+    for {
+      customer <- customerGen
+      region <- regionGen
+      town <- townGen
+    } yield CustomerWithAddress(customer, region, town)
 }

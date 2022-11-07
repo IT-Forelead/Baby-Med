@@ -6,48 +6,35 @@ import babymed.services.payments.domain.CreatePayment
 import babymed.services.payments.domain.Payment
 import babymed.services.payments.domain.PaymentWithCustomer
 import babymed.services.payments.domain.SearchFilters
-import babymed.services.users.domain.Customer
+import babymed.services.users.generators.CustomerGenerators
 import babymed.services.users.generators.UserGenerators
 
-trait PaymentGenerator extends TypeGen with UserGenerators {
-  def paymentGen: Gen[Payment] =
-    Payment(
-      id = paymentIdGen.get,
-      createdAt = localDateTimeGen.get,
-      customerId = customerIdGen.get,
-      price = priceGen.get,
-    )
+trait PaymentGenerator extends TypeGen with UserGenerators with CustomerGenerators {
+  val paymentGen: Gen[Payment] =
+    for {
+      id <- paymentIdGen
+      createdAt <- localDateTimeGen
+      customerId <- customerIdGen
+      price <- priceGen
+    } yield Payment(id, createdAt, customerId, price)
 
-  def createPaymentGen: Gen[CreatePayment] =
-    CreatePayment(
-      customerId = customerIdGen.get,
-      price = priceGen.get,
-    )
+  val createPaymentGen: Gen[CreatePayment] =
+    for {
+      customerId <- customerIdGen
+      price <- priceGen
+    } yield CreatePayment(customerId, price)
 
-  def customerGen: Gen[Customer] =
-    Customer(
-      id = customerIdGen.get,
-      createdAt = localDateTimeGen.get,
-      firstname = firstNameGen.get,
-      lastname = lastNameGen.get,
-      regionId = regionIdGen.get,
-      townId = townIdGen.get,
-      address = addressGen.get,
-      birthday = dateGen.get,
-      phone = phoneGen.get,
-    )
+  val paymentWithCustomerGen: Gen[PaymentWithCustomer] =
+    for {
+      payment <- paymentGen
+      customer <- customerGen
+    } yield PaymentWithCustomer(payment, customer)
 
-  def paymentWithCustomerGen: Gen[PaymentWithCustomer] =
-    PaymentWithCustomer(
-      payment = paymentGen.get,
-      customer = customerGen.get,
-    )
-
-  def searchFiltersGen: Gen[SearchFilters] =
-    SearchFilters(
-      startDate = localDateTimeGen.getOpt,
-      endDate = localDateTimeGen.getOpt,
-      limit = nonNegIntGen.getOpt,
-      page = nonNegIntGen.getOpt,
-    )
+  val searchFiltersGen: Gen[SearchFilters] =
+    for {
+      startDate <- localDateTimeGen.opt
+      endDate <- localDateTimeGen.opt
+      limit <- nonNegIntGen.opt
+      page <- nonNegIntGen.opt
+    } yield SearchFilters(startDate, endDate, limit, page)
 }
