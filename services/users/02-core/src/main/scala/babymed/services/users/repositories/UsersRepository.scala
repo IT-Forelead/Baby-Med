@@ -2,7 +2,6 @@ package babymed.services.users.repositories
 
 import cats.data.OptionT
 import cats.effect.Async
-import cats.effect.MonadCancel
 import cats.effect.Resource
 import cats.implicits._
 import skunk._
