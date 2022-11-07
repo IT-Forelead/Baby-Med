@@ -19,15 +19,15 @@ lazy val `services_payments-domain` = project
         ),
   )
   .dependsOn(
-    LocalProject("common"),
-    LocalProject("services_users-domain"),
-    LocalProject("test-tools"),
+    LocalProject("common")                % CompileAndTest,
+    LocalProject("services_users-domain") % CompileAndTest,
+    LocalProject("test-tools")            % CompileAndTest,
   )
 
 lazy val `services_payments-protocol` =
   project
     .in(file("01-protocol"))
-    .dependsOn(`services_payments-domain`, LocalProject("supports_services"))
+    .dependsOn(`services_payments-domain` % CompileAndTest, LocalProject("supports_services"))
     .settings(
       scalacOptions ++= Seq("-Ymacro-annotations"),
       libraryDependencies ++= Seq(
@@ -43,9 +43,10 @@ lazy val `services_payments-core` =
       libraryDependencies ++= Libraries.Logging.all
     )
     .dependsOn(
-      `services_payments-protocol`,
-      LocalProject("supports_skunk"),
-      LocalProject("test-tools") % Test,
+      `services_payments-protocol`        % CompileAndTest,
+      LocalProject("support_database")    % CompileAndTest,
+      LocalProject("migrations")          % CompileAndTest,
+      LocalProject("services_users-core") % Test,
     )
 
 lazy val `services_payments-server` =
