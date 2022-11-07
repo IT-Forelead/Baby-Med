@@ -72,4 +72,15 @@ object UserRepositorySpec extends DBSuite with UserGenerators {
       users <- repo.get(UserFilters.Empty)
     } yield assert(users.exists(_.phone == editUser.phone))
   }
+
+  test("Edit User") { implicit postgres =>
+    val repo = UsersRepository.make[IO]
+    val create = createUserGen.get
+    val editUser = editUserGen.get
+    for {
+      createUser <- repo.validationAndCreate(create)
+      _ <- repo.validationAndEdit(editUser.copy(id = createUser.id))
+      users <- repo.get(UserFilters.Empty)
+    } yield assert(users.exists(_.phone == editUser.phone))
+  }
 }
