@@ -10,6 +10,7 @@ import tsec.passwordhashers.jca.SCrypt
 
 import babymed.refinements.Phone
 import babymed.services.users.domain.CreateUser
+import babymed.services.users.domain.EditUser
 import babymed.services.users.domain.User
 import babymed.services.users.domain.UserAndHash
 import babymed.services.users.domain.UserFilters
@@ -67,6 +68,14 @@ object UsersSql {
 
   val selectOldUser: Query[Phone, UserId] =
     sql"""SELECT id FROM users WHERE phone = $phone""".query(userId)
+
+  val updateUserSql: Command[EditUser] =
+    sql"""UPDATE users SET firstname = $firstName, lastname = $lastName, phone = $phone, role = $role
+        WHERE id = $userId"""
+      .command
+      .contramap { eu: EditUser =>
+        eu.firstname ~ eu.lastname ~ eu.phone ~ eu.role ~ eu.id
+      }
 
   val deleteUserSql: Command[UserId] =
     sql"""DELETE FROM users WHERE id = $userId""".command

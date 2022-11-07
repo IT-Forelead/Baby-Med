@@ -4,6 +4,7 @@ import org.scalacheck.Gen
 import tsec.passwordhashers.jca.SCrypt
 
 import babymed.services.users.domain.CreateUser
+import babymed.services.users.domain.EditUser
 import babymed.services.users.domain.User
 import babymed.services.users.domain.UserAndHash
 
@@ -31,4 +32,13 @@ trait UserGenerators extends TypeGen {
       user <- userGen
       password <- passwordGen
     } yield UserAndHash(user, SCrypt.hashpwUnsafe(password.value))
+
+  val editUserGen: Gen[EditUser] =
+    for {
+      id <- userIdGen
+      firstname <- firstNameGen
+      lastname <- lastNameGen
+      phone <- phoneGen
+      role <- roleGen
+    } yield EditUser(id, firstname, lastname, phone, role)
 }
