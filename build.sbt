@@ -7,6 +7,7 @@ lazy val root = project
     name := "baby-med"
   )
   .aggregate(
+    migrations,
     integrations,
     supports,
     services,
@@ -35,6 +36,8 @@ lazy val common = project
           Libraries.squants,
         ),
   )
+lazy val migrations =
+  project.in(file("migrations"))
 
 lazy val integrations = project
   .in(file("integrations"))
