@@ -22,6 +22,8 @@ import babymed.services.auth.impl.Security
 import babymed.services.users.domain.CreateUser
 import babymed.services.users.domain.User
 import babymed.services.users.domain.UserAndHash
+import babymed.services.users.domain.UserFilters
+import babymed.services.users.domain.types.UserId
 import babymed.services.users.generators.UserGenerators
 import babymed.services.users.proto.Users
 import babymed.support.redis.RedisClientMock
@@ -55,7 +57,9 @@ object AuthRoutersSpec extends HttpSuite with UserGenerators {
           }
         case _ => Sync[F].raiseError(new Exception("Error type not found"))
       }
-    override def create(createUser: CreateUser): F[User] = ???
+    override def validationAndCreate(createUser: CreateUser): F[User] = ???
+    override def get(filters: UserFilters): F[List[User]] = ???
+    override def delete(userId: UserId): F[Unit] = ???
   }
 
   test("Authorization - Login [ OK ]") {

@@ -12,8 +12,10 @@ import babymed.refinements.Phone
 import babymed.services.users.domain.CreateUser
 import babymed.services.users.domain.User
 import babymed.services.users.domain.UserAndHash
+import babymed.services.users.domain.UserFilters
 import babymed.services.users.domain.types.UserId
 import babymed.support.skunk.codecs.phone
+import babymed.support.skunk.syntax.all.skunkSyntaxFragmentOps
 
 object UsersSql {
   val userId: Codec[UserId] = identity[UserId]
@@ -41,12 +43,31 @@ object UsersSql {
       User(id, createdAt, firstName, lastName, phone, role)
   }
 
+  private def userFilters(filters: UserFilters): List[Option[AppliedFragment]] =
+    List(
+      filters.firstName.map(sql"customers.firstname like $firstName"),
+      filters.lastName.map(sql"customers.lastname like $lastName"),
+      filters.role.map(sql"customers.role = $role"),
+      filters.phone.map(sql"customers.phone like $phone"),
+    )
+
+  def select(filters: UserFilters): AppliedFragment = {
+    val baseQuery: Fragment[Void] =
+      sql"""SELECT id, created_at, firstname, lastname, phone, role FROM users"""
+
+    baseQuery(Void).whereAndOpt(userFilters(filters): _*)
+  }
+
   val insert: Query[UserId ~ LocalDateTime ~ CreateUser ~ PasswordHash[SCrypt], User] =
     sql"""INSERT INTO users VALUES ($encoder) RETURNING id, created_at, firstname, lastname, phone, role"""
       .query(decoder)
 
   val selectByPhone: Query[Phone, UserAndHash] =
-    sql"""SELECT id, created_at, firstname, lastname, phone, role, password FROM users
-         WHERE phone = $phone AND deleted = false"""
-      .query(decoderUserAndHash)
+    sql"""SELECT * FROM users WHERE phone = $phone""".query(decoderUserAndHash)
+
+  val selectOldUser: Query[Phone, UserId] =
+    sql"""SELECT id FROM users WHERE phone = $phone""".query(userId)
+
+  val deleteUserSql: Command[UserId] =
+    sql"""DELETE FROM users WHERE id = $userId""".command
 }
