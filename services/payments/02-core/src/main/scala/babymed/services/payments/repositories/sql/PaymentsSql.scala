@@ -9,8 +9,8 @@ import skunk.implicits._
 
 import babymed.services.payments.domain.CreatePayment
 import babymed.services.payments.domain.Payment
+import babymed.services.payments.domain.PaymentFilters
 import babymed.services.payments.domain.PaymentWithCustomer
-import babymed.services.payments.domain.SearchFilters
 import babymed.services.payments.domain.types.PaymentId
 import babymed.services.users.domain.Customer
 import babymed.services.users.domain.types.CustomerId
@@ -53,13 +53,13 @@ object PaymentsSql {
     sql"""INSERT INTO payments VALUES ($encoder) RETURNING id, created_at, customer_id, price"""
       .query(decoder)
 
-  private def searchFilter(filters: SearchFilters): List[Option[AppliedFragment]] =
+  private def searchFilter(filters: PaymentFilters): List[Option[AppliedFragment]] =
     List(
       filters.startDate.map(sql"payments.created_at >= $timestamp"),
       filters.endDate.map(sql"payments.created_at <= $timestamp"),
     )
 
-  def select(filters: SearchFilters): AppliedFragment = {
+  def select(filters: PaymentFilters): AppliedFragment = {
     val baseQuery: Fragment[Void] =
       sql"""SELECT payments.id, payments.created_at, payments.customer_id, payments.price, customers.id,
          customers.created_at,
@@ -75,7 +75,7 @@ object PaymentsSql {
     baseQuery(Void).andOpt(searchFilter(filters): _*)
   }
 
-  def total(filters: SearchFilters): AppliedFragment = {
+  def total(filters: PaymentFilters): AppliedFragment = {
     val baseQuery: Fragment[Void] = sql"""SELECT count(*) FROM payments WHERE deleted = false"""
     baseQuery(Void).andOpt(searchFilter(filters): _*)
   }

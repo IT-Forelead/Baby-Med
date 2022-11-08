@@ -81,9 +81,9 @@ object PaymentRoutersSpec extends HttpSuite with PaymentGenerator with UserGener
   val payments: Payments[F] = new Payments[F] {
     override def create(createPayment: CreatePayment): F[Payment] =
       Sync[F].delay(payment)
-    override def get(filters: SearchFilters): F[List[PaymentWithCustomer]] =
+    override def get(filters: PaymentFilters): F[List[PaymentWithCustomer]] =
       Sync[F].delay(List(paymentWithCustomer))
-    override def getPaymentsTotal(filters: SearchFilters): F[Long] =
+    override def getPaymentsTotal(filters: PaymentFilters): F[Long] =
       Sync[F].delay(total)
     override def delete(paymentId: PaymentId): F[Unit] = Sync[F].unit
   }
@@ -143,7 +143,7 @@ object PaymentRoutersSpec extends HttpSuite with PaymentGenerator with UserGener
 
   test("Get payments") {
     authedReq() { token =>
-      POST(SearchFilters.Empty, uri"/payment/report").bearer(
+      POST(PaymentFilters.Empty, uri"/payment/report").bearer(
         NonEmptyString.unsafeFrom(token.value)
       )
     } {
@@ -157,7 +157,7 @@ object PaymentRoutersSpec extends HttpSuite with PaymentGenerator with UserGener
 
   test("Get payments total") {
     authedReq() { token =>
-      POST(SearchFilters.Empty, uri"/payment/report/summary").bearer(
+      POST(PaymentFilters.Empty, uri"/payment/report/summary").bearer(
         NonEmptyString.unsafeFrom(token.value)
       )
     } {

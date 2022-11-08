@@ -12,7 +12,7 @@ import org.typelevel.log4cats.Logger
 import babymed.domain.Role._
 import babymed.services.auth.impl.Security
 import babymed.services.payments.domain.CreatePayment
-import babymed.services.payments.domain.SearchFilters
+import babymed.services.payments.domain.PaymentFilters
 import babymed.services.payments.proto.Payments
 import babymed.services.users.domain.User
 import babymed.support.services.syntax.all._
@@ -33,10 +33,10 @@ final case class PaymentRouters[F[_]: Async: JsonDecoder](
       }
 
     case ar @ POST -> Root / "report" :? page(index) +& limit(limit) as _ =>
-      ar.req.decodeR[SearchFilters] { req =>
+      ar.req.decodeR[PaymentFilters] { req =>
         payments
           .get(
-            SearchFilters(
+            PaymentFilters(
               req.startDate,
               req.endDate,
               page = Some(NonNegInt.unsafeFrom(index)),
@@ -47,8 +47,8 @@ final case class PaymentRouters[F[_]: Async: JsonDecoder](
       }
 
     case ar @ POST -> Root / "report" / "summary" as _ =>
-      ar.req.decodeR[SearchFilters] { req =>
-        payments.getPaymentsTotal(SearchFilters(req.startDate, req.endDate)).flatMap(Ok(_))
+      ar.req.decodeR[PaymentFilters] { req =>
+        payments.getPaymentsTotal(PaymentFilters(req.startDate, req.endDate)).flatMap(Ok(_))
       }
 
     case GET -> Root / "delete" / PaymentIdVar(paymentId) as user if user.role == SuperManager =>
