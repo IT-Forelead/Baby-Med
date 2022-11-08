@@ -7,6 +7,7 @@ import cats.MonadThrow
 import cats.effect.Async
 import cats.effect.Sync
 import cats.implicits._
+import eu.timepit.refined.types.numeric.NonNegInt
 import eu.timepit.refined.types.string.NonEmptyString
 import io.circe.Decoder
 import io.circe.Encoder
@@ -44,6 +45,10 @@ trait Http4sSyntax {
 
   implicit val localDateTimeQueryParamDecoder: QueryParamDecoder[LocalDateTime] =
     QueryParamDecoder[String].map(LocalDateTime.parse)
+  implicit val nonNegIntQueryParamDecoder: QueryParamDecoder[NonNegInt] =
+    QueryParamDecoder[Int].emap(int =>
+      NonNegInt.from(int).leftMap(error => ParseFailure("Given illegal argument", error))
+    )
 }
 
 final class RequestOps[F[_]: JsonDecoder: MonadThrow](private val request: Request[F])

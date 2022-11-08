@@ -9,13 +9,13 @@ import eu.timepit.refined.types.numeric.NonNegInt
 import io.circe.refined._
 
 @derive(decoder, encoder)
-case class SearchFilters(
+case class PaymentFilters(
     startDate: Option[LocalDateTime] = None,
     endDate: Option[LocalDateTime] = None,
     page: Option[NonNegInt] = None,
     limit: Option[NonNegInt] = None,
   )
 
-object SearchFilters {
-  val Empty: SearchFilters = SearchFilters()
+object PaymentFilters {
+  val Empty: PaymentFilters = PaymentFilters()
 }

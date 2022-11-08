@@ -13,16 +13,17 @@ import babymed.effects.Calendar
 import babymed.effects.GenUUID
 import babymed.services.payments.domain.CreatePayment
 import babymed.services.payments.domain.Payment
+import babymed.services.payments.domain.PaymentFilters
 import babymed.services.payments.domain.PaymentWithCustomer
-import babymed.services.payments.domain.SearchFilters
 import babymed.services.payments.domain.types.PaymentId
 import babymed.services.payments.repositories.sql.PaymentsSql
 import babymed.support.skunk.syntax.all._
 
 trait PaymentsRepository[F[_]] {
   def create(createPayment: CreatePayment): F[Payment]
-  def get(searchFilters: SearchFilters): F[List[PaymentWithCustomer]]
-  def getPaymentsTotal(filters: SearchFilters): F[Long]
+  def get(searchFilters: PaymentFilters): F[List[PaymentWithCustomer]]
+  def getPaymentsTotal(filters: PaymentFilters): F[Long]
+  def delete(paymentId: PaymentId): F[Unit]
 }
 
 object PaymentsRepository {
@@ -38,15 +39,18 @@ object PaymentsRepository {
         payment <- PaymentsSql.insert.queryUnique(id ~ now ~ createPayment)
       } yield payment
 
-    override def get(searchFilters: SearchFilters): F[List[PaymentWithCustomer]] = {
+    override def get(searchFilters: PaymentFilters): F[List[PaymentWithCustomer]] = {
       val query =
         PaymentsSql.select(searchFilters).paginateOpt(searchFilters.limit, searchFilters.page)
       query.fragment.query(PaymentsSql.decPaymentWithCustomer).queryList(query.argument)
     }
 
-    override def getPaymentsTotal(filters: SearchFilters): F[Long] = {
+    override def getPaymentsTotal(filters: PaymentFilters): F[Long] = {
       val query = PaymentsSql.total(filters)
       query.fragment.query(int8).queryUnique(query.argument)
     }
+
+    override def delete(paymentId: PaymentId): F[Unit] =
+      PaymentsSql.deleteSql.execute(paymentId)
   }
 }
