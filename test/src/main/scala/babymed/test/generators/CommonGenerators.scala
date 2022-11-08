@@ -3,7 +3,6 @@ package babymed.test.generators
 import java.net.URL
 import java.time.LocalDate
 import java.time.LocalDateTime
-import java.time.ZonedDateTime
 import java.util.UUID
 
 import com.comcast.ip4s.IpAddress
@@ -11,7 +10,6 @@ import org.scalacheck.Gen
 
 import babymed.refinements.EmailAddress
 import babymed.refinements.Phone
-import babymed.syntax.all.zonedDateTimeOps
 import babymed.syntax.refined.commonSyntaxAutoRefineV
 
 trait CommonGenerators {
@@ -29,9 +27,6 @@ trait CommonGenerators {
   val nonEmptyAlpha: Gen[String] = Gen.listOfN(10, Gen.alphaChar).map(_.mkString)
 
   val nonEmptyString: Gen[String] = Gen.listOfN(10, Gen.alphaNumChar).map(_.mkString)
-
-  lazy val zonedDateTimeNowGen: Gen[ZonedDateTime] =
-    Gen.delay(Gen.const(ZonedDateTime.now().noNanos))
 
   def idGen[A](f: UUID => A): Gen[A] =
     Gen.uuid.map(f)

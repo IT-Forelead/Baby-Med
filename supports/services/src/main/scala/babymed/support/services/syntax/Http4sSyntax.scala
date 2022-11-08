@@ -1,7 +1,6 @@
 package babymed.support.services.syntax
 
 import java.time.LocalDateTime
-import java.time.ZonedDateTime
 
 import cats.MonadThrow
 import cats.effect.Async
@@ -38,9 +37,6 @@ trait Http4sSyntax {
     jsonEncoderOf[F, A]
 
   implicit def deriveEntityDecoder[F[_]: Async, A: Decoder]: EntityDecoder[F, A] = jsonOf[F, A]
-
-  implicit val zonedDateTimeQueryParamDecoder: QueryParamDecoder[ZonedDateTime] =
-    QueryParamDecoder[String].map(ZonedDateTime.parse)
 
   implicit val localDateTimeQueryParamDecoder: QueryParamDecoder[LocalDateTime] =
     QueryParamDecoder[String].map(LocalDateTime.parse)

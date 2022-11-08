@@ -18,6 +18,7 @@ object HttpModule {
     ): NonEmptyList[HttpRoutes[F]] =
     NonEmptyList.of[HttpRoutes[F]](
       new AuthRoutes[F](env.security).routes,
+      new UserRouters[F](env.security, env.services.users).routes,
       new CustomerRouters[F](env.security, env.services.customers).routes,
       new PaymentRouters[F](env.security, env.services.payments).routes,
     )

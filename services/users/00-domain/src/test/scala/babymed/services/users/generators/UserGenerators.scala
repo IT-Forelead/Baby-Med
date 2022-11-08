@@ -1,5 +1,6 @@
 package babymed.services.users.generators
 
+import cats.implicits.catsSyntaxOptionId
 import org.scalacheck.Gen
 import tsec.passwordhashers.jca.SCrypt
 
@@ -7,6 +8,7 @@ import babymed.services.users.domain.CreateUser
 import babymed.services.users.domain.EditUser
 import babymed.services.users.domain.User
 import babymed.services.users.domain.UserAndHash
+import babymed.services.users.domain.UserFilters
 
 trait UserGenerators extends TypeGen {
   val userGen: Gen[User] =
@@ -41,4 +43,10 @@ trait UserGenerators extends TypeGen {
       phone <- phoneGen
       role <- roleGen
     } yield EditUser(id, firstname, lastname, phone, role)
+
+  val userFiltersGen: Gen[UserFilters] =
+    for {
+      role <- roleGen
+      phone <- phoneGen
+    } yield UserFilters(role = role.some, phone = phone.some)
 }

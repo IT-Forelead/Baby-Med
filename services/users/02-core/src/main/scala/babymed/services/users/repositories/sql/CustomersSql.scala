@@ -53,8 +53,8 @@ object CustomersSql {
 
   private def searchFilter(filters: SearchFilters): List[Option[AppliedFragment]] =
     List(
-      filters.startDate.map(sql"customers.created_at >= $zonedDateTime"),
-      filters.endDate.map(sql"customers.created_at <= $zonedDateTime"),
+      filters.startDate.map(sql"customers.created_at >= $timestamp"),
+      filters.endDate.map(sql"customers.created_at <= $timestamp"),
       filters.customerFirstName.map(sql"customers.firstname like $firstName"),
       filters.customerLastName.map(sql"customers.lastname like $lastName"),
       filters.regionId.map(sql"customers.region_id = $regionId"),

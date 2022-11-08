@@ -62,6 +62,22 @@ object CustomerRepositorySpec extends DBSuite with CustomerGenerators {
         }
   }
 
+  test("Get Empty Customers List With Filter") { implicit postgres =>
+    val repo = CustomersRepository.make[F]
+    val createCustomer: CreateCustomer = createCustomerGen.get
+
+    repo.create(createCustomer.copy(regionId = defaultRegionId, townId = defaultTownId)) *>
+      repo
+        .get(customerFiltersGen.get)
+        .map { customers =>
+          assert(customers.isEmpty)
+        }
+        .handleError { error =>
+          println("ERROR::::::::::::::::::: " + error)
+          failure("Test failed.")
+        }
+  }
+
   test("Get Customer Total") { implicit postgres =>
     val repo = CustomersRepository.make[F]
     val createCustomer: CreateCustomer = createCustomerGen.get
