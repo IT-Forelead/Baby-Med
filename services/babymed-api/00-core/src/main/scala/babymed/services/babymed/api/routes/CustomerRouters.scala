@@ -50,6 +50,12 @@ final case class CustomerRouters[F[_]: Async: JsonDecoder](
       ar.req.decodeR[SearchFilters] { req =>
         customers.getTotalCustomers(SearchFilters(req.startDate, req.endDate)).flatMap(Ok(_))
       }
+
+    case GET -> Root / "regions" as _ =>
+      customers.getRegions.flatMap(Ok(_))
+
+    case GET -> Root / "towns" / RegionIdVar(regionId) as _ =>
+      customers.getTownsByRegionId(regionId).flatMap(Ok(_))
   }
 
   lazy val routes: HttpRoutes[F] = Router(
