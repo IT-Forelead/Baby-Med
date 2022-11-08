@@ -155,6 +155,17 @@ object PaymentRoutersSpec extends HttpSuite with PaymentGenerator with UserGener
     }
   }
 
+  test("Get payments :: Result Not Found") {
+    authedReq() { token =>
+      POST(PaymentFilters.Empty, uri"/payment/report&page=-1&limit=-30").bearer(
+        NonEmptyString.unsafeFrom(token.value)
+      )
+    } {
+      case request -> security =>
+        expectNotFound(PaymentRouters[F](security, payments).routes, request)
+    }
+  }
+
   test("Get payments total") {
     authedReq() { token =>
       POST(PaymentFilters.Empty, uri"/payment/report/summary").bearer(
