@@ -7,17 +7,22 @@ import cats.effect.std.Console
 import org.typelevel.log4cats.Logger
 import skunk.Session
 
+import babymed.services.users.ServerEnvironment
 import babymed.services.users.boundary.Customers
 import babymed.services.users.boundary.Users
-import babymed.services.users.repositories.CustomersRepository
-import babymed.services.users.repositories.UsersRepository
 import babymed.support.database.Migrations
 
 case class ServiceEnvironment[F[_]: MonadThrow](
     config: Config,
-    users: Users[F],
-    customers: Customers[F],
-  )
+    repositories: Repositories[F],
+  ) {
+  lazy val customers = new Customers[F](repositories.customers)
+  lazy val users = new Users[F](repositories.users)
+  lazy val toServer: ServerEnvironment[F] =
+    ServerEnvironment(
+      services = ServerEnvironment.Services(users, customers)
+    )
+}
 
 object ServiceEnvironment {
   def make[F[_]: Async: Console: Logger]: Resource[F, ServiceEnvironment[F]] =
@@ -26,17 +31,9 @@ object ServiceEnvironment {
       _ <- Resource.eval(Migrations.run[F](config.migrations))
 
       resource <- ServiceResources.make[F](config)
-      usersRepository = {
+      repositories = {
         implicit val session: Resource[F, Session[F]] = resource.postgres
-        UsersRepository.make[F]
+        Repositories.make[F]
       }
-      customersRepository = {
-        implicit val session: Resource[F, Session[F]] = resource.postgres
-        CustomersRepository.make[F]
-      }
-    } yield ServiceEnvironment[F](
-      config,
-      new Users[F](usersRepository),
-      new Customers[F](customersRepository),
-    )
+    } yield ServiceEnvironment[F](config, repositories)
 }

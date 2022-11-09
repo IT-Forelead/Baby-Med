@@ -6,9 +6,11 @@ import cats.effect.kernel.Sync
 import ciris.Secret
 import dev.profunktor.auth.jwt.JwtToken
 import eu.timepit.refined.types.string.NonEmptyString
+import org.http4s.Method.GET
 import org.http4s.Method.POST
 import org.http4s.Request
 import org.http4s.Status
+import org.http4s.Uri
 import org.http4s.client.dsl.io._
 import org.http4s.implicits.http4sLiteralsSyntax
 import org.scalacheck.Gen
@@ -24,15 +26,15 @@ import babymed.services.auth.domain.Credentials
 import babymed.services.auth.domain.types._
 import babymed.services.auth.impl.Security
 import babymed.services.users.domain._
+import babymed.services.users.domain.types.CustomerId
+import babymed.services.users.domain.types.RegionId
 import babymed.services.users.domain.types.UserId
 import babymed.services.users.generators.CustomerGenerators
 import babymed.services.users.generators.UserGenerators
 import babymed.services.users.proto.Customers
 import babymed.services.users.proto.Users
 import babymed.support.redis.RedisClientMock
-import babymed.support.services.syntax.all.deriveEntityDecoder
-import babymed.support.services.syntax.all.deriveEntityEncoder
-import babymed.support.services.syntax.all.http4SyntaxReqOps
+import babymed.support.services.syntax.all._
 import babymed.syntax.refined.commonSyntaxAutoUnwrapV
 import babymed.test.HttpSuite
 
@@ -70,12 +72,10 @@ object CustomerRoutersSpec extends HttpSuite with CustomerGenerators with UserGe
       Sync[F].delay(List(customerWithAddress))
     override def getTotalCustomers(filters: SearchFilters): F[Long] =
       Sync[F].delay(total)
-    override def getCustomerById(
-        customerId: types.CustomerId
-      ): CustomerRoutersSpec.F[Option[CustomerWithAddress]] =
+    override def getCustomerById(customerId: CustomerId): F[Option[CustomerWithAddress]] =
       Sync[F].delay(Option(customerWithAddress))
-    override def getRegions: CustomerRoutersSpec.F[List[Region]] = Sync[F].delay(List(region))
-    override def getTownsByRegionId(regionId: types.RegionId): CustomerRoutersSpec.F[List[Town]] =
+    override def getRegions: F[List[Region]] = Sync[F].delay(List(region))
+    override def getTownsByRegionId(regionId: RegionId): F[List[Town]] =
       Sync[F].delay(List(town))
   }
 
@@ -142,6 +142,38 @@ object CustomerRoutersSpec extends HttpSuite with CustomerGenerators with UserGe
       case request -> security =>
         expectHttpBodyAndStatus(CustomerRouters[F](security, customers).routes, request)(
           total,
+          Status.Ok,
+        )
+    }
+  }
+
+  test("Get All Regions") {
+    authedReq() { token =>
+      GET(
+        Uri
+          .unsafeFromString("/customer/regions")
+          .withQueryParam("x-token", token.value)
+      )
+    } {
+      case request -> security =>
+        expectHttpBodyAndStatus(CustomerRouters[F](security, customers).routes, request)(
+          List(region),
+          Status.Ok,
+        )
+    }
+  }
+
+  test("Get Towns by RegionId") {
+    authedReq() { token =>
+      GET(
+        Uri
+          .unsafeFromString(s"/customer/towns/${regionIdGen.get}")
+          .withQueryParam("x-token", token.value)
+      )
+    } {
+      case request -> security =>
+        expectHttpBodyAndStatus(CustomerRouters[F](security, customers).routes, request)(
+          List(town),
           Status.Ok,
         )
     }

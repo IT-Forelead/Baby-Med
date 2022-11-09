@@ -6,9 +6,11 @@ import cats.effect.kernel.Sync
 import ciris.Secret
 import dev.profunktor.auth.jwt.JwtToken
 import eu.timepit.refined.types.string.NonEmptyString
+import org.http4s.Method.GET
 import org.http4s.Method.POST
 import org.http4s.Request
 import org.http4s.Status
+import org.http4s.Uri
 import org.http4s.client.dsl.io._
 import org.http4s.implicits.http4sLiteralsSyntax
 import org.scalacheck.Gen
@@ -17,6 +19,7 @@ import weaver.Expectations
 
 import babymed.domain.Role
 import babymed.domain.Role.Doctor
+import babymed.domain.Role.SuperManager
 import babymed.domain.Role.TechAdmin
 import babymed.refinements.Phone
 import babymed.services.auth.JwtConfig
@@ -26,6 +29,7 @@ import babymed.services.auth.domain.types.TokenExpiration
 import babymed.services.auth.domain.types.tokenCodec
 import babymed.services.auth.impl.Security
 import babymed.services.payments.domain._
+import babymed.services.payments.domain.types.PaymentId
 import babymed.services.payments.generators.PaymentGenerator
 import babymed.services.payments.proto.Payments
 import babymed.services.users.domain.CreateUser
@@ -77,10 +81,11 @@ object PaymentRoutersSpec extends HttpSuite with PaymentGenerator with UserGener
   val payments: Payments[F] = new Payments[F] {
     override def create(createPayment: CreatePayment): F[Payment] =
       Sync[F].delay(payment)
-    override def get(filters: SearchFilters): F[List[PaymentWithCustomer]] =
+    override def get(filters: PaymentFilters): F[List[PaymentWithCustomer]] =
       Sync[F].delay(List(paymentWithCustomer))
-    override def getPaymentsTotal(filters: SearchFilters): F[Long] =
+    override def getPaymentsTotal(filters: PaymentFilters): F[Long] =
       Sync[F].delay(total)
+    override def delete(paymentId: PaymentId): F[Unit] = Sync[F].unit
   }
 
   def authedReq(
@@ -123,9 +128,22 @@ object PaymentRoutersSpec extends HttpSuite with PaymentGenerator with UserGener
     }
   }
 
+  test("Delete payment with correct role") {
+    authedReq(SuperManager) { token =>
+      GET(
+        Uri
+          .unsafeFromString(s"/payment/delete/${paymentIdGen.get}")
+          .withQueryParam("x-token", token.value)
+      )
+    } {
+      case request -> security =>
+        expectHttpStatus(PaymentRouters[F](security, payments).routes, request)(Status.NoContent)
+    }
+  }
+
   test("Get payments") {
     authedReq() { token =>
-      POST(SearchFilters.Empty, uri"/payment/report").bearer(
+      POST(PaymentFilters.Empty, uri"/payment/report").bearer(
         NonEmptyString.unsafeFrom(token.value)
       )
     } {
@@ -137,9 +155,20 @@ object PaymentRoutersSpec extends HttpSuite with PaymentGenerator with UserGener
     }
   }
 
+  test("Get payments :: Result Not Found") {
+    authedReq() { token =>
+      POST(PaymentFilters.Empty, uri"/payment/report&page=-1&limit=-30").bearer(
+        NonEmptyString.unsafeFrom(token.value)
+      )
+    } {
+      case request -> security =>
+        expectNotFound(PaymentRouters[F](security, payments).routes, request)
+    }
+  }
+
   test("Get payments total") {
     authedReq() { token =>
-      POST(SearchFilters.Empty, uri"/payment/report/summary").bearer(
+      POST(PaymentFilters.Empty, uri"/payment/report/summary").bearer(
         NonEmptyString.unsafeFrom(token.value)
       )
     } {

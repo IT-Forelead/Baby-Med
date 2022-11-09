@@ -130,4 +130,5 @@ jobs:
           script: |
             docker login -p ${{ secrets.DOCKER_PASSWORD }} -u ${{ secrets.DOCKER_USERNAME }}
             cd ~/babymed/build/
+            chmod +x ./publish
             bash run

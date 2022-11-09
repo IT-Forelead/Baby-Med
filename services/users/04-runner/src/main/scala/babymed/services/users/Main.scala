@@ -16,7 +16,7 @@ object Main extends IOApp {
   private def runnable: Resource[IO, List[IO[ExitCode]]] =
     for {
       env <- ServiceEnvironment.make[IO]
-      rpcModule <- GrpcModule.make[IO](env.users)
+      rpcModule <- GrpcModule.make[IO](env.toServer)
       httpModule <- HttpModule.make[IO](env.config.httpServer)
       rpcServer = rpcModule.startServer[IO](env.config.rpcServer)
     } yield List(rpcServer, httpModule)

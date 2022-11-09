@@ -4,7 +4,7 @@ import java.time.LocalDateTime
 
 import cats.effect.IO
 
-import babymed.services.payments.domain.SearchFilters
+import babymed.services.payments.domain.PaymentFilters
 import babymed.services.payments.generators.PaymentGenerator
 import babymed.services.users.generators.CustomerGenerators
 import babymed.services.users.generators.UserGenerators
@@ -34,7 +34,7 @@ object PaymentsRepositorySpec
     val createPaymentData = createPaymentGen.get
     repo.create(createPaymentData.copy(customerId = data.customer.id1)) *>
       repo
-        .get(SearchFilters.Empty)
+        .get(PaymentFilters.Empty)
         .map { payments =>
           assert(payments.exists(_.payment.price == createPaymentData.price))
         }
@@ -49,12 +49,24 @@ object PaymentsRepositorySpec
 
     repo.create(createPaymentData.copy(customerId = data.customer.id1)) *>
       repo
-        .getPaymentsTotal(SearchFilters.Empty)
+        .getPaymentsTotal(PaymentFilters.Empty)
         .map { total =>
           assert(total >= 1)
         }
         .handleError {
           fail("Test failed.")
         }
+  }
+
+  test("Delete Payment") { implicit postgres =>
+    val repo = PaymentsRepository.make[F]
+    val createPaymentData = createPaymentGen.get
+
+    for {
+      createPayment <- repo.create(createPaymentData.copy(customerId = data.customer.id1))
+      _ <- repo.create(createPaymentGen.get.copy(customerId = data.customer.id1))
+      _ <- repo.delete(createPayment.id)
+      payments <- repo.get(PaymentFilters.Empty)
+    } yield assert(payments.exists(_.payment.id != createPayment.id))
   }
 }

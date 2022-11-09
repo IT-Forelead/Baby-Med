@@ -1,11 +1,11 @@
-package babymed.services.users;
+package babymed.services.users
 
 import cats.effect.Async
 import cats.effect.ExitCode
 import cats.effect.Resource
+import cats.implicits.toTraverseOps
 import io.grpc.ServerServiceDefinition
 
-import babymed.services.users.boundary.Users
 import babymed.support.services.rpc.GrpcServer
 import babymed.support.services.rpc.GrpcServerConfig
 
@@ -16,10 +16,10 @@ case class GrpcModule(services: List[ServerServiceDefinition]) {
 
 object GrpcModule {
   def make[F[_]: Async](
-      users: Users[F]
+      env: ServerEnvironment[F]
     ): Resource[F, GrpcModule] =
-    proto
-      .Users
-      .bindService[F](users)
-      .map(serverDef => GrpcModule.apply(List(serverDef)))
+    List(
+      proto.Users.bindService[F](env.services.users),
+      proto.Customers.bindService[F](env.services.customers),
+    ).sequence.map(GrpcModule.apply)
 }
