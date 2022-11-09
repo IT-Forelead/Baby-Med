@@ -2,7 +2,6 @@ package babymed.services.babymed.api.routes
 
 import cats.effect.Async
 import cats.implicits._
-import eu.timepit.refined.types.numeric.NonNegInt
 import org.http4s._
 import org.http4s.circe.CirceEntityCodec.circeEntityEncoder
 import org.http4s.circe.JsonDecoder
@@ -40,11 +39,16 @@ final case class UserRouters[F[_]: Async: JsonDecoder](
         users
           .get(
             UserFilters(
-              page = Some(NonNegInt.unsafeFrom(index)),
-              limit = Some(NonNegInt.unsafeFrom(limit)),
+              page = Some(index),
+              limit = Some(limit),
             )
           )
           .flatMap(Ok(_))
+      }
+
+    case ar @ POST -> Root / "report" / "summary" as _ =>
+      ar.req.decodeR[UserFilters] { _ =>
+        users.getTotal(UserFilters()).flatMap(Ok(_))
       }
 
     case ar @ POST -> Root / "update" as user if user.role == SuperManager =>
@@ -52,6 +56,8 @@ final case class UserRouters[F[_]: Async: JsonDecoder](
         users.validationAndEdit(editUser) *> NoContent()
       }
 
+    case GET -> Root / "delete" / UserIdVar(userId) as user if user.role == SuperManager =>
+      users.delete(userId) >> NoContent()
   }
 
   lazy val routes: HttpRoutes[F] = Router(

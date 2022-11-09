@@ -5,6 +5,7 @@ import cats.effect.Async
 import cats.effect.Resource
 import cats.implicits._
 import skunk._
+import skunk.codec.all.int8
 import skunk.implicits.toIdOps
 import tsec.passwordhashers.jca.SCrypt
 
@@ -29,6 +30,7 @@ trait UsersRepository[F[_]] {
   def findByPhone(phone: Phone): F[Option[UserAndHash]]
   def get(filters: UserFilters): F[List[User]]
   def delete(userId: UserId): F[Unit]
+  def getTotal(filters: UserFilters): F[Long]
 }
 
 object UsersRepository {
@@ -66,5 +68,10 @@ object UsersRepository {
 
     override def delete(userId: UserId): F[Unit] =
       deleteUserSql.execute(userId)
+
+    override def getTotal(filters: UserFilters): F[Long] = {
+      val query = UsersSql.total(filters)
+      query.fragment.query(int8).queryUnique(query.argument)
+    }
   }
 }

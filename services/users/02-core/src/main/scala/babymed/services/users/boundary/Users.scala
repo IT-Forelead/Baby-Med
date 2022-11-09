@@ -21,4 +21,6 @@ class Users[F[_]](usersRepository: UsersRepository[F]) extends proto.Users[F] {
     usersRepository.get(filters)
   override def delete(userId: UserId): F[Unit] =
     usersRepository.delete(userId)
+  override def getTotal(filters: UserFilters): F[Long] =
+    usersRepository.getTotal(filters)
 }

@@ -6,11 +6,14 @@ import cats.effect.kernel.Sync
 import ciris.Secret
 import dev.profunktor.auth.jwt.JwtToken
 import eu.timepit.refined.types.string.NonEmptyString
+import org.http4s.Method.GET
 import org.http4s.Method.POST
 import org.http4s.Request
 import org.http4s.Status
+import org.http4s.Uri
 import org.http4s.client.dsl.io._
 import org.http4s.implicits.http4sLiteralsSyntax
+import org.scalacheck.Gen
 import tsec.passwordhashers.jca.SCrypt
 import weaver.Expectations
 
@@ -55,7 +58,10 @@ object UserRoutersSpec extends HttpSuite with UserGenerators {
     override def validationAndCreate(createUser: CreateUser): F[User] = Sync[F].delay(user)
     override def validationAndEdit(editUser: EditUser): F[Unit] = Sync[F].unit
     override def get(filters: UserFilters): F[List[User]] = Sync[F].delay(List(user))
-    override def delete(userId: UserId): F[Unit] = ???
+    override def delete(userId: UserId): F[Unit] = Sync[F].unit
+    override def getTotal(
+        filters: UserFilters
+      ): UserRoutersSpec.F[Long] = Sync[F].delay(Gen.long.get)
   }
 
   def authedReq(
@@ -126,6 +132,19 @@ object UserRoutersSpec extends HttpSuite with UserGenerators {
   test("Update user with correct role") {
     authedReq(SuperManager) { token =>
       POST(editUser, uri"/users/update").bearer(NonEmptyString.unsafeFrom(token.value))
+    } {
+      case request -> security =>
+        expectHttpStatus(UserRouters[F](security, users()).routes, request)(Status.NoContent)
+    }
+  }
+
+  test("Delete user") {
+    authedReq(SuperManager) { token =>
+      GET(
+        Uri
+          .unsafeFromString(s"/users/delete/${userIdGen.get}")
+          .withQueryParam("x-token", token.value)
+      )
     } {
       case request -> security =>
         expectHttpStatus(UserRouters[F](security, users()).routes, request)(Status.NoContent)
