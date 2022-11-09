@@ -2,7 +2,6 @@ package babymed.services.babymed.api.routes
 
 import cats.effect.Async
 import cats.implicits._
-import eu.timepit.refined.types.numeric.NonNegInt
 import org.http4s._
 import org.http4s.circe.JsonDecoder
 import org.http4s.dsl.Http4sDsl
@@ -39,8 +38,8 @@ final case class CustomerRouters[F[_]: Async: JsonDecoder](
             SearchFilters(
               req.startDate,
               req.endDate,
-              page = Some(NonNegInt.unsafeFrom(index)),
-              limit = Some(NonNegInt.unsafeFrom(limit)),
+              page = Some(index),
+              limit = Some(limit),
             )
           )
           .flatMap(Ok(_))
@@ -50,6 +49,12 @@ final case class CustomerRouters[F[_]: Async: JsonDecoder](
       ar.req.decodeR[SearchFilters] { req =>
         customers.getTotalCustomers(SearchFilters(req.startDate, req.endDate)).flatMap(Ok(_))
       }
+
+    case GET -> Root / "regions" as _ =>
+      customers.getRegions.flatMap(Ok(_))
+
+    case GET -> Root / "towns" / RegionIdVar(regionId) as _ =>
+      customers.getTownsByRegionId(regionId).flatMap(Ok(_))
   }
 
   lazy val routes: HttpRoutes[F] = Router(
