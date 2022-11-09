@@ -63,14 +63,17 @@ object CustomerRoutersSpec extends HttpSuite with CustomerGenerators with UserGe
     override def validationAndEdit(editUser: EditUser): F[Unit] = ???
     override def get(filters: UserFilters): F[List[User]] = ???
     override def delete(userId: UserId): F[Unit] = ???
+    override def getTotal(
+        filters: UserFilters
+      ): CustomerRoutersSpec.F[Long] = ???
   }
 
   val customers: Customers[F] = new Customers[F] {
     override def createCustomers(createCustomer: CreateCustomer): F[Customer] =
       Sync[F].delay(customer)
-    override def getCustomers(filters: SearchFilters): F[List[CustomerWithAddress]] =
+    override def getCustomers(filters: CustomerFilters): F[List[CustomerWithAddress]] =
       Sync[F].delay(List(customerWithAddress))
-    override def getTotalCustomers(filters: SearchFilters): F[Long] =
+    override def getTotalCustomers(filters: CustomerFilters): F[Long] =
       Sync[F].delay(total)
     override def getCustomerById(customerId: CustomerId): F[Option[CustomerWithAddress]] =
       Sync[F].delay(Option(customerWithAddress))
@@ -121,7 +124,7 @@ object CustomerRoutersSpec extends HttpSuite with CustomerGenerators with UserGe
 
   test("Get customers") {
     authedReq() { token =>
-      POST(SearchFilters.Empty, uri"/customer/report").bearer(
+      POST(CustomerFilters.Empty, uri"/customer/report").bearer(
         NonEmptyString.unsafeFrom(token.value)
       )
     } {
@@ -135,7 +138,7 @@ object CustomerRoutersSpec extends HttpSuite with CustomerGenerators with UserGe
 
   test("Get customers total") {
     authedReq() { token =>
-      POST(SearchFilters.Empty, uri"/customer/report/summary").bearer(
+      POST(CustomerFilters.Empty, uri"/customer/report/summary").bearer(
         NonEmptyString.unsafeFrom(token.value)
       )
     } {

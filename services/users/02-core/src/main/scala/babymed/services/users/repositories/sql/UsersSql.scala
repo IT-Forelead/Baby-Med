@@ -46,10 +46,10 @@ object UsersSql {
 
   private def userFilters(filters: UserFilters): List[Option[AppliedFragment]] =
     List(
-      filters.firstName.map(sql"customers.firstname like $firstName"),
-      filters.lastName.map(sql"customers.lastname like $lastName"),
-      filters.role.map(sql"customers.role = $role"),
-      filters.phone.map(sql"customers.phone like $phone"),
+      filters.firstName.map(sql"users.firstname like $firstName"),
+      filters.lastName.map(sql"users.lastname like $lastName"),
+      filters.role.map(sql"users.role = $role"),
+      filters.phone.map(sql"users.phone like $phone"),
     )
 
   def select(filters: UserFilters): AppliedFragment = {
@@ -57,6 +57,12 @@ object UsersSql {
       sql"""SELECT id, created_at, firstname, lastname, phone, role FROM users"""
 
     baseQuery(Void).whereAndOpt(userFilters(filters): _*)
+  }
+
+  def total(filters: UserFilters): AppliedFragment = {
+    val baseQuery: Fragment[Void] =
+      sql"""SELECT count(*) FROM customers WHERE deleted = false"""
+    baseQuery(Void).andOpt(userFilters(filters): _*)
   }
 
   val insert: Query[UserId ~ LocalDateTime ~ CreateUser ~ PasswordHash[SCrypt], User] =

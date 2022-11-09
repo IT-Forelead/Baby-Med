@@ -5,9 +5,9 @@ import org.scalacheck.Gen
 
 import babymed.services.users.domain.CreateCustomer
 import babymed.services.users.domain.Customer
+import babymed.services.users.domain.CustomerFilters
 import babymed.services.users.domain.CustomerWithAddress
 import babymed.services.users.domain.Region
-import babymed.services.users.domain.SearchFilters
 import babymed.services.users.domain.Town
 import babymed.services.users.domain.types
 import babymed.services.users.domain.types.CustomerId
@@ -23,10 +23,10 @@ object CustomersSpec extends TestSuite with CustomerGenerators {
     override def getCustomerById(customerId: CustomerId): F[Option[CustomerWithAddress]] =
       Sync[F].delay(customerWithAddressGen.getOpt)
 
-    override def get(filters: SearchFilters): F[List[CustomerWithAddress]] =
+    override def get(filters: CustomerFilters): F[List[CustomerWithAddress]] =
       Sync[F].delay(List(customerWithAddressGen.get))
 
-    override def getTotal(filters: SearchFilters): F[Long] =
+    override def getTotal(filters: CustomerFilters): F[Long] =
       Sync[F].delay(Gen.long.get)
 
     override def getRegions: F[List[Region]] =
@@ -51,7 +51,7 @@ object CustomersSpec extends TestSuite with CustomerGenerators {
 
   loggedTest("Get Customers") { logger =>
     customers
-      .getCustomers(SearchFilters.Empty)
+      .getCustomers(CustomerFilters.Empty)
       .as(success)
       .handleErrorWith { error =>
         logger
@@ -73,7 +73,7 @@ object CustomersSpec extends TestSuite with CustomerGenerators {
 
   loggedTest("Get Customers Total") { logger =>
     customers
-      .getTotalCustomers(SearchFilters.Empty)
+      .getTotalCustomers(CustomerFilters.Empty)
       .as(success)
       .handleErrorWith { error =>
         logger

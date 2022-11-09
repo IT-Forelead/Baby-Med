@@ -15,9 +15,9 @@ import babymed.effects.GenUUID
 import babymed.exception.CustomerError
 import babymed.services.users.domain.CreateCustomer
 import babymed.services.users.domain.Customer
+import babymed.services.users.domain.CustomerFilters
 import babymed.services.users.domain.CustomerWithAddress
 import babymed.services.users.domain.Region
-import babymed.services.users.domain.SearchFilters
 import babymed.services.users.domain.Town
 import babymed.services.users.domain.types.CustomerId
 import babymed.services.users.domain.types.RegionId
@@ -27,8 +27,8 @@ import babymed.support.skunk.syntax.all._
 trait CustomersRepository[F[_]] {
   def create(createCustomer: CreateCustomer): F[Customer]
   def getCustomerById(customerId: CustomerId): F[Option[CustomerWithAddress]]
-  def get(filters: SearchFilters): F[List[CustomerWithAddress]]
-  def getTotal(filters: SearchFilters): F[Long]
+  def get(filters: CustomerFilters): F[List[CustomerWithAddress]]
+  def getTotal(filters: CustomerFilters): F[Long]
   def getRegions: F[List[Region]]
   def getTownsByRegionId(regionId: RegionId): F[List[Town]]
 }
@@ -56,12 +56,12 @@ object CustomersRepository {
     override def getCustomerById(customerId: CustomerId): F[Option[CustomerWithAddress]] =
       selectById.queryOption(customerId)
 
-    override def get(filters: SearchFilters): F[List[CustomerWithAddress]] = {
+    override def get(filters: CustomerFilters): F[List[CustomerWithAddress]] = {
       val query = CustomersSql.select(filters).paginateOpt(filters.limit, filters.page)
       query.fragment.query(CustomersSql.decCustomerWithAddress).queryList(query.argument)
     }
 
-    override def getTotal(filters: SearchFilters): F[Long] = {
+    override def getTotal(filters: CustomerFilters): F[Long] = {
       val query = CustomersSql.total(filters)
       query.fragment.query(int8).queryUnique(query.argument)
     }

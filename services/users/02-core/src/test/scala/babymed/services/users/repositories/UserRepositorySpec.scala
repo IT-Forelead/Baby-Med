@@ -68,7 +68,7 @@ object UserRepositorySpec extends DBSuite with UserGenerators {
     val editUser = editUserGen.get
     for {
       createUser <- repo.validationAndCreate(create)
-      updateUser <- repo.validationAndEdit(editUser.copy(id = createUser.id))
+      _ <- repo.validationAndEdit(editUser.copy(id = createUser.id))
       users <- repo.get(UserFilters.Empty)
     } yield assert(users.exists(_.phone == editUser.phone))
   }

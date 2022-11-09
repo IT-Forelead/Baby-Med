@@ -4,7 +4,7 @@ import java.time.LocalDateTime
 import java.util.UUID
 
 import babymed.services.users.domain.CreateCustomer
-import babymed.services.users.domain.SearchFilters
+import babymed.services.users.domain.CustomerFilters
 import babymed.services.users.domain.types.RegionId
 import babymed.services.users.domain.types.TownId
 import babymed.services.users.generators.CustomerGenerators
@@ -52,7 +52,7 @@ object CustomerRepositorySpec extends DBSuite with CustomerGenerators {
 
     repo.create(createCustomer.copy(regionId = defaultRegionId, townId = defaultTownId)) *>
       repo
-        .get(SearchFilters.Empty)
+        .get(CustomerFilters.Empty)
         .map { customers =>
           assert(customers.exists(_.customer.firstname == createCustomer.firstname))
         }
@@ -68,7 +68,7 @@ object CustomerRepositorySpec extends DBSuite with CustomerGenerators {
 
     repo.create(createCustomer.copy(regionId = defaultRegionId, townId = defaultTownId)) *>
       repo
-        .getTotal(SearchFilters.Empty)
+        .getTotal(CustomerFilters.Empty)
         .map { total =>
           assert(total >= 1)
         }

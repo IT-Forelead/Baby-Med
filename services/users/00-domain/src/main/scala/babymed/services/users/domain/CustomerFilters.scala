@@ -1,7 +1,7 @@
 package babymed.services.users.domain
 
 import java.time.LocalDate
-import java.time.ZonedDateTime
+import java.time.LocalDateTime
 
 import derevo.circe.magnolia.decoder
 import derevo.circe.magnolia.encoder
@@ -17,9 +17,9 @@ import babymed.services.users.domain.types.RegionId
 import babymed.services.users.domain.types.TownId
 
 @derive(encoder, decoder)
-case class SearchFilters(
-    startDate: Option[ZonedDateTime] = None,
-    endDate: Option[ZonedDateTime] = None,
+case class CustomerFilters(
+    startDate: Option[LocalDateTime] = None,
+    endDate: Option[LocalDateTime] = None,
     customerFirstName: Option[FirstName] = None,
     customerLastName: Option[LastName] = None,
     regionId: Option[RegionId] = None,
@@ -31,6 +31,6 @@ case class SearchFilters(
     limit: Option[NonNegInt] = None,
   )
 
-object SearchFilters {
-  val Empty: SearchFilters = SearchFilters()
+object CustomerFilters {
+  val Empty: CustomerFilters = CustomerFilters()
 }

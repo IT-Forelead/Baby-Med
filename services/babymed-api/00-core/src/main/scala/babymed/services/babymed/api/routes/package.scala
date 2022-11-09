@@ -10,6 +10,7 @@ import org.http4s.dsl.impl._
 
 import babymed.services.payments.domain.types.PaymentId
 import babymed.services.users.domain.types.RegionId
+import babymed.services.users.domain.types.UserId
 import babymed.support.services.syntax.http4s._
 import babymed.syntax.refined.commonSyntaxAutoRefineV
 import babymed.util.MyPathVar
@@ -20,5 +21,6 @@ package object routes {
   object from extends OptionalQueryParamDecoderMatcher[LocalDateTime]("from")
   object to extends OptionalQueryParamDecoderMatcher[LocalDateTime]("to")
   object PaymentIdVar extends MyPathVar(str => Try(PaymentId(UUID.fromString(str))))
+  object UserIdVar extends MyPathVar(str => Try(UserId(UUID.fromString(str))))
   object RegionIdVar extends MyPathVar(str => Try(RegionId(UUID.fromString(str))))
 }
