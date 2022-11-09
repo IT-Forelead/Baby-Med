@@ -1,7 +1,7 @@
 import Dependencies.Libraries
 import Dependencies.Libraries._
 
-lazy val root = project
+lazy val `Baby-Med` = project
   .in(file("."))
   .settings(
     name := "baby-med"

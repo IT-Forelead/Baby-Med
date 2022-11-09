@@ -64,9 +64,32 @@ push-all-images() {
   done
 }
 
+rm-all-images() {
+  local ids=$(docker images --no-trunc "$filter*:$given_tag" -q)
+  local name tag
+  for id in $ids; do
+    name=$(get-image-name $id)
+    tag=$(get-image-tag $id)
+    # Apply filter (if any)
+    if [[ ! -z "$filter" ]] && [[ ! "$name:$tag" =~ "$filter" ]]; then
+      continue
+    fi
+    # Ignore stale images (tag == <none>)
+    if [[ "$tag" = "<none>" ]]; then
+      continue
+    fi
+    # WRITE YOUR LOGIC HERE
+    echo "Removing image $name:$tag ..."
+    docker rmi $name:$tag
+  done
+}
+
 case $1 in
 push)
   push-all-images
+  ;;
+rm)
+  rm-all-images
   ;;
 *)
   help
