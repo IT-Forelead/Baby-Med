@@ -76,6 +76,9 @@ object PaymentRoutersSpec extends HttpSuite with PaymentGenerator with UserGener
     override def validationAndEdit(editUser: EditUser): F[Unit] = ???
     override def get(filters: UserFilters): F[List[User]] = ???
     override def delete(userId: UserId): F[Unit] = ???
+    override def getTotal(
+        filters: UserFilters
+      ): PaymentRoutersSpec.F[Long] = ???
   }
 
   val payments: Payments[F] = new Payments[F] {

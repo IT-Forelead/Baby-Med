@@ -1,6 +1,7 @@
 package babymed.services.users.boundary
 
 import cats.effect.kernel.Sync
+import org.scalacheck.Gen
 
 import babymed.refinements.Phone
 import babymed.services.users.domain.CreateUser
@@ -17,13 +18,19 @@ object UsersSpec extends TestSuite with UserGenerators {
   val userRepo: UsersRepository[F] = new UsersRepository[F] {
     override def validationAndCreate(createUser: CreateUser): F[User] =
       Sync[F].delay(userGen.get)
+
     override def validationAndEdit(editUser: EditUser): F[Unit] =
       Sync[F].unit
+
     override def findByPhone(phone: Phone): F[Option[UserAndHash]] =
       Sync[F].delay(userAndHashGen.getOpt)
+
     override def get(filters: UserFilters): F[List[User]] =
       Sync[F].delay(List(userGen.get))
+
     override def delete(userId: UserId): UsersSpec.F[Unit] = Sync[F].unit
+
+    override def getTotal(filters: UserFilters): UsersSpec.F[Long] = Sync[F].delay(Gen.long.get)
   }
 
   val users: Users[F] = new Users[F](userRepo)

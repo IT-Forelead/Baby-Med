@@ -46,11 +46,18 @@ final case class UserRouters[F[_]: Async: JsonDecoder](
           .flatMap(Ok(_))
       }
 
+    case ar @ POST -> Root / "report" / "summary" as _ =>
+      ar.req.decodeR[UserFilters] { _ =>
+        users.getTotal(UserFilters()).flatMap(Ok(_))
+      }
+
     case ar @ POST -> Root / "update" as user if user.role == SuperManager =>
       ar.req.decodeR[EditUser] { editUser =>
         users.validationAndEdit(editUser) *> NoContent()
       }
 
+    case GET -> Root / "delete" / UserIdVar(userId) as user if user.role == SuperManager =>
+      users.delete(userId) >> NoContent()
   }
 
   lazy val routes: HttpRoutes[F] = Router(

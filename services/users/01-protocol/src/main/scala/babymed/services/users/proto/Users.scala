@@ -19,6 +19,7 @@ trait Users[F[_]] {
   def find(phone: Phone): F[Option[UserAndHash]]
   def get(filters: UserFilters): F[List[User]]
   def delete(userId: UserId): F[Unit]
+  def getTotal(filters: UserFilters): F[Long]
 }
 
 object Users {}

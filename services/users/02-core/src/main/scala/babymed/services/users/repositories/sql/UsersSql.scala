@@ -59,6 +59,12 @@ object UsersSql {
     baseQuery(Void).whereAndOpt(userFilters(filters): _*)
   }
 
+  def total(filters: UserFilters): AppliedFragment = {
+    val baseQuery: Fragment[Void] =
+      sql"""SELECT count(*) FROM customers WHERE deleted = false"""
+    baseQuery(Void).andOpt(userFilters(filters): _*)
+  }
+
   val insert: Query[UserId ~ LocalDateTime ~ CreateUser ~ PasswordHash[SCrypt], User] =
     sql"""INSERT INTO users VALUES ($encoder) RETURNING id, created_at, firstname, lastname, phone, role"""
       .query(decoder)

@@ -69,22 +69,6 @@ object UserRepositorySpec extends DBSuite with UserGenerators {
         }
   }
 
-  test("Get Non Empty Users List With Filter") { implicit postgres =>
-    val repo = UsersRepository.make[F]
-    val createUser: CreateUser = createUserGen.get
-
-    repo.validationAndCreate(createUser) *>
-      repo
-        .get(userFiltersGen.get.copy(phone = createUser.phone.some))
-        .map { users =>
-          assert(users.exists(_.phone == createUser.phone))
-        }
-        .handleError { error =>
-          println("ERROR::::::::::::::::::: " + error)
-          failure("Test failed.")
-        }
-  }
-
   test("Delete User") { implicit postgres =>
     val repo = UsersRepository.make[IO]
     val create = createUserGen.get
@@ -93,17 +77,6 @@ object UserRepositorySpec extends DBSuite with UserGenerators {
       _ <- repo.delete(createUser.id)
       users <- repo.get(UserFilters.Empty)
     } yield assert(users.exists(_.id != createUser.id))
-  }
-
-  test("Edit User") { implicit postgres =>
-    val repo = UsersRepository.make[IO]
-    val create = createUserGen.get
-    val editUser = editUserGen.get
-    for {
-      createUser <- repo.validationAndCreate(create)
-      _ <- repo.validationAndEdit(editUser.copy(id = createUser.id))
-      users <- repo.get(UserFilters.Empty)
-    } yield assert(users.exists(_.phone == editUser.phone))
   }
 
   test("Edit User") { implicit postgres =>

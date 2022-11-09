@@ -62,6 +62,9 @@ object AuthRoutersSpec extends HttpSuite with UserGenerators {
     override def validationAndEdit(editUser: EditUser): F[Unit] = ???
     override def get(filters: UserFilters): F[List[User]] = ???
     override def delete(userId: UserId): F[Unit] = ???
+    override def getTotal(
+        filters: UserFilters
+      ): AuthRoutersSpec.F[Long] = ???
   }
 
   test("Authorization - Login [ OK ]") {
