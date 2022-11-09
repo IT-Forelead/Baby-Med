@@ -40,7 +40,7 @@ object CustomersSpec extends TestSuite with CustomerGenerators {
 
   loggedTest("Create Customer") { logger =>
     customers
-      .createCustomers(createCustomerGen.get)
+      .createCustomers(createCustomerGen().get)
       .as(success)
       .handleErrorWith { error =>
         logger

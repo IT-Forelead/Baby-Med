@@ -7,6 +7,8 @@ import babymed.services.users.domain.Customer
 import babymed.services.users.domain.CustomerWithAddress
 import babymed.services.users.domain.Region
 import babymed.services.users.domain.Town
+import babymed.services.users.domain.types.RegionId
+import babymed.services.users.domain.types.TownId
 
 trait CustomerGenerators extends TypeGen {
   lazy val customerGen: Gen[Customer] =
@@ -32,7 +34,10 @@ trait CustomerGenerators extends TypeGen {
       phone,
     )
 
-  lazy val createCustomerGen: Gen[CreateCustomer] =
+  def createCustomerGen(
+      maybeRegionId: Option[RegionId] = None,
+      maybeTownId: Option[TownId] = None,
+    ): Gen[CreateCustomer] =
     for {
       firstname <- firstNameGen
       lastname <- lastNameGen
@@ -44,8 +49,8 @@ trait CustomerGenerators extends TypeGen {
     } yield CreateCustomer(
       firstname,
       lastname,
-      regionId,
-      townId,
+      maybeRegionId.getOrElse(regionId),
+      maybeTownId.getOrElse(townId),
       address,
       birthday,
       phone,

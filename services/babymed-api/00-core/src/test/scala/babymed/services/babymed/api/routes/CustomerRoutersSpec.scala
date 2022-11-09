@@ -105,7 +105,7 @@ object CustomerRoutersSpec extends HttpSuite with CustomerGenerators with UserGe
 
   test("Create customer with incorrect role") {
     authedReq(Doctor) { token =>
-      POST(createCustomerGen.get, uri"/customer").bearer(NonEmptyString.unsafeFrom(token.value))
+      POST(createCustomerGen().get, uri"/customer").bearer(NonEmptyString.unsafeFrom(token.value))
     } {
       case request -> security =>
         expectNotFound(CustomerRouters[F](security, customers).routes, request)
@@ -114,7 +114,7 @@ object CustomerRoutersSpec extends HttpSuite with CustomerGenerators with UserGe
 
   test("Create customer with correct role") {
     authedReq() { token =>
-      POST(createCustomerGen.get, uri"/customer").bearer(NonEmptyString.unsafeFrom(token.value))
+      POST(createCustomerGen().get, uri"/customer").bearer(NonEmptyString.unsafeFrom(token.value))
     } {
       case request -> security =>
         expectHttpStatus(CustomerRouters[F](security, customers).routes, request)(Status.NoContent)
