@@ -27,6 +27,7 @@ import babymed.services.users.domain.EditUser
 import babymed.services.users.domain.User
 import babymed.services.users.domain.UserAndHash
 import babymed.services.users.domain.UserFilters
+import babymed.services.users.domain.UsersWithTotal
 import babymed.services.users.domain.types.UserId
 import babymed.services.users.generators.UserGenerators
 import babymed.services.users.proto.Users
@@ -67,11 +68,9 @@ object AuthServiceSpec extends HttpSuite with CommonGenerators with UserGenerato
       }
     override def validationAndCreate(createUser: CreateUser): F[User] = ???
     override def validationAndEdit(editUser: EditUser): F[Unit] = ???
-    override def get(filters: UserFilters): F[List[User]] = ???
+    override def get(filters: UserFilters): F[UsersWithTotal] = ???
     override def delete(userId: UserId): F[Unit] = ???
-    override def getTotal(
-        filters: UserFilters
-      ): AuthServiceSpec.F[Long] = ???
+    override def getTotal(filters: UserFilters): F[Long] = ???
   }
 
   test("Login - success") {

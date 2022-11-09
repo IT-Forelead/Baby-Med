@@ -44,6 +44,7 @@ object UserRoutersSpec extends HttpSuite with UserGenerators {
       TokenExpiration(1.minutes),
     )
 
+  lazy val total: Long = Gen.long.get
   lazy val user: User = userGen.get
   lazy val editUser: EditUser = editUserGen.get
   lazy val createUser: CreateUser = createUserGen.get
@@ -57,11 +58,10 @@ object UserRoutersSpec extends HttpSuite with UserGenerators {
       )
     override def validationAndCreate(createUser: CreateUser): F[User] = Sync[F].delay(user)
     override def validationAndEdit(editUser: EditUser): F[Unit] = Sync[F].unit
-    override def get(filters: UserFilters): F[List[User]] = Sync[F].delay(List(user))
+    override def get(filters: UserFilters): F[UsersWithTotal] =
+      Sync[F].delay(UsersWithTotal(List(user), total))
     override def delete(userId: UserId): F[Unit] = Sync[F].unit
-    override def getTotal(
-        filters: UserFilters
-      ): UserRoutersSpec.F[Long] = Sync[F].delay(Gen.long.get)
+    override def getTotal(filters: UserFilters): F[Long] = Sync[F].delay(total)
   }
 
   def authedReq(
@@ -123,7 +123,7 @@ object UserRoutersSpec extends HttpSuite with UserGenerators {
     } {
       case request -> security =>
         expectHttpBodyAndStatus(UserRouters[F](security, users()).routes, request)(
-          List(user),
+          UsersWithTotal(List(user), total),
           Status.Ok,
         )
     }

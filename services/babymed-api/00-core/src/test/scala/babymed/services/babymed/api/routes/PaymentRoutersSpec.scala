@@ -37,6 +37,7 @@ import babymed.services.users.domain.EditUser
 import babymed.services.users.domain.User
 import babymed.services.users.domain.UserAndHash
 import babymed.services.users.domain.UserFilters
+import babymed.services.users.domain.UsersWithTotal
 import babymed.services.users.domain.types.UserId
 import babymed.services.users.generators.UserGenerators
 import babymed.services.users.proto.Users
@@ -74,18 +75,16 @@ object PaymentRoutersSpec extends HttpSuite with PaymentGenerator with UserGener
       )
     override def validationAndCreate(createUser: CreateUser): F[User] = ???
     override def validationAndEdit(editUser: EditUser): F[Unit] = ???
-    override def get(filters: UserFilters): F[List[User]] = ???
+    override def get(filters: UserFilters): F[UsersWithTotal] = ???
     override def delete(userId: UserId): F[Unit] = ???
-    override def getTotal(
-        filters: UserFilters
-      ): PaymentRoutersSpec.F[Long] = ???
+    override def getTotal(filters: UserFilters): F[Long] = ???
   }
 
   val payments: Payments[F] = new Payments[F] {
     override def create(createPayment: CreatePayment): F[Payment] =
       Sync[F].delay(payment)
-    override def get(filters: PaymentFilters): F[List[PaymentWithCustomer]] =
-      Sync[F].delay(List(paymentWithCustomer))
+    override def get(filters: PaymentFilters): F[PaymentsWithTotal] =
+      Sync[F].delay(PaymentsWithTotal(List(paymentWithCustomer), total))
     override def getPaymentsTotal(filters: PaymentFilters): F[Long] =
       Sync[F].delay(total)
     override def delete(paymentId: PaymentId): F[Unit] = Sync[F].unit
@@ -152,7 +151,7 @@ object PaymentRoutersSpec extends HttpSuite with PaymentGenerator with UserGener
     } {
       case request -> security =>
         expectHttpBodyAndStatus(PaymentRouters[F](security, payments).routes, request)(
-          List(paymentWithCustomer),
+          PaymentsWithTotal(List(paymentWithCustomer), total),
           Status.Ok,
         )
     }
