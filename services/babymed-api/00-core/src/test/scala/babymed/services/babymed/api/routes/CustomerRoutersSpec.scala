@@ -17,6 +17,7 @@ import org.scalacheck.Gen
 import tsec.passwordhashers.jca.SCrypt
 import weaver.Expectations
 
+import babymed.domain.ResponseData
 import babymed.domain.Role
 import babymed.domain.Role.Doctor
 import babymed.domain.Role.TechAdmin
@@ -61,7 +62,7 @@ object CustomerRoutersSpec extends HttpSuite with CustomerGenerators with UserGe
       )
     override def validationAndCreate(createUser: CreateUser): F[User] = Sync[F].delay(user)
     override def validationAndEdit(editUser: EditUser): F[Unit] = ???
-    override def get(filters: UserFilters): F[UsersWithTotal] = ???
+    override def get(filters: UserFilters): F[ResponseData[User]] = ???
     override def delete(userId: UserId): F[Unit] = ???
     override def getTotal(filters: UserFilters): F[Long] = ???
   }
@@ -69,8 +70,8 @@ object CustomerRoutersSpec extends HttpSuite with CustomerGenerators with UserGe
   val customers: Customers[F] = new Customers[F] {
     override def createCustomers(createCustomer: CreateCustomer): F[Customer] =
       Sync[F].delay(customer)
-    override def getCustomers(filters: CustomerFilters): F[CustomersWithTotal] =
-      Sync[F].delay(CustomersWithTotal(List(customerWithAddress), total))
+    override def getCustomers(filters: CustomerFilters): F[ResponseData[CustomerWithAddress]] =
+      Sync[F].delay(ResponseData(List(customerWithAddress), total))
     override def getTotalCustomers(filters: CustomerFilters): F[Long] =
       Sync[F].delay(total)
     override def getCustomerById(customerId: CustomerId): F[Option[CustomerWithAddress]] =
@@ -128,7 +129,7 @@ object CustomerRoutersSpec extends HttpSuite with CustomerGenerators with UserGe
     } {
       case request -> security =>
         expectHttpBodyAndStatus(CustomerRouters[F](security, customers).routes, request)(
-          CustomersWithTotal(List(customerWithAddress), total),
+          ResponseData(List(customerWithAddress), total),
           Status.Ok,
         )
     }

@@ -17,6 +17,7 @@ import org.scalacheck.Gen
 import tsec.passwordhashers.jca.SCrypt
 import weaver.Expectations
 
+import babymed.domain.ResponseData
 import babymed.domain.Role
 import babymed.domain.Role.Admin
 import babymed.domain.Role.SuperManager
@@ -58,8 +59,8 @@ object UserRoutersSpec extends HttpSuite with UserGenerators {
       )
     override def validationAndCreate(createUser: CreateUser): F[User] = Sync[F].delay(user)
     override def validationAndEdit(editUser: EditUser): F[Unit] = Sync[F].unit
-    override def get(filters: UserFilters): F[UsersWithTotal] =
-      Sync[F].delay(UsersWithTotal(List(user), total))
+    override def get(filters: UserFilters): F[ResponseData[User]] =
+      Sync[F].delay(ResponseData(List(user), total))
     override def delete(userId: UserId): F[Unit] = Sync[F].unit
     override def getTotal(filters: UserFilters): F[Long] = Sync[F].delay(total)
   }
@@ -123,7 +124,7 @@ object UserRoutersSpec extends HttpSuite with UserGenerators {
     } {
       case request -> security =>
         expectHttpBodyAndStatus(UserRouters[F](security, users()).routes, request)(
-          UsersWithTotal(List(user), total),
+          ResponseData(List(user), total),
           Status.Ok,
         )
     }

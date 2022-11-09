@@ -18,7 +18,7 @@ object PaymentsSpec extends TestSuite with PaymentGenerator {
       Sync[F].delay(paymentGen.get)
     override def get(searchFilters: PaymentFilters): F[List[PaymentWithCustomer]] =
       Sync[F].delay(List(paymentWithCustomerGen.get))
-    override def getPaymentsTotal(filters: PaymentFilters): PaymentsSpec.F[Long] =
+    override def getPaymentsTotal(filters: PaymentFilters): F[Long] =
       Sync[F].delay(Gen.long.get)
     override def delete(paymentId: PaymentId): F[Unit] = Sync[F].unit
   }
