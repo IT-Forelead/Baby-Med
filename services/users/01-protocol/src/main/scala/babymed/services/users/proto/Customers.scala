@@ -1,5 +1,6 @@
 package babymed.services.users.proto
 
+import babymed.domain.ResponseData
 import babymed.services.users.domain.CreateCustomer
 import babymed.services.users.domain.Customer
 import babymed.services.users.domain.CustomerFilters
@@ -15,8 +16,8 @@ import babymed.support.services.syntax.marshaller.codec
 trait Customers[F[_]] {
   def createCustomers(createCustomer: CreateCustomer): F[Customer]
   def getCustomerById(customerId: CustomerId): F[Option[CustomerWithAddress]]
-  def getCustomers(searchFilters: CustomerFilters): F[List[CustomerWithAddress]]
-  def getTotalCustomers(searchFilters: CustomerFilters): F[Long]
+  def getCustomers(filters: CustomerFilters): F[ResponseData[CustomerWithAddress]]
+  def getTotalCustomers(filters: CustomerFilters): F[Long]
   def getRegions: F[List[Region]]
   def getTownsByRegionId(regionId: RegionId): F[List[Town]]
 }

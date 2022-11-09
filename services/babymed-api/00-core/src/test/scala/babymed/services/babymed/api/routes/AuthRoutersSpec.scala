@@ -14,6 +14,7 @@ import org.http4s.client.dsl.io._
 import org.http4s.implicits.http4sLiteralsSyntax
 import tsec.passwordhashers.jca.SCrypt
 
+import babymed.domain.ResponseData
 import babymed.refinements.Phone
 import babymed.services.auth.JwtConfig
 import babymed.services.auth.domain.Credentials
@@ -60,11 +61,9 @@ object AuthRoutersSpec extends HttpSuite with UserGenerators {
       }
     override def validationAndCreate(createUser: CreateUser): F[User] = ???
     override def validationAndEdit(editUser: EditUser): F[Unit] = ???
-    override def get(filters: UserFilters): F[List[User]] = ???
+    override def get(filters: UserFilters): F[ResponseData[User]] = ???
     override def delete(userId: UserId): F[Unit] = ???
-    override def getTotal(
-        filters: UserFilters
-      ): AuthRoutersSpec.F[Long] = ???
+    override def getTotal(filters: UserFilters): F[Long] = ???
   }
 
   test("Authorization - Login [ OK ]") {

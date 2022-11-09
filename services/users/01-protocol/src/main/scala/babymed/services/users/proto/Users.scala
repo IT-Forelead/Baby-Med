@@ -2,6 +2,7 @@ package babymed.services.users.proto
 
 import io.circe.refined._
 
+import babymed.domain.ResponseData
 import babymed.refinements.Phone
 import babymed.services.users.domain.CreateUser
 import babymed.services.users.domain.EditUser
@@ -17,7 +18,7 @@ trait Users[F[_]] {
   def validationAndCreate(createUser: CreateUser): F[User]
   def validationAndEdit(editUser: EditUser): F[Unit]
   def find(phone: Phone): F[Option[UserAndHash]]
-  def get(filters: UserFilters): F[List[User]]
+  def get(filters: UserFilters): F[ResponseData[User]]
   def delete(userId: UserId): F[Unit]
   def getTotal(filters: UserFilters): F[Long]
 }

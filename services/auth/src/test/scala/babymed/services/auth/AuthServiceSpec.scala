@@ -12,6 +12,7 @@ import org.http4s.headers.Authorization
 import org.http4s.implicits.http4sLiteralsSyntax
 import tsec.passwordhashers.jca.SCrypt
 
+import babymed.domain.ResponseData
 import babymed.exception.AuthError
 import babymed.refinements.Password
 import babymed.refinements.Phone
@@ -67,11 +68,9 @@ object AuthServiceSpec extends HttpSuite with CommonGenerators with UserGenerato
       }
     override def validationAndCreate(createUser: CreateUser): F[User] = ???
     override def validationAndEdit(editUser: EditUser): F[Unit] = ???
-    override def get(filters: UserFilters): F[List[User]] = ???
+    override def get(filters: UserFilters): F[ResponseData[User]] = ???
     override def delete(userId: UserId): F[Unit] = ???
-    override def getTotal(
-        filters: UserFilters
-      ): AuthServiceSpec.F[Long] = ???
+    override def getTotal(filters: UserFilters): F[Long] = ???
   }
 
   test("Login - success") {
