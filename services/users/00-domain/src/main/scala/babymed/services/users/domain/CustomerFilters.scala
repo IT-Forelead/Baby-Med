@@ -17,7 +17,7 @@ import babymed.services.users.domain.types.RegionId
 import babymed.services.users.domain.types.TownId
 
 @derive(encoder, decoder)
-case class SearchFilters(
+case class CustomerFilters(
     startDate: Option[LocalDateTime] = None,
     endDate: Option[LocalDateTime] = None,
     customerFirstName: Option[FirstName] = None,
@@ -31,6 +31,6 @@ case class SearchFilters(
     limit: Option[NonNegInt] = None,
   )
 
-object SearchFilters {
-  val Empty: SearchFilters = SearchFilters()
+object CustomerFilters {
+  val Empty: CustomerFilters = CustomerFilters()
 }

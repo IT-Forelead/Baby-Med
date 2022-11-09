@@ -52,22 +52,6 @@ object UserRepositorySpec extends DBSuite with UserGenerators {
         }
   }
 
-  test("Get Empty Users List With Filter") { implicit postgres =>
-    val repo = UsersRepository.make[F]
-    val createUser: CreateUser = createUserGen.get
-
-    repo.validationAndCreate(createUser) *>
-      repo
-        .get(userFiltersGen.get)
-        .map { users =>
-          assert(users.isEmpty)
-        }
-        .handleError { error =>
-          println("ERROR::::::::::::::::::: " + error)
-          failure("Test failed.")
-        }
-  }
-
   test("Delete User") { implicit postgres =>
     val repo = UsersRepository.make[IO]
     val create = createUserGen.get

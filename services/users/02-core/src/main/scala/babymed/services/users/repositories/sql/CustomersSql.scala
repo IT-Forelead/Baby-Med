@@ -8,9 +8,9 @@ import skunk.implicits._
 
 import babymed.services.users.domain.CreateCustomer
 import babymed.services.users.domain.Customer
+import babymed.services.users.domain.CustomerFilters
 import babymed.services.users.domain.CustomerWithAddress
 import babymed.services.users.domain.Region
-import babymed.services.users.domain.SearchFilters
 import babymed.services.users.domain.Town
 import babymed.services.users.domain.types.CustomerId
 import babymed.services.users.domain.types.RegionId
@@ -51,7 +51,7 @@ object CustomersSql {
       CustomerWithAddress(customer, region, town)
   }
 
-  private def searchFilter(filters: SearchFilters): List[Option[AppliedFragment]] =
+  private def searchFilter(filters: CustomerFilters): List[Option[AppliedFragment]] =
     List(
       filters.startDate.map(sql"customers.created_at >= $timestamp"),
       filters.endDate.map(sql"customers.created_at <= $timestamp"),
@@ -64,7 +64,7 @@ object CustomersSql {
       filters.phone.map(sql"customers.phone like $phone"),
     )
 
-  def select(filters: SearchFilters): AppliedFragment = {
+  def select(filters: CustomerFilters): AppliedFragment = {
     val baseQuery: Fragment[Void] =
       sql"""SELECT
        customers.id,
@@ -89,7 +89,7 @@ object CustomersSql {
     baseQuery(Void).andOpt(searchFilter(filters): _*)
   }
 
-  def total(filters: SearchFilters): AppliedFragment = {
+  def total(filters: CustomerFilters): AppliedFragment = {
     val baseQuery: Fragment[Void] =
       sql"""SELECT count(*) FROM customers WHERE deleted = false"""
     baseQuery(Void).andOpt(searchFilter(filters): _*)

@@ -1,15 +1,11 @@
 package babymed.services.users.generators
 
-import java.time.LocalDateTime
-
-import cats.implicits.catsSyntaxOptionId
 import org.scalacheck.Gen
 
 import babymed.services.users.domain.CreateCustomer
 import babymed.services.users.domain.Customer
 import babymed.services.users.domain.CustomerWithAddress
 import babymed.services.users.domain.Region
-import babymed.services.users.domain.SearchFilters
 import babymed.services.users.domain.Town
 
 trait CustomerGenerators extends TypeGen {
@@ -74,12 +70,4 @@ trait CustomerGenerators extends TypeGen {
       region <- regionGen
       town <- townGen
     } yield CustomerWithAddress(customer, region, town)
-
-  lazy val customerFiltersGen: Gen[SearchFilters] =
-    for {
-      number <- numberGen(1)
-      startDate = LocalDateTime.now().minusDays(number.toLong)
-      endDate = LocalDateTime.now().minusHours(number.toLong)
-      phone <- phoneGen
-    } yield SearchFilters(startDate.some, endDate.some, phone = phone.some)
 }
