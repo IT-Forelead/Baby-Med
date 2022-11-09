@@ -2,7 +2,6 @@ package babymed.services.babymed.api.routes
 
 import cats.effect.Async
 import cats.implicits._
-import eu.timepit.refined.types.numeric.NonNegInt
 import org.http4s._
 import org.http4s.circe.CirceEntityCodec.circeEntityEncoder
 import org.http4s.circe.JsonDecoder
@@ -40,8 +39,8 @@ final case class UserRouters[F[_]: Async: JsonDecoder](
         users
           .get(
             UserFilters(
-              page = Some(NonNegInt.unsafeFrom(index)),
-              limit = Some(NonNegInt.unsafeFrom(limit)),
+              page = Some(index),
+              limit = Some(limit),
             )
           )
           .flatMap(Ok(_))
