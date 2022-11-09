@@ -3,7 +3,6 @@ package babymed.services.users.repositories
 import java.time.LocalDateTime
 
 import cats.effect.IO
-import cats.implicits.catsSyntaxOptionId
 
 import babymed.services.users.domain.CreateUser
 import babymed.services.users.domain.UserFilters
