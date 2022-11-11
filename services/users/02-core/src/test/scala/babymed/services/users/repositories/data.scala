@@ -5,21 +5,27 @@ import java.util.UUID
 
 import cats.effect.IO
 import cats.effect.Resource
-import cats.implicits.catsSyntaxOptionId
-import cats.implicits.toFoldableOps
+import cats.implicits._
 import org.scalacheck.Gen
 import skunk.Session
-import skunk.implicits.toIdOps
+import skunk.implicits._
+import tsec.passwordhashers.jca.SCrypt
 
 import babymed.services.users.domain.CreateCustomer
+import babymed.services.users.domain.CreateUser
 import babymed.services.users.domain.types.CustomerId
 import babymed.services.users.domain.types.RegionId
 import babymed.services.users.domain.types.TownId
+import babymed.services.users.domain.types.UserId
 import babymed.services.users.generators.CustomerGenerators
+import babymed.services.users.generators.UserGenerators
 import babymed.services.users.repositories.sql.CustomersSql
-import babymed.support.skunk.syntax.all.skunkSyntaxQueryOps
+import babymed.services.users.repositories.sql.UsersSql
+import babymed.support.skunk.syntax.all._
+import babymed.syntax.refined.commonSyntaxAutoUnwrapV
+import babymed.util.RandomGenerator
 
-object data extends CustomerGenerators {
+object data extends CustomerGenerators with UserGenerators {
   implicit private def gen2instance[T](gen: Gen[T]): T = gen.sample.get
 
   object regions {
@@ -42,12 +48,32 @@ object data extends CustomerGenerators {
     val values: Map[CustomerId, CreateCustomer] = Map(id1 -> data1, id2 -> data2, id3 -> data3)
   }
 
+  object user {
+    val id1: UserId = userIdGen.get
+    val id2: UserId = userIdGen.get
+    val id3: UserId = userIdGen.get
+    val data1: CreateUser = createUserGen.get
+    val data2: CreateUser = createUserGen.get
+    val data3: CreateUser = createUserGen.get
+    val values: Map[UserId, CreateUser] = Map(id1 -> data1, id2 -> data2, id3 -> data3)
+  }
+
   def setup(implicit session: Resource[IO, Session[IO]]): IO[Unit] =
-    setupCustomers
+    setupCustomers *> setupUsers
 
   private def setupCustomers(implicit session: Resource[IO, Session[IO]]): IO[Unit] =
     customer.values.toList.traverse_ {
       case id -> data =>
         CustomersSql.insert.queryUnique(id ~ LocalDateTime.now() ~ data)
+    }
+
+  private def setupUsers(implicit session: Resource[IO, Session[IO]]): IO[Unit] =
+    user.values.toList.traverse_ {
+      case id -> data =>
+        UsersSql
+          .insert
+          .queryUnique(
+            id ~ LocalDateTime.now() ~ data ~ SCrypt.hashpwUnsafe(RandomGenerator.randomPassword(6))
+          )
     }
 }
