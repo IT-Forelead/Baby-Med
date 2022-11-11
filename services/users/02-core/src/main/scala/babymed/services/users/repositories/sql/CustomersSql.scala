@@ -53,72 +53,72 @@ object CustomersSql {
 
   private def searchFilter(filters: CustomerFilters): List[Option[AppliedFragment]] =
     List(
-      filters.startDate.map(sql"customers.created_at >= $timestamp"),
-      filters.endDate.map(sql"customers.created_at <= $timestamp"),
-      filters.customerFirstName.map(sql"customers.firstname like $firstName"),
-      filters.customerLastName.map(sql"customers.lastname like $lastName"),
-      filters.regionId.map(sql"customers.region_id = $regionId"),
-      filters.townId.map(sql"customers.town_id = $townId"),
-      filters.address.map(sql"customers.address like $address"),
-      filters.birthday.map(sql"customers.birthday = $date"),
-      filters.phone.map(sql"customers.phone like $phone"),
+      filters.startDate.map(sql"patients.created_at >= $timestamp"),
+      filters.endDate.map(sql"patients.created_at <= $timestamp"),
+      filters.customerFirstName.map(sql"patients.firstname like $firstName"),
+      filters.customerLastName.map(sql"patients.lastname like $lastName"),
+      filters.regionId.map(sql"patients.region_id = $regionId"),
+      filters.townId.map(sql"patients.town_id = $townId"),
+      filters.address.map(sql"patients.address like $address"),
+      filters.birthday.map(sql"patients.birthday = $date"),
+      filters.phone.map(sql"patients.phone like $phone"),
     )
 
   def select(filters: CustomerFilters): AppliedFragment = {
     val baseQuery: Fragment[Void] =
       sql"""SELECT
-       customers.id,
-       customers.created_at,
-       customers.firstname,
-       customers.lastname,
-       customers.region_id,
-       customers.town_id,
-       customers.address,
-       customers.birthday,
-       customers.phone,
+       patients.id,
+       patients.created_at,
+       patients.firstname,
+       patients.lastname,
+       patients.region_id,
+       patients.town_id,
+       patients.address,
+       patients.birthday,
+       patients.phone,
        regions.id,
        regions.name,
        towns.id,
        towns.region_id,
        towns.name
-        FROM customers
-        INNER JOIN regions ON customers.region_id = regions.id
-        INNER JOIN towns ON customers.town_id = towns.id
-        WHERE customers.deleted = false"""
+        FROM patients
+        INNER JOIN regions ON patients.region_id = regions.id
+        INNER JOIN towns ON patients.town_id = towns.id
+        WHERE patients.deleted = false"""
 
     baseQuery(Void).andOpt(searchFilter(filters): _*)
   }
 
   def total(filters: CustomerFilters): AppliedFragment = {
     val baseQuery: Fragment[Void] =
-      sql"""SELECT count(*) FROM customers WHERE deleted = false"""
+      sql"""SELECT count(*) FROM patients WHERE deleted = false"""
     baseQuery(Void).andOpt(searchFilter(filters): _*)
   }
 
   val selectById: Query[CustomerId, CustomerWithAddress] =
     sql"""SELECT
-       customers.id,
-       customers.created_at,
-       customers.firstname,
-       customers.lastname,
-       customers.region_id,
-       customers.town_id,
-       customers.address,
-       customers.birthday,
-       customers.phone,
+       patients.id,
+       patients.created_at,
+       patients.firstname,
+       patients.lastname,
+       patients.region_id,
+       patients.town_id,
+       patients.address,
+       patients.birthday,
+       patients.phone,
        regions.id,
        regions.name,
        towns.id,
        towns.region_id,
        towns.name
-        FROM customers
-        INNER JOIN regions ON customers.region_id = regions.id
-        INNER JOIN towns ON customers.town_id = towns.id
-        WHERE customers.id = $customerId AND customers.deleted = false"""
+        FROM patients
+        INNER JOIN regions ON patients.region_id = regions.id
+        INNER JOIN towns ON patients.town_id = towns.id
+        WHERE patients.id = $customerId AND patients.deleted = false"""
       .query(decCustomerWithAddress)
 
   val insert: Query[CustomerId ~ LocalDateTime ~ CreateCustomer, Customer] =
-    sql"""INSERT INTO customers VALUES ($encoder)
+    sql"""INSERT INTO patients VALUES ($encoder)
          RETURNING id, created_at, firstname, lastname, region_id, town_id, address, birthday, phone"""
       .query(decoder)
 

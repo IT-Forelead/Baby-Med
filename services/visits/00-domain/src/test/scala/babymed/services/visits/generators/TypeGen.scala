@@ -3,6 +3,7 @@ package babymed.services.visits.generators
 import org.scalacheck.Gen
 import squants.Money
 
+import babymed.services.visits.domain.types.UZS
 import babymed.test.generators.Generators
 
 trait TypeGen extends Generators {
