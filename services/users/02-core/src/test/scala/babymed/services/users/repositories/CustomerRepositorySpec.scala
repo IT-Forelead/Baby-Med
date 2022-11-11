@@ -15,8 +15,8 @@ import babymed.support.database.DBSuite
 import babymed.syntax.refined.commonSyntaxAutoRefineV
 
 object CustomerRepositorySpec extends DBSuite with CustomerGenerators {
-    override def schemaName: String = "public"
-    override def beforeAll(implicit session: Res): IO[Unit] = data.setup
+  override def schemaName: String = "public"
+  override def beforeAll(implicit session: Res): IO[Unit] = data.setup
 
   test("Create Customer") { implicit postgres =>
     CustomersRepository
