@@ -1,22 +1,24 @@
 package babymed.services.auth.utils
 
-import java.util.UUID
-
 import scala.concurrent.duration.DurationInt
 
 import pdi.jwt.JwtClaim
 import weaver.SimpleIOSuite
 import weaver.scalacheck.Checkers
 
+import babymed.services.auth.AuthServiceSpec.userGen
 import babymed.services.auth.domain.types.JwtAccessTokenKey
 import babymed.services.auth.domain.types.TokenExpiration
+import babymed.services.users.domain.User
+import babymed.syntax.all.genericSyntaxGenericTypeOps
 import babymed.syntax.refined.commonSyntaxAutoRefineV
 
 object CreateTokenSpec extends SimpleIOSuite with Checkers {
+  lazy val user: User = userGen.sample.get
   test("Create jwt token") {
     Tokens
       .make[F](JwtExpire[F], JwtAccessTokenKey("test"), TokenExpiration(1.minute))
-      .create
+      .create(user)
       .map { token =>
         assert(token.value.nonEmpty)
       }
@@ -29,7 +31,7 @@ object CreateTokenSpec extends SimpleIOSuite with Checkers {
     val expiration = TokenExpiration(1.minute)
     for {
       claim <- JwtExpire[F]
-        .expiresIn(JwtClaim(UUID.randomUUID().toString), expiration)
+        .expiresIn(JwtClaim(user.toJson), expiration)
       maybeToken <- Tokens
         .make[F](JwtExpire[F], JwtAccessTokenKey("test"), expiration)
         .validateAndUpdate(claim)
@@ -41,7 +43,7 @@ object CreateTokenSpec extends SimpleIOSuite with Checkers {
       .make[F](JwtExpire[F], JwtAccessTokenKey("test"), TokenExpiration(1.minute))
       .validateAndUpdate(
         JwtClaim(
-          UUID.randomUUID().toString,
+          user.toJson,
           expiration = Some(java.time.Clock.systemUTC().millis() / 1000 - 1),
         )
       )

@@ -2,7 +2,6 @@ package babymed.services.auth.impl
 
 import scala.concurrent.duration.DurationInt
 
-import cats.conversions.all.autoWidenFunctor
 import cats.data.OptionT
 import cats.effect.Sync
 import cats.syntax.all._
@@ -50,7 +49,7 @@ object Auth {
             PasswordDoesNotMatch("Password does not match").raiseError[F, JwtToken]
           case Some(userAndHash) =>
             OptionT(redis.get(credentials.phone)).cataF(
-              tokens.create.flatTap { t =>
+              tokens.create(userAndHash.user).flatTap { t =>
                 redis.put(t.value, userAndHash.user, TokenExpiration) >>
                   redis.put(credentials.phone, t.value, TokenExpiration)
               },
@@ -87,6 +86,7 @@ object Auth {
             .semiflatMap(user => redis.del(token.value, user.phone.value))
             .value
             .void
+
         AuthMiddleware[F, User](
           userJwtAuth.value,
           findUser,

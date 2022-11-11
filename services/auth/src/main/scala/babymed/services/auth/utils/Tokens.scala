@@ -9,11 +9,12 @@ import pdi.jwt._
 import babymed.effects.GenUUID
 import babymed.services.auth.domain.types.JwtAccessTokenKey
 import babymed.services.auth.domain.types.TokenExpiration
+import babymed.services.users.domain.User
 import babymed.syntax.all.genericSyntaxGenericTypeOps
 import babymed.syntax.all.optionSyntaxFunctorBooleanOps
 
 trait Tokens[F[_]] {
-  def create: F[JwtToken]
+  def create(user: User): F[JwtToken]
   def validateAndUpdate(claim: JwtClaim): F[Option[JwtToken]]
 }
 
@@ -27,10 +28,9 @@ object Tokens {
       private def encodeToken: JwtClaim => F[JwtToken] =
         jwtEncode[F](_, JwtSecretKey(config.secret), JwtAlgorithm.HS256)
 
-      override def create: F[JwtToken] =
+      override def create(user: User): F[JwtToken] =
         for {
-          uuid <- GenUUID[F].make
-          claim <- jwtExpire.expiresIn(JwtClaim(uuid.toJson), exp)
+          claim <- jwtExpire.expiresIn(JwtClaim(user.toJson), exp)
           token <- encodeToken(claim)
         } yield token
 
