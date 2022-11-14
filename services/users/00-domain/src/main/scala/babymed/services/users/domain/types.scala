@@ -18,7 +18,7 @@ object types {
   @derive(decoder, encoder, eqv, show, uuid)
   @newtype case class UserId(value: UUID)
   @derive(decoder, encoder, eqv, show, uuid)
-  @newtype case class CustomerId(value: UUID)
+  @newtype case class PatientId(value: UUID)
   @derive(decoder, encoder, eqv, show, uuid)
   @newtype case class RegionId(value: UUID)
   @derive(decoder, encoder, eqv, show, uuid)

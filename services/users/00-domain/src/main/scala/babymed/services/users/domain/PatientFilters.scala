@@ -17,11 +17,11 @@ import babymed.services.users.domain.types.RegionId
 import babymed.services.users.domain.types.TownId
 
 @derive(encoder, decoder)
-case class CustomerFilters(
+case class PatientFilters(
     startDate: Option[LocalDateTime] = None,
     endDate: Option[LocalDateTime] = None,
-    customerFirstName: Option[FirstName] = None,
-    customerLastName: Option[LastName] = None,
+    patientFirstName: Option[FirstName] = None,
+    patientLastName: Option[LastName] = None,
     regionId: Option[RegionId] = None,
     townId: Option[TownId] = None,
     address: Option[Address] = None,
@@ -31,6 +31,6 @@ case class CustomerFilters(
     limit: Option[NonNegInt] = None,
   )
 
-object CustomerFilters {
-  val Empty: CustomerFilters = CustomerFilters()
+object PatientFilters {
+  val Empty: PatientFilters = PatientFilters()
 }

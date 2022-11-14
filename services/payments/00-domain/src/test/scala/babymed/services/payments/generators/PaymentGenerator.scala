@@ -5,30 +5,30 @@ import org.scalacheck.Gen
 import babymed.services.payments.domain.CreatePayment
 import babymed.services.payments.domain.Payment
 import babymed.services.payments.domain.PaymentFilters
-import babymed.services.payments.domain.PaymentWithCustomer
-import babymed.services.users.generators.CustomerGenerators
+import babymed.services.payments.domain.PaymentWithPatient
+import babymed.services.users.generators.PatientGenerators
 import babymed.services.users.generators.UserGenerators
 
-trait PaymentGenerator extends TypeGen with UserGenerators with CustomerGenerators {
+trait PaymentGenerator extends TypeGen with UserGenerators with PatientGenerators {
   val paymentGen: Gen[Payment] =
     for {
       id <- paymentIdGen
       createdAt <- localDateTimeGen
-      customerId <- customerIdGen
+      patientId <- patientIdGen
       price <- priceGen
-    } yield Payment(id, createdAt, customerId, price)
+    } yield Payment(id, createdAt, patientId, price)
 
   val createPaymentGen: Gen[CreatePayment] =
     for {
-      customerId <- customerIdGen
+      patientId <- patientIdGen
       price <- priceGen
-    } yield CreatePayment(customerId, price)
+    } yield CreatePayment(patientId, price)
 
-  val paymentWithCustomerGen: Gen[PaymentWithCustomer] =
+  val paymentWithPatientGen: Gen[PaymentWithPatient] =
     for {
       payment <- paymentGen
-      customer <- customerGen
-    } yield PaymentWithCustomer(payment, customer)
+      patient <- patientGen
+    } yield PaymentWithPatient(payment, patient)
 
   val searchFiltersGen: Gen[PaymentFilters] =
     for {

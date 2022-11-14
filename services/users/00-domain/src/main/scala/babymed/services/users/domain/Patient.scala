@@ -12,8 +12,8 @@ import babymed.refinements.Phone
 import babymed.services.users.domain.types._
 
 @derive(decoder, encoder)
-case class Customer(
-    id: CustomerId,
+case class Patient(
+    id: PatientId,
     createdAt: LocalDateTime,
     firstname: FirstName,
     lastname: LastName,

@@ -6,7 +6,7 @@ import cats.effect.IO
 
 import babymed.services.payments.domain.PaymentFilters
 import babymed.services.payments.generators.PaymentGenerator
-import babymed.services.users.generators.CustomerGenerators
+import babymed.services.users.generators.PatientGenerators
 import babymed.services.users.generators.UserGenerators
 import babymed.support.database.DBSuite
 
@@ -14,7 +14,7 @@ object PaymentsRepositorySpec
     extends DBSuite
        with PaymentGenerator
        with UserGenerators
-       with CustomerGenerators {
+       with PatientGenerators {
   override def schemaName: String = "public"
   override def beforeAll(implicit session: Res): IO[Unit] = data.setup
   test("Create Payment") { implicit postgres =>

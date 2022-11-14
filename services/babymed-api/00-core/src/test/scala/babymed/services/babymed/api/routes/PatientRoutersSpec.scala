@@ -27,19 +27,19 @@ import babymed.services.auth.domain.Credentials
 import babymed.services.auth.domain.types._
 import babymed.services.auth.impl.Security
 import babymed.services.users.domain._
-import babymed.services.users.domain.types.CustomerId
+import babymed.services.users.domain.types.PatientId
 import babymed.services.users.domain.types.RegionId
 import babymed.services.users.domain.types.UserId
-import babymed.services.users.generators.CustomerGenerators
+import babymed.services.users.generators.PatientGenerators
 import babymed.services.users.generators.UserGenerators
-import babymed.services.users.proto.Customers
+import babymed.services.users.proto.Patients
 import babymed.services.users.proto.Users
 import babymed.support.redis.RedisClientMock
 import babymed.support.services.syntax.all._
 import babymed.syntax.refined.commonSyntaxAutoUnwrapV
 import babymed.test.HttpSuite
 
-object CustomerRoutersSpec extends HttpSuite with CustomerGenerators with UserGenerators {
+object PatientRoutersSpec extends HttpSuite with PatientGenerators with UserGenerators {
   val jwtConfig: JwtConfig =
     JwtConfig(
       Secret(JwtAccessTokenKey(NonEmptyString.unsafeFrom("test"))),
@@ -49,8 +49,8 @@ object CustomerRoutersSpec extends HttpSuite with CustomerGenerators with UserGe
   lazy val user: User = userGen.get
   lazy val credentials: Credentials =
     Credentials(phoneGen.get, NonEmptyString.unsafeFrom(nonEmptyStringGen(8).get))
-  lazy val customer: Customer = customerGen.get
-  lazy val customerWithAddress: CustomerWithAddress = customerWithAddressGen.get
+  lazy val patient: Patient = patientGen.get
+  lazy val patientWithAddress: PatientWithAddress = patientWithAddressGen.get
   lazy val region: Region = regionGen.get
   lazy val town: Town = townGen.get
   lazy val total: Long = Gen.long.get
@@ -67,15 +67,15 @@ object CustomerRoutersSpec extends HttpSuite with CustomerGenerators with UserGe
     override def getTotal(filters: UserFilters): F[Long] = ???
   }
 
-  val customers: Customers[F] = new Customers[F] {
-    override def createCustomers(createCustomer: CreateCustomer): F[Customer] =
-      Sync[F].delay(customer)
-    override def getCustomers(filters: CustomerFilters): F[ResponseData[CustomerWithAddress]] =
-      Sync[F].delay(ResponseData(List(customerWithAddress), total))
-    override def getTotalCustomers(filters: CustomerFilters): F[Long] =
+  val patients: Patients[F] = new Patients[F] {
+    override def createPatient(createPatient: CreatePatient): F[Patient] =
+      Sync[F].delay(patient)
+    override def getPatients(filters: PatientFilters): F[ResponseData[PatientWithAddress]] =
+      Sync[F].delay(ResponseData(List(patientWithAddress), total))
+    override def getTotalPatients(filters: PatientFilters): F[Long] =
       Sync[F].delay(total)
-    override def getCustomerById(customerId: CustomerId): F[Option[CustomerWithAddress]] =
-      Sync[F].delay(Option(customerWithAddress))
+    override def getPatientById(patient: PatientId): F[Option[PatientWithAddress]] =
+      Sync[F].delay(Option(patientWithAddress))
     override def getRegions: F[List[Region]] = Sync[F].delay(List(region))
     override def getTownsByRegionId(regionId: RegionId): F[List[Town]] =
       Sync[F].delay(List(town))
@@ -103,46 +103,46 @@ object CustomerRoutersSpec extends HttpSuite with CustomerGenerators with UserGe
       }
   }
 
-  test("Create customer with incorrect role") {
+  test("Create patient with incorrect role") {
     authedReq(Doctor) { token =>
-      POST(createCustomerGen().get, uri"/customer").bearer(NonEmptyString.unsafeFrom(token.value))
+      POST(createPatientGen().get, uri"/patient").bearer(NonEmptyString.unsafeFrom(token.value))
     } {
       case request -> security =>
-        expectNotFound(CustomerRouters[F](security, customers).routes, request)
+        expectNotFound(PatientRouters[F](security, patients).routes, request)
     }
   }
 
-  test("Create customer with correct role") {
+  test("Create patient with correct role") {
     authedReq() { token =>
-      POST(createCustomerGen().get, uri"/customer").bearer(NonEmptyString.unsafeFrom(token.value))
+      POST(createPatientGen().get, uri"/patient").bearer(NonEmptyString.unsafeFrom(token.value))
     } {
       case request -> security =>
-        expectHttpStatus(CustomerRouters[F](security, customers).routes, request)(Status.NoContent)
+        expectHttpStatus(PatientRouters[F](security, patients).routes, request)(Status.NoContent)
     }
   }
 
-  test("Get customers") {
+  test("Get patients") {
     authedReq() { token =>
-      POST(CustomerFilters.Empty, uri"/customer/report").bearer(
+      POST(PatientFilters.Empty, uri"/patient/report").bearer(
         NonEmptyString.unsafeFrom(token.value)
       )
     } {
       case request -> security =>
-        expectHttpBodyAndStatus(CustomerRouters[F](security, customers).routes, request)(
-          ResponseData(List(customerWithAddress), total),
+        expectHttpBodyAndStatus(PatientRouters[F](security, patients).routes, request)(
+          ResponseData(List(patientWithAddress), total),
           Status.Ok,
         )
     }
   }
 
-  test("Get customers total") {
+  test("Get patients total") {
     authedReq() { token =>
-      POST(CustomerFilters.Empty, uri"/customer/report/summary").bearer(
+      POST(PatientFilters.Empty, uri"/patient/report/summary").bearer(
         NonEmptyString.unsafeFrom(token.value)
       )
     } {
       case request -> security =>
-        expectHttpBodyAndStatus(CustomerRouters[F](security, customers).routes, request)(
+        expectHttpBodyAndStatus(PatientRouters[F](security, patients).routes, request)(
           total,
           Status.Ok,
         )
@@ -153,12 +153,12 @@ object CustomerRoutersSpec extends HttpSuite with CustomerGenerators with UserGe
     authedReq() { token =>
       GET(
         Uri
-          .unsafeFromString("/customer/regions")
+          .unsafeFromString("/patient/regions")
           .withQueryParam("x-token", token.value)
       )
     } {
       case request -> security =>
-        expectHttpBodyAndStatus(CustomerRouters[F](security, customers).routes, request)(
+        expectHttpBodyAndStatus(PatientRouters[F](security, patients).routes, request)(
           List(region),
           Status.Ok,
         )
@@ -169,12 +169,12 @@ object CustomerRoutersSpec extends HttpSuite with CustomerGenerators with UserGe
     authedReq() { token =>
       GET(
         Uri
-          .unsafeFromString(s"/customer/towns/${regionIdGen.get}")
+          .unsafeFromString(s"/patient/towns/${regionIdGen.get}")
           .withQueryParam("x-token", token.value)
       )
     } {
       case request -> security =>
-        expectHttpBodyAndStatus(CustomerRouters[F](security, customers).routes, request)(
+        expectHttpBodyAndStatus(PatientRouters[F](security, patients).routes, request)(
           List(town),
           Status.Ok,
         )

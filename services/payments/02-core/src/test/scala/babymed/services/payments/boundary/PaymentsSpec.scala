@@ -6,7 +6,7 @@ import org.scalacheck.Gen
 import babymed.services.payments.domain.CreatePayment
 import babymed.services.payments.domain.Payment
 import babymed.services.payments.domain.PaymentFilters
-import babymed.services.payments.domain.PaymentWithCustomer
+import babymed.services.payments.domain.PaymentWithPatient
 import babymed.services.payments.domain.types.PaymentId
 import babymed.services.payments.generators.PaymentGenerator
 import babymed.services.payments.repositories.PaymentsRepository
@@ -16,8 +16,8 @@ object PaymentsSpec extends TestSuite with PaymentGenerator {
   val paymentRepo: PaymentsRepository[F] = new PaymentsRepository[F] {
     override def create(createPayment: CreatePayment): F[Payment] =
       Sync[F].delay(paymentGen.get)
-    override def get(searchFilters: PaymentFilters): F[List[PaymentWithCustomer]] =
-      Sync[F].delay(List(paymentWithCustomerGen.get))
+    override def get(searchFilters: PaymentFilters): F[List[PaymentWithPatient]] =
+      Sync[F].delay(List(paymentWithPatientGen.get))
     override def getPaymentsTotal(filters: PaymentFilters): F[Long] =
       Sync[F].delay(Gen.long.get)
     override def delete(paymentId: PaymentId): F[Unit] = Sync[F].unit

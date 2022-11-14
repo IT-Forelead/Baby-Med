@@ -10,10 +10,10 @@ import skunk.implicits._
 import babymed.services.payments.domain.CreatePayment
 import babymed.services.payments.domain.Payment
 import babymed.services.payments.domain.PaymentFilters
-import babymed.services.payments.domain.PaymentWithCustomer
+import babymed.services.payments.domain.PaymentWithPatient
 import babymed.services.payments.domain.types.PaymentId
-import babymed.services.users.domain.Customer
-import babymed.services.users.domain.types.CustomerId
+import babymed.services.users.domain.Patient
+import babymed.services.users.domain.types.PatientId
 import babymed.services.users.domain.types.RegionId
 import babymed.services.users.domain.types.TownId
 import babymed.support.skunk.codecs.phone
@@ -21,13 +21,13 @@ import babymed.support.skunk.syntax.all.skunkSyntaxFragmentOps
 
 object PaymentsSql {
   val paymentId: Codec[PaymentId] = identity[PaymentId]
-  val customerId: Codec[CustomerId] = identity[CustomerId]
+  val patientId: Codec[PatientId] = identity[PatientId]
   val regionId: Codec[RegionId] = identity[RegionId]
   val townId: Codec[TownId] = identity[TownId]
 
-  private val Columns = paymentId ~ timestamp ~ customerId ~ price
+  private val Columns = paymentId ~ timestamp ~ patientId ~ price
   private val CustomerColumns =
-    customerId ~ timestamp ~ firstName ~ lastName ~ regionId ~ townId ~ address ~ date ~ phone
+    patientId ~ timestamp ~ firstName ~ lastName ~ regionId ~ townId ~ address ~ date ~ phone
 
   val encoder: Encoder[PaymentId ~ LocalDateTime ~ CreatePayment] = Columns.contramap {
     case id ~ createdAt ~ cp =>
@@ -35,22 +35,22 @@ object PaymentsSql {
   }
 
   val decoder: Decoder[Payment] = Columns.map {
-    case id ~ createdAt ~ customerId ~ price =>
-      Payment(id, createdAt, customerId, price)
+    case id ~ createdAt ~ patientId ~ price =>
+      Payment(id, createdAt, patientId, price)
   }
 
-  val decCustomer: Decoder[Customer] = CustomerColumns.map {
+  val decCustomer: Decoder[Patient] = CustomerColumns.map {
     case id ~ createdAt ~ firstName ~ lastName ~ regionId ~ townId ~ address ~ birthday ~ phone =>
-      Customer(id, createdAt, firstName, lastName, regionId, townId, address, birthday, phone)
+      Patient(id, createdAt, firstName, lastName, regionId, townId, address, birthday, phone)
   }
 
-  val decPaymentWithCustomer: Decoder[PaymentWithCustomer] = (decoder ~ decCustomer).map {
+  val decPaymentWithCustomer: Decoder[PaymentWithPatient] = (decoder ~ decCustomer).map {
     case payment ~ customer =>
-      PaymentWithCustomer(payment, customer)
+      PaymentWithPatient(payment, customer)
   }
 
   val insert: Query[PaymentId ~ LocalDateTime ~ CreatePayment, Payment] =
-    sql"""INSERT INTO payments VALUES ($encoder) RETURNING id, created_at, customer_id, price"""
+    sql"""INSERT INTO payments VALUES ($encoder) RETURNING id, created_at, patient_id, price"""
       .query(decoder)
 
   private def searchFilter(filters: PaymentFilters): List[Option[AppliedFragment]] =
@@ -61,16 +61,16 @@ object PaymentsSql {
 
   def select(filters: PaymentFilters): AppliedFragment = {
     val baseQuery: Fragment[Void] =
-      sql"""SELECT payments.id, payments.created_at, payments.customer_id, payments.price, customers.id,
-         customers.created_at,
-         customers.firstname,
-         customers.lastname,
-         customers.region_id,
-         customers.town_id,
-         customers.address,
-         customers.birthday,
-         customers.phone FROM payments
-       INNER JOIN customers ON payments.customer_id = customers.id
+      sql"""SELECT payments.id, payments.created_at, payments.patient_id, payments.price, patients.id,
+         patients.created_at,
+         patients.firstname,
+         patients.lastname,
+         patients.region_id,
+         patients.town_id,
+         patients.address,
+         patients.birthday,
+         patients.phone FROM payments
+       INNER JOIN patients ON payments.patient_id = patients.id
        WHERE payments.deleted = false"""
     baseQuery(Void).andOpt(searchFilter(filters): _*)
   }

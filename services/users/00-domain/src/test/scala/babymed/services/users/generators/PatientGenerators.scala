@@ -2,18 +2,18 @@ package babymed.services.users.generators
 
 import org.scalacheck.Gen
 
-import babymed.services.users.domain.CreateCustomer
-import babymed.services.users.domain.Customer
-import babymed.services.users.domain.CustomerWithAddress
+import babymed.services.users.domain.CreatePatient
+import babymed.services.users.domain.Patient
+import babymed.services.users.domain.PatientWithAddress
 import babymed.services.users.domain.Region
 import babymed.services.users.domain.Town
 import babymed.services.users.domain.types.RegionId
 import babymed.services.users.domain.types.TownId
 
-trait CustomerGenerators extends TypeGen {
-  lazy val customerGen: Gen[Customer] =
+trait PatientGenerators extends TypeGen {
+  lazy val patientGen: Gen[Patient] =
     for {
-      id <- customerIdGen
+      id <- patientIdGen
       createdAt <- localDateTimeGen
       firstname <- firstNameGen
       lastname <- lastNameGen
@@ -22,7 +22,7 @@ trait CustomerGenerators extends TypeGen {
       address <- addressGen
       birthday <- dateGen
       phone <- phoneGen
-    } yield Customer(
+    } yield Patient(
       id,
       createdAt,
       firstname,
@@ -34,10 +34,10 @@ trait CustomerGenerators extends TypeGen {
       phone,
     )
 
-  def createCustomerGen(
+  def createPatientGen(
       maybeRegionId: Option[RegionId] = None,
       maybeTownId: Option[TownId] = None,
-    ): Gen[CreateCustomer] =
+    ): Gen[CreatePatient] =
     for {
       firstname <- firstNameGen
       lastname <- lastNameGen
@@ -46,7 +46,7 @@ trait CustomerGenerators extends TypeGen {
       address <- addressGen
       birthday <- dateGen
       phone <- phoneGen
-    } yield CreateCustomer(
+    } yield CreatePatient(
       firstname,
       lastname,
       maybeRegionId.getOrElse(regionId),
@@ -69,10 +69,10 @@ trait CustomerGenerators extends TypeGen {
       name <- townNameGen
     } yield Town(id, regionId, name)
 
-  lazy val customerWithAddressGen: Gen[CustomerWithAddress] =
+  lazy val patientWithAddressGen: Gen[PatientWithAddress] =
     for {
-      customer <- customerGen
+      patient <- patientGen
       region <- regionGen
       town <- townGen
-    } yield CustomerWithAddress(customer, region, town)
+    } yield PatientWithAddress(patient, region, town)
 }

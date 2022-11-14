@@ -1,27 +1,26 @@
 package babymed.services.users.repositories
 
-import java.time.LocalDateTime
+import babymed.services.users.domain.PatientFilters
 
+import java.time.LocalDateTime
 import cats.effect.IO
 import cats.effect.Resource
 import cats.implicits.catsSyntaxOptionId
 import cats.implicits.toTraverseOps
 import skunk.Session
 import weaver.Expectations
-
-import babymed.services.users.domain.CustomerFilters
-import babymed.services.users.generators.CustomerGenerators
+import babymed.services.users.generators.PatientGenerators
 import babymed.support.database.DBSuite
 import babymed.syntax.refined.commonSyntaxAutoRefineV
 
-object CustomerRepositorySpec extends DBSuite with CustomerGenerators {
+object PatientsRepositorySpec extends DBSuite with PatientGenerators {
   override def schemaName: String = "public"
   override def beforeAll(implicit session: Res): IO[Unit] = data.setup
 
-  test("Create Customer") { implicit postgres =>
-    CustomersRepository
+  test("Create Patient") { implicit postgres =>
+    PatientsRepository
       .make[F]
-      .create(createCustomerGen(data.regions.id1.some, data.towns.id1.some).get)
+      .create(createPatientGen(data.regions.id1.some, data.towns.id1.some).get)
       .map { c =>
         assert(c.createdAt.isBefore(LocalDateTime.now()))
       }
@@ -30,12 +29,12 @@ object CustomerRepositorySpec extends DBSuite with CustomerGenerators {
       }
   }
 
-  test("Get Customer by Id") { implicit postgres =>
-    CustomersRepository
+  test("Get Patient by Id") { implicit postgres =>
+    PatientsRepository
       .make[F]
-      .getCustomerById(data.customer.id1)
-      .map { customers =>
-        assert(customers.exists(_.customer.id == data.customer.id1))
+      .getPatientById(data.customer.id1)
+      .map { patients =>
+        assert(patients.exists(_.patient.id == data.customer.id1))
       }
       .handleError { error =>
         println("ERROR::::::::::::::::::: " + error)
@@ -44,43 +43,43 @@ object CustomerRepositorySpec extends DBSuite with CustomerGenerators {
   }
 
   test("Get Customers") { implicit postgres =>
-    val repo = CustomersRepository.make[F]
+    val repo = PatientsRepository.make[F]
     object Case1 extends TestCase[Res] {
       override def check(implicit dao: Resource[IO, Session[IO]]): IO[Expectations] =
         repo
-          .get(CustomerFilters(customerFirstName = data.customer.data1.firstname.some))
+          .get(PatientFilters(patientFirstName = data.customer.data1.firstname.some))
           .map { customers =>
-            assert(customers.map(_.customer.id) == List(data.customer.id1))
+            assert(customers.map(_.patient.id) == List(data.customer.id1))
           }
     }
     object Case2 extends TestCase[Res] {
       override def check(implicit dao: Resource[IO, Session[IO]]): IO[Expectations] =
         repo
-          .get(CustomerFilters(regionId = data.regions.id2.some))
+          .get(PatientFilters(regionId = data.regions.id2.some))
           .map { customers =>
-            assert.same(customers.map(_.customer.id), data.customer.values.keys.toList)
+            assert.same(customers.map(_.patient.id), data.customer.values.keys.toList)
           }
     }
     object Case3 extends TestCase[Res] {
       override def check(implicit dao: Resource[IO, Session[IO]]): IO[Expectations] =
         repo
-          .get(CustomerFilters(townId = data.towns.id2.some))
+          .get(PatientFilters(townId = data.towns.id2.some))
           .map { customers =>
-            assert.same(customers.map(_.customer.id), data.customer.values.keys.toList)
+            assert.same(customers.map(_.patient.id), data.customer.values.keys.toList)
           }
     }
     object Case4 extends TestCase[Res] {
       override def check(implicit dao: Resource[IO, Session[IO]]): IO[Expectations] =
         repo
-          .get(CustomerFilters(phone = data.customer.data1.phone.some))
+          .get(PatientFilters(phone = data.customer.data1.phone.some))
           .map { customers =>
-            assert.same(customers.map(_.customer.id), List(data.customer.id1))
+            assert.same(customers.map(_.patient.id), List(data.customer.id1))
           }
     }
     object Case5 extends TestCase[Res] {
       override def check(implicit dao: Resource[IO, Session[IO]]): IO[Expectations] =
         repo
-          .get(CustomerFilters(phone = Some("+998990123456")))
+          .get(PatientFilters(phone = Some("+998990123456")))
           .map { customers =>
             assert(customers.isEmpty)
           }
@@ -89,7 +88,7 @@ object CustomerRepositorySpec extends DBSuite with CustomerGenerators {
       override def check(implicit dao: Resource[IO, Session[IO]]): IO[Expectations] =
         repo
           .get(
-            CustomerFilters(
+            PatientFilters(
               startDate = LocalDateTime.now().minusMinutes(1).some,
               regionId = data.regions.id2.some,
             )
@@ -101,7 +100,7 @@ object CustomerRepositorySpec extends DBSuite with CustomerGenerators {
     object Case7 extends TestCase[Res] {
       override def check(implicit dao: Resource[IO, Session[IO]]): IO[Expectations] =
         repo
-          .get(CustomerFilters(endDate = LocalDateTime.now().minusMinutes(1).some))
+          .get(PatientFilters(endDate = LocalDateTime.now().minusMinutes(1).some))
           .map { customers =>
             assert(customers.isEmpty)
           }
@@ -118,9 +117,9 @@ object CustomerRepositorySpec extends DBSuite with CustomerGenerators {
   }
 
   test("Get Customer Total") { implicit postgres =>
-    CustomersRepository
+    PatientsRepository
       .make[F]
-      .getTotal(CustomerFilters.Empty)
+      .getTotal(PatientFilters.Empty)
       .map { total =>
         assert(total >= 1)
       }
@@ -130,7 +129,7 @@ object CustomerRepositorySpec extends DBSuite with CustomerGenerators {
   }
 
   test("Get All Regions") { implicit postgres =>
-    CustomersRepository
+    PatientsRepository
       .make[F]
       .getRegions
       .map { regions =>
@@ -143,7 +142,7 @@ object CustomerRepositorySpec extends DBSuite with CustomerGenerators {
   }
 
   test("Get Towns by RegionId") { implicit postgres =>
-    CustomersRepository
+    PatientsRepository
       .make[F]
       .getTownsByRegionId(data.regions.id1)
       .map { towns =>

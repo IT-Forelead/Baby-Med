@@ -14,14 +14,14 @@ import babymed.effects.GenUUID
 import babymed.services.payments.domain.CreatePayment
 import babymed.services.payments.domain.Payment
 import babymed.services.payments.domain.PaymentFilters
-import babymed.services.payments.domain.PaymentWithCustomer
+import babymed.services.payments.domain.PaymentWithPatient
 import babymed.services.payments.domain.types.PaymentId
 import babymed.services.payments.repositories.sql.PaymentsSql
 import babymed.support.skunk.syntax.all._
 
 trait PaymentsRepository[F[_]] {
   def create(createPayment: CreatePayment): F[Payment]
-  def get(searchFilters: PaymentFilters): F[List[PaymentWithCustomer]]
+  def get(searchFilters: PaymentFilters): F[List[PaymentWithPatient]]
   def getPaymentsTotal(filters: PaymentFilters): F[Long]
   def delete(paymentId: PaymentId): F[Unit]
 }
@@ -39,7 +39,7 @@ object PaymentsRepository {
         payment <- PaymentsSql.insert.queryUnique(id ~ now ~ createPayment)
       } yield payment
 
-    override def get(searchFilters: PaymentFilters): F[List[PaymentWithCustomer]] = {
+    override def get(searchFilters: PaymentFilters): F[List[PaymentWithPatient]] = {
       val query =
         PaymentsSql.select(searchFilters).paginateOpt(searchFilters.limit, searchFilters.page)
       query.fragment.query(PaymentsSql.decPaymentWithCustomer).queryList(query.argument)

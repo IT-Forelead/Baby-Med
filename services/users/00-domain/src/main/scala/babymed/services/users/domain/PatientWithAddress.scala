@@ -5,8 +5,8 @@ import derevo.circe.magnolia.encoder
 import derevo.derive
 
 @derive(decoder, encoder)
-case class CustomerWithAddress(
-    customer: Customer,
+case class PatientWithAddress(
+    patient: Patient,
     region: Region,
     town: Town,
   )

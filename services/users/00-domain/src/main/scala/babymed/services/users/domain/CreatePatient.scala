@@ -15,7 +15,7 @@ import babymed.services.users.domain.types.RegionId
 import babymed.services.users.domain.types.TownId
 
 @derive(decoder, encoder)
-case class CreateCustomer(
+case class CreatePatient(
     firstname: FirstName,
     lastname: LastName,
     regionId: RegionId,

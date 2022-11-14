@@ -7,7 +7,7 @@ import babymed.domain.ResponseData
 import babymed.services.payments.domain.CreatePayment
 import babymed.services.payments.domain.Payment
 import babymed.services.payments.domain.PaymentFilters
-import babymed.services.payments.domain.PaymentWithCustomer
+import babymed.services.payments.domain.PaymentWithPatient
 import babymed.services.payments.domain.types.PaymentId
 import babymed.services.payments.proto
 import babymed.services.payments.repositories.PaymentsRepository
@@ -15,7 +15,7 @@ import babymed.services.payments.repositories.PaymentsRepository
 class Payments[F[_]: Monad](paymentsRepository: PaymentsRepository[F]) extends proto.Payments[F] {
   override def create(createPayment: CreatePayment): F[Payment] =
     paymentsRepository.create(createPayment)
-  override def get(filters: PaymentFilters): F[ResponseData[PaymentWithCustomer]] =
+  override def get(filters: PaymentFilters): F[ResponseData[PaymentWithPatient]] =
     for {
       payments <- paymentsRepository.get(filters)
       total <- paymentsRepository.getPaymentsTotal(filters)

@@ -3,30 +3,30 @@ package babymed.services.users.boundary
 import cats.effect.kernel.Sync
 import org.scalacheck.Gen
 
-import babymed.services.users.domain.CreateCustomer
-import babymed.services.users.domain.Customer
-import babymed.services.users.domain.CustomerFilters
-import babymed.services.users.domain.CustomerWithAddress
+import babymed.services.users.domain.CreatePatient
+import babymed.services.users.domain.Patient
+import babymed.services.users.domain.PatientFilters
+import babymed.services.users.domain.PatientWithAddress
 import babymed.services.users.domain.Region
 import babymed.services.users.domain.Town
 import babymed.services.users.domain.types
-import babymed.services.users.domain.types.CustomerId
-import babymed.services.users.generators.CustomerGenerators
-import babymed.services.users.repositories.CustomersRepository
+import babymed.services.users.domain.types.PatientId
+import babymed.services.users.generators.PatientGenerators
+import babymed.services.users.repositories.PatientsRepository
 import babymed.test.TestSuite
 
-object CustomersSpec extends TestSuite with CustomerGenerators {
-  val customerRepo: CustomersRepository[F] = new CustomersRepository[F] {
-    override def create(createCustomer: CreateCustomer): F[Customer] =
-      Sync[F].delay(customerGen.get)
+object PatientsSpec extends TestSuite with PatientGenerators {
+  val patientRepo: PatientsRepository[F] = new PatientsRepository[F] {
+    override def create(createPatient: CreatePatient): F[Patient] =
+      Sync[F].delay(patientGen.get)
 
-    override def getCustomerById(customerId: CustomerId): F[Option[CustomerWithAddress]] =
-      Sync[F].delay(customerWithAddressGen.getOpt)
+    override def getPatientById(patientId: PatientId): F[Option[PatientWithAddress]] =
+      Sync[F].delay(patientWithAddressGen.getOpt)
 
-    override def get(filters: CustomerFilters): F[List[CustomerWithAddress]] =
-      Sync[F].delay(List(customerWithAddressGen.get))
+    override def get(filters: PatientFilters): F[List[PatientWithAddress]] =
+      Sync[F].delay(List(patientWithAddressGen.get))
 
-    override def getTotal(filters: CustomerFilters): F[Long] =
+    override def getTotal(filters: PatientFilters): F[Long] =
       Sync[F].delay(Gen.long.get)
 
     override def getRegions: F[List[Region]] =
@@ -36,11 +36,11 @@ object CustomersSpec extends TestSuite with CustomerGenerators {
       Sync[F].delay(List(townGen.get))
   }
 
-  val customers: Customers[F] = new Customers[F](customerRepo)
+  val patients: Patients[F] = new Patients[F](patientRepo)
 
-  loggedTest("Create Customer") { logger =>
-    customers
-      .createCustomers(createCustomerGen().get)
+  loggedTest("Create Patient") { logger =>
+    patients
+      .createPatient(createPatientGen().get)
       .as(success)
       .handleErrorWith { error =>
         logger
@@ -49,9 +49,9 @@ object CustomersSpec extends TestSuite with CustomerGenerators {
       }
   }
 
-  loggedTest("Get Customers") { logger =>
-    customers
-      .getCustomers(CustomerFilters.Empty)
+  loggedTest("Get Patients") { logger =>
+    patients
+      .getPatients(PatientFilters.Empty)
       .as(success)
       .handleErrorWith { error =>
         logger
@@ -60,9 +60,9 @@ object CustomersSpec extends TestSuite with CustomerGenerators {
       }
   }
 
-  loggedTest("Get Customers by Id") { logger =>
-    customers
-      .getCustomerById(customerIdGen.get)
+  loggedTest("Get Patients by Id") { logger =>
+    patients
+      .getPatientById(patientIdGen.get)
       .as(success)
       .handleErrorWith { error =>
         logger
@@ -71,9 +71,9 @@ object CustomersSpec extends TestSuite with CustomerGenerators {
       }
   }
 
-  loggedTest("Get Customers Total") { logger =>
-    customers
-      .getTotalCustomers(CustomerFilters.Empty)
+  loggedTest("Get patients Total") { logger =>
+    patients
+      .getTotalPatients(PatientFilters.Empty)
       .as(success)
       .handleErrorWith { error =>
         logger
@@ -83,7 +83,7 @@ object CustomersSpec extends TestSuite with CustomerGenerators {
   }
 
   loggedTest("Get All Regions") { logger =>
-    customers
+    patients
       .getRegions
       .as(success)
       .handleErrorWith { error =>
@@ -94,7 +94,7 @@ object CustomersSpec extends TestSuite with CustomerGenerators {
   }
 
   loggedTest("Get Towns by RegionId") { logger =>
-    customers
+    patients
       .getTownsByRegionId(regionIdGen.get)
       .as(success)
       .handleErrorWith { error =>

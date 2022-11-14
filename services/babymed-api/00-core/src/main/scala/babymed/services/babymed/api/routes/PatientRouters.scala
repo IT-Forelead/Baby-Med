@@ -7,18 +7,17 @@ import org.http4s.circe.JsonDecoder
 import org.http4s.dsl.Http4sDsl
 import org.http4s.server.Router
 import org.typelevel.log4cats.Logger
-
 import babymed.domain.Role.Doctor
 import babymed.services.auth.impl.Security
-import babymed.services.users.domain.CreateCustomer
-import babymed.services.users.domain.CustomerFilters
+import babymed.services.users.domain.CreatePatient
+import babymed.services.users.domain.PatientFilters
 import babymed.services.users.domain.User
-import babymed.services.users.proto.Customers
+import babymed.services.users.proto.Patients
 import babymed.support.services.syntax.all._
 
-final case class CustomerRouters[F[_]: Async: JsonDecoder](
+final case class PatientRouters[F[_]: Async: JsonDecoder](
     security: Security[F],
-    customers: Customers[F],
+    patients: Patients[F],
   )(implicit
     logger: Logger[F]
   ) extends Http4sDsl[F] {
@@ -27,15 +26,15 @@ final case class CustomerRouters[F[_]: Async: JsonDecoder](
   private[this] val privateRoutes: AuthedRoutes[User, F] = AuthedRoutes.of {
 
     case ar @ POST -> Root as user if user.role != Doctor =>
-      ar.req.decodeR[CreateCustomer] { createCustomer =>
-        customers.createCustomers(createCustomer) *> NoContent()
+      ar.req.decodeR[CreatePatient] { createPatient =>
+        patients.createPatient(createPatient) *> NoContent()
       }
 
     case ar @ POST -> Root / "report" :? page(index) +& limit(limit) as _ =>
-      ar.req.decodeR[CustomerFilters] { req =>
-        customers
-          .getCustomers(
-            CustomerFilters(
+      ar.req.decodeR[PatientFilters] { req =>
+        patients
+          .getPatients(
+            PatientFilters(
               req.startDate,
               req.endDate,
               page = Some(index),
@@ -46,15 +45,15 @@ final case class CustomerRouters[F[_]: Async: JsonDecoder](
       }
 
     case ar @ POST -> Root / "report" / "summary" as _ =>
-      ar.req.decodeR[CustomerFilters] { req =>
-        customers.getTotalCustomers(CustomerFilters(req.startDate, req.endDate)).flatMap(Ok(_))
+      ar.req.decodeR[PatientFilters] { req =>
+        patients.getTotalPatients(PatientFilters(req.startDate, req.endDate)).flatMap(Ok(_))
       }
 
     case GET -> Root / "regions" as _ =>
-      customers.getRegions.flatMap(Ok(_))
+      patients.getRegions.flatMap(Ok(_))
 
     case GET -> Root / "towns" / RegionIdVar(regionId) as _ =>
-      customers.getTownsByRegionId(regionId).flatMap(Ok(_))
+      patients.getTownsByRegionId(regionId).flatMap(Ok(_))
   }
 
   lazy val routes: HttpRoutes[F] = Router(
