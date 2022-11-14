@@ -4,15 +4,15 @@ import cats.effect.Async
 import cats.effect.Resource
 
 import babymed.services.babymed.api.Services
-import babymed.services.payments.proto.Payments
 import babymed.services.users.proto._
+import babymed.services.visits.proto.Visits
 
 case class RpcClients[F[_]](
     users: Users[F],
     patients: Patients[F],
-    payments: Payments[F],
+    visits: Visits[F],
   ) {
-  val toServer: Services[F] = Services[F](users, patients, payments)
+  val toServer: Services[F] = Services[F](users, patients, visits)
 }
 
 object RpcClients {
@@ -20,6 +20,6 @@ object RpcClients {
     for {
       userClient <- Users.client[F](config.users.channelAddress)
       patientClient <- Patients.client[F](config.users.channelAddress)
-      paymentClient <- Payments.client[F](config.payment.channelAddress)
-    } yield RpcClients[F](userClient, patientClient, paymentClient)
+      visitClient <- Visits.client[F](config.visits.channelAddress)
+    } yield RpcClients[F](userClient, patientClient, visitClient)
 }

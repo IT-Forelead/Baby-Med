@@ -1,4 +1,5 @@
 CREATE TYPE ROLE AS ENUM ('super_manager', 'doctor', 'tech_admin', 'admin');
+CREATE TYPE PAYMENT_STATUS AS ENUM ('fully_paid', 'not_paid', 'partially_paid');
 
 CREATE TABLE IF NOT EXISTS regions
 (
@@ -473,12 +474,14 @@ CREATE TABLE IF NOT EXISTS users
     lastname   VARCHAR   NOT NULL,
     phone      VARCHAR   NOT NULL UNIQUE,
     role       ROLE      NOT NULL,
-    password   VARCHAR   NOT NULL,
-    deleted    BOOLEAN   NOT NULL DEFAULT false
+    password   VARCHAR   NOT NULL
 );
 
+INSERT INTO "users" ("id", "created_at", "firstname", "lastname", "phone", "role", "password")
+VALUES ('72a911c8-ad24-4e2d-8930-9c3ba51741df', '2022-11-07T06:43:01.089Z', 'Admin', 'Super Manager', '+998901234567',
+        'super_manager', '$s0$e0801$5JK3Ogs35C2h5htbXQoeEQ==$N7HgNieSnOajn1FuEB7l4PhC6puBSq+e1E8WUaSJcGY=');
 
-CREATE TABLE IF NOT EXISTS customers
+CREATE TABLE IF NOT EXISTS patients
 (
     id         UUID PRIMARY KEY,
     created_at TIMESTAMP NOT NULL,
@@ -494,12 +497,24 @@ CREATE TABLE IF NOT EXISTS customers
     deleted    BOOLEAN   NOT NULL DEFAULT false
 );
 
-CREATE TABLE IF NOT EXISTS payments
+CREATE TABLE IF NOT EXISTS services
+(
+    id          UUID PRIMARY KEY,
+    name        VARCHAR   NOT NULL,
+    cost        NUMERIC   NOT NULL,
+    deleted     BOOLEAN   NOT NULL DEFAULT false
+);
+
+CREATE TABLE IF NOT EXISTS visits
 (
     id          UUID PRIMARY KEY,
     created_at  TIMESTAMP NOT NULL,
-    customer_id UUID      NOT NULL
-        CONSTRAINT fk_customer_id REFERENCES customers (id) ON UPDATE CASCADE ON DELETE NO ACTION,
-    price       NUMERIC   NOT NULL,
+    user_id     UUID      NOT NULL
+            CONSTRAINT fk_user_id REFERENCES users (id) ON UPDATE CASCADE ON DELETE NO ACTION,
+    patient_id  UUID      NOT NULL
+            CONSTRAINT fk_patient_id REFERENCES patients (id) ON UPDATE CASCADE ON DELETE NO ACTION,
+    service_id  UUID      NOT NULL
+            CONSTRAINT fk_service_id REFERENCES services (id) ON UPDATE CASCADE ON DELETE NO ACTION,
+    payment_status  PAYMENT_STATUS NOT NULL DEFAULT 'not_paid',
     deleted     BOOLEAN   NOT NULL DEFAULT false
 );

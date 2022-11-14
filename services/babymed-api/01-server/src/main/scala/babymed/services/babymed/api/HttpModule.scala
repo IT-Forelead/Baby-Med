@@ -20,7 +20,6 @@ object HttpModule {
       new AuthRoutes[F](env.security).routes,
       new UserRouters[F](env.security, env.services.users).routes,
       new PatientRouters[F](env.security, env.services.patients).routes,
-      new PaymentRouters[F](env.security, env.services.payments).routes,
     )
 
   def make[F[_]: Async](
