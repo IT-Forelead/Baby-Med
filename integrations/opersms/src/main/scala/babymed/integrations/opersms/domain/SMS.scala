@@ -6,7 +6,7 @@ import derevo.derive
 import eu.timepit.refined.types.string.NonEmptyString
 
 import babymed.refinements.Phone
-import babymed.syntax.refined.commonSyntaxAutoUnwrapV;
+import babymed.syntax.refined.commonSyntaxAutoUnwrapV
 
 @derive(decoder, encoder)
 case class SMS(
