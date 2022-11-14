@@ -22,7 +22,7 @@ final case class PatientRouters[F[_]: Async: JsonDecoder](
   )(implicit
     logger: Logger[F]
   ) extends Http4sDsl[F] {
-  private[routes] val prefixPath = "/customer"
+  private[routes] val prefixPath = "/patient"
 
   private[this] val privateRoutes: AuthedRoutes[User, F] = AuthedRoutes.of {
 

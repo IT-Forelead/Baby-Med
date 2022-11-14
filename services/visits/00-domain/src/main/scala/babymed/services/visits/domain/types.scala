@@ -7,6 +7,9 @@ import derevo.cats.show
 import derevo.circe.magnolia.decoder
 import derevo.circe.magnolia.encoder
 import derevo.derive
+import eu.timepit.refined.cats._
+import eu.timepit.refined.types.all.NonEmptyString
+import io.circe.refined._
 import io.estatico.newtype.macros.newtype
 import squants.market.Currency
 
@@ -17,4 +20,8 @@ object types {
 
   @derive(decoder, encoder, eqv, show, uuid)
   @newtype case class VisitId(value: UUID)
+  @derive(decoder, encoder, eqv, show, uuid)
+  @newtype case class ServiceId(value: UUID)
+  @derive(decoder, encoder, eqv)
+  @newtype case class ServiceName(value: NonEmptyString)
 }
