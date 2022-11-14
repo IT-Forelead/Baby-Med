@@ -14,7 +14,7 @@ import babymed.support.services.syntax.marshaller.codec
 
 @service(Custom)
 trait Patients[F[_]] {
-  def createPatient(createPatient: CreatePatient): F[Patient]
+  def create(createPatient: CreatePatient): F[Patient]
   def getPatientById(patientId: PatientId): F[Option[PatientWithAddress]]
   def getPatients(filters: PatientFilters): F[ResponseData[PatientWithAddress]]
   def getTotalPatients(filters: PatientFilters): F[Long]

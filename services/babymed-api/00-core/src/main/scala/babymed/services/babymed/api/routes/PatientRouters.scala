@@ -7,6 +7,7 @@ import org.http4s.circe.JsonDecoder
 import org.http4s.dsl.Http4sDsl
 import org.http4s.server.Router
 import org.typelevel.log4cats.Logger
+
 import babymed.domain.Role.Doctor
 import babymed.services.auth.impl.Security
 import babymed.services.users.domain.CreatePatient
@@ -27,7 +28,7 @@ final case class PatientRouters[F[_]: Async: JsonDecoder](
 
     case ar @ POST -> Root as user if user.role != Doctor =>
       ar.req.decodeR[CreatePatient] { createPatient =>
-        patients.createPatient(createPatient) *> NoContent()
+        patients.create(createPatient) *> NoContent()
       }
 
     case ar @ POST -> Root / "report" :? page(index) +& limit(limit) as _ =>

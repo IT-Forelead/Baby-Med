@@ -2,15 +2,21 @@ package babymed.services.users.boundary
 
 import cats.Monad
 import cats.implicits._
+
 import babymed.domain.ResponseData
-import babymed.services.users.domain.{CreatePatient, Patient, PatientFilters, PatientWithAddress, Region, Town}
-import babymed.services.users.domain.types.{PatientId, RegionId}
+import babymed.services.users.domain.CreatePatient
+import babymed.services.users.domain.Patient
+import babymed.services.users.domain.PatientFilters
+import babymed.services.users.domain.PatientWithAddress
+import babymed.services.users.domain.Region
+import babymed.services.users.domain.Town
+import babymed.services.users.domain.types.PatientId
+import babymed.services.users.domain.types.RegionId
 import babymed.services.users.proto
 import babymed.services.users.repositories.PatientsRepository
 
-class Patients[F[_]: Monad](patientsRepository: PatientsRepository[F])
-    extends proto.Patients[F] {
-  override def createPatient(createPatient: CreatePatient): F[Patient] =
+class Patients[F[_]: Monad](patientsRepository: PatientsRepository[F]) extends proto.Patients[F] {
+  override def create(createPatient: CreatePatient): F[Patient] =
     patientsRepository.create(createPatient)
   override def getPatientById(patientId: PatientId): F[Option[PatientWithAddress]] =
     patientsRepository.getPatientById(patientId)

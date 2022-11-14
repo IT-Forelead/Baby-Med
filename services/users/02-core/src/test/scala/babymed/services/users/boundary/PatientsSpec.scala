@@ -40,7 +40,7 @@ object PatientsSpec extends TestSuite with PatientGenerators {
 
   loggedTest("Create Patient") { logger =>
     patients
-      .createPatient(createPatientGen().get)
+      .create(createPatientGen().get)
       .as(success)
       .handleErrorWith { error =>
         logger

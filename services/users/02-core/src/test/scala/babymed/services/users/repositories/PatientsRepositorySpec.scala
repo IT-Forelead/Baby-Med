@@ -1,14 +1,15 @@
 package babymed.services.users.repositories
 
-import babymed.services.users.domain.PatientFilters
-
 import java.time.LocalDateTime
+
 import cats.effect.IO
 import cats.effect.Resource
 import cats.implicits.catsSyntaxOptionId
 import cats.implicits.toTraverseOps
 import skunk.Session
 import weaver.Expectations
+
+import babymed.services.users.domain.PatientFilters
 import babymed.services.users.generators.PatientGenerators
 import babymed.support.database.DBSuite
 import babymed.syntax.refined.commonSyntaxAutoRefineV

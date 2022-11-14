@@ -68,7 +68,7 @@ object PatientRoutersSpec extends HttpSuite with PatientGenerators with UserGene
   }
 
   val patients: Patients[F] = new Patients[F] {
-    override def createPatient(createPatient: CreatePatient): F[Patient] =
+    override def create(createPatient: CreatePatient): F[Patient] =
       Sync[F].delay(patient)
     override def getPatients(filters: PatientFilters): F[ResponseData[PatientWithAddress]] =
       Sync[F].delay(ResponseData(List(patientWithAddress), total))
