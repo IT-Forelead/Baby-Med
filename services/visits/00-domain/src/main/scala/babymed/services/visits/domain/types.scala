@@ -19,7 +19,7 @@ object types {
   object UZS extends Currency("UZS", "Uzbek sum", "SUM", 2)
 
   @derive(decoder, encoder, eqv, show, uuid)
-  @newtype case class VisitId(value: UUID)
+  @newtype case class PatientVisitId(value: UUID)
   @derive(decoder, encoder, eqv, show, uuid)
   @newtype case class ServiceId(value: UUID)
   @derive(decoder, encoder, eqv)

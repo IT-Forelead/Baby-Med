@@ -2,9 +2,12 @@ package babymed.services.babymed.api
 
 import java.time.LocalDateTime
 import java.util.UUID
+
 import scala.util.Try
+
 import eu.timepit.refined.types.numeric.NonNegInt
 import org.http4s.dsl.impl._
+
 import babymed.services.users.domain.types.RegionId
 import babymed.services.users.domain.types.UserId
 import babymed.services.visits.domain.types.ServiceId

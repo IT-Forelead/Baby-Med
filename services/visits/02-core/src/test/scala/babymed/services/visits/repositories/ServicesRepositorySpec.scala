@@ -3,8 +3,6 @@ package babymed.services.visits.repositories
 import cats.implicits.catsSyntaxOptionId
 
 import babymed.services.visits.domain.CreateService
-import babymed.services.visits.domain.EditService
-import babymed.services.visits.domain.types.ServiceId
 import babymed.services.visits.generators.ServiceGenerators
 import babymed.support.database.DBSuite
 

@@ -2,12 +2,13 @@ package babymed.services.visits.repositories.sql
 
 import skunk._
 import skunk.implicits._
-import babymed.services.visits.domain.{CreateService, EditService, Service}
+
+import babymed.services.visits.domain.CreateService
+import babymed.services.visits.domain.EditService
+import babymed.services.visits.domain.Service
 import babymed.services.visits.domain.types.ServiceId
 
 object ServicesSql {
-  val serviceId: Codec[ServiceId] = identity[ServiceId]
-
   private val Columns = serviceId ~ serviceName ~ cost
 
   val encoder: Encoder[ServiceId ~ CreateService] = Columns.contramap {
@@ -31,7 +32,7 @@ object ServicesSql {
   val updateSql: Command[EditService] =
     sql"""UPDATE services SET name = $serviceName, cost = $cost WHERE id = $serviceId"""
       .command
-      .contramap{ es: EditService =>
+      .contramap { es: EditService =>
         es.name ~ es.cost ~ es.id
       }
 

@@ -509,10 +509,10 @@ CREATE TABLE IF NOT EXISTS visits
 (
     id          UUID PRIMARY KEY,
     created_at  TIMESTAMP NOT NULL,
-    user_id     UUID      NOT NULL
-            CONSTRAINT fk_user_id REFERENCES users (id) ON UPDATE CASCADE ON DELETE NO ACTION,
     patient_id  UUID      NOT NULL
             CONSTRAINT fk_patient_id REFERENCES patients (id) ON UPDATE CASCADE ON DELETE NO ACTION,
+    user_id     UUID      NOT NULL
+            CONSTRAINT fk_user_id REFERENCES users (id) ON UPDATE CASCADE ON DELETE NO ACTION,
     service_id  UUID      NOT NULL
             CONSTRAINT fk_service_id REFERENCES services (id) ON UPDATE CASCADE ON DELETE NO ACTION,
     payment_status  PAYMENT_STATUS NOT NULL DEFAULT 'not_paid',
