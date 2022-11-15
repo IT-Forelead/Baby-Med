@@ -12,6 +12,7 @@ import babymed.domain.Role.Doctor
 import babymed.services.auth.impl.Security
 import babymed.services.users.domain.User
 import babymed.services.visits.domain.CreateService
+import babymed.services.visits.domain.EditService
 import babymed.services.visits.proto.Services
 import babymed.support.services.syntax.all._
 
@@ -33,6 +34,13 @@ final case class ServiceRouters[F[_]: Async: JsonDecoder](
     case GET -> Root / "report" as _ =>
       services.get.flatMap(Ok(_))
 
+    case ar @ POST -> Root / "edit" as user if user.role != Doctor =>
+      ar.req.decodeR[EditService] { editService =>
+        services.edit(editService) *> NoContent()
+      }
+
+    case GET -> Root / "delete" / ServiceIdVar(serviceId) as user if user.role != Doctor =>
+      services.delete(serviceId) *> NoContent()
   }
 
   lazy val routes: HttpRoutes[F] = Router(

@@ -2,9 +2,7 @@ package babymed.services.visits.repositories.sql
 
 import skunk._
 import skunk.implicits._
-
-import babymed.services.visits.domain.CreateService
-import babymed.services.visits.domain.Service
+import babymed.services.visits.domain.{CreateService, EditService, Service}
 import babymed.services.visits.domain.types.ServiceId
 
 object ServicesSql {
@@ -22,11 +20,21 @@ object ServicesSql {
       Service(id, name, cost)
   }
 
-  val insert: Query[ServiceId ~ CreateService, Service] =
+  val insertSql: Query[ServiceId ~ CreateService, Service] =
     sql"""INSERT INTO services VALUES ($encoder) RETURNING id, name, cost"""
       .query(decoder)
 
   val selectSql: Query[Void, Service] =
     sql"""SELECT id, name, cost FROM services WHERE deleted = false ORDER BY name ASC"""
       .query(decoder)
+
+  val updateSql: Command[EditService] =
+    sql"""UPDATE services SET name = $serviceName, cost = $cost WHERE id = $serviceId"""
+      .command
+      .contramap{ es: EditService =>
+        es.name ~ es.cost ~ es.id
+      }
+
+  val deleteSql: Command[ServiceId] =
+    sql"""UPDATE services SET deleted = true WHERE id = $serviceId""".command
 }

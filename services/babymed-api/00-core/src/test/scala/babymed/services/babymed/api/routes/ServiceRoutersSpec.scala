@@ -10,6 +10,7 @@ import org.http4s.Method.GET
 import org.http4s.Method.POST
 import org.http4s.Request
 import org.http4s.Status
+import org.http4s.Uri
 import org.http4s.client.dsl.io._
 import org.http4s.implicits.http4sLiteralsSyntax
 import tsec.passwordhashers.jca.SCrypt
@@ -29,7 +30,9 @@ import babymed.services.users.domain.types.UserId
 import babymed.services.users.generators.UserGenerators
 import babymed.services.users.proto.Users
 import babymed.services.visits.domain.CreateService
+import babymed.services.visits.domain.EditService
 import babymed.services.visits.domain.Service
+import babymed.services.visits.domain.types
 import babymed.services.visits.generators.ServiceGenerators
 import babymed.services.visits.proto.Services
 import babymed.support.redis.RedisClientMock
@@ -65,6 +68,12 @@ object ServiceRoutersSpec extends HttpSuite with ServiceGenerators with UserGene
     override def create(createService: CreateService): F[Service] =
       Sync[F].delay(service)
     override def get: F[List[Service]] = Sync[F].delay(List(service))
+    override def edit(
+        editService: EditService
+      ): ServiceRoutersSpec.F[Unit] = Sync[F].unit
+    override def delete(
+        serviceId: types.ServiceId
+      ): ServiceRoutersSpec.F[Unit] = Sync[F].unit
   }
 
   def authedReq(
@@ -120,6 +129,52 @@ object ServiceRoutersSpec extends HttpSuite with ServiceGenerators with UserGene
           List(service),
           Status.Ok,
         )
+    }
+  }
+
+  test("Edit service with incorrect role") {
+    authedReq(Doctor) { token =>
+      POST(editServiceGen().get, uri"/service/edit").bearer(
+        NonEmptyString.unsafeFrom(token.value)
+      )
+    } {
+      case request -> security =>
+        expectNotFound(ServiceRouters[F](security, services).routes, request)
+    }
+  }
+
+  test("Edit service with correct role") {
+    authedReq() { token =>
+      POST(editServiceGen().get, uri"/service/edit").bearer(
+        NonEmptyString.unsafeFrom(token.value)
+      )
+    } {
+      case request -> security =>
+        expectHttpStatus(ServiceRouters[F](security, services).routes, request)(Status.NoContent)
+    }
+  }
+
+  test("Delete service with incorrect role") {
+    authedReq(Doctor) { token =>
+      val serviceId = serviceGen.get.id
+      GET(Uri.unsafeFromString(s"/service/delete/$serviceId")).bearer(
+        NonEmptyString.unsafeFrom(token.value)
+      )
+    } {
+      case request -> security =>
+        expectNotFound(ServiceRouters[F](security, services).routes, request)
+    }
+  }
+
+  test("Delete service with correct role") {
+    authedReq() { token =>
+      val serviceId = serviceGen.get.id
+      GET(Uri.unsafeFromString(s"/service/delete/$serviceId")).bearer(
+        NonEmptyString.unsafeFrom(token.value)
+      )
+    } {
+      case request -> security =>
+        expectHttpStatus(ServiceRouters[F](security, services).routes, request)(Status.NoContent)
     }
   }
 }
