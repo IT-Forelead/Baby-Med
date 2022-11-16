@@ -28,11 +28,14 @@ package object sql {
   val serviceName: Codec[ServiceName] = nes.imap[ServiceName](ServiceName.apply)(_.value)
   val cost: Codec[Money] = numeric.imap[Money](money => UZS(money))(_.amount)
   val paymentStatus: Codec[PaymentStatus] =
-    `enum`[PaymentStatus](_.value, PaymentStatus.find, Type("payment_status"))
+    varchar.eimap[PaymentStatus](str =>
+      PaymentStatus.values.find(_.value == str).toRight("type not found ")
+    )(_.value)
   val firstName: Codec[FirstName] = nes.imap[FirstName](FirstName.apply)(_.value)
   val lastName: Codec[LastName] = nes.imap[LastName](LastName.apply)(_.value)
   val address: Codec[Address] = nes.imap[Address](Address.apply)(_.value)
-  val role: Codec[Role] = `enum`[Role](_.value, Role.find, Type("role"))
+  val role: Codec[Role] =
+    varchar.eimap[Role](str => Role.values.find(_.value == str).toRight("type not found "))(_.value)
   val regionName: Codec[RegionName] = nes.imap[RegionName](RegionName.apply)(_.value)
   val townName: Codec[TownName] = nes.imap[TownName](TownName.apply)(_.value)
 }
