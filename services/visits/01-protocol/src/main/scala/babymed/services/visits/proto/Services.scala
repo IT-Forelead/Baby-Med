@@ -15,4 +15,4 @@ trait Services[F[_]] {
   def delete(serviceId: ServiceId): F[Unit]
 }
 
-object Services
+object Services {}

@@ -14,7 +14,6 @@ import babymed.services.auth.impl.Security
 import babymed.services.users.domain.User
 import babymed.services.visits.domain.CreatePatientVisit
 import babymed.services.visits.domain.PatientVisitFilters
-import babymed.services.visits.domain.types.PatientVisitId
 import babymed.services.visits.proto.Visits
 import babymed.support.services.syntax.all.deriveEntityEncoder
 import babymed.support.services.syntax.all.http4SyntaxReqOps
@@ -53,10 +52,9 @@ final case class VisitRouters[F[_]: Async: JsonDecoder](
         visits.getTotal(PatientVisitFilters(req.startDate, req.endDate)).flatMap(Ok(_))
       }
 
-    case ar @ POST -> Root / "update-payment-status" as user if user.role != Doctor =>
-      ar.req.decodeR[PatientVisitId] { id =>
-        visits.updatePaymentStatus(id) *> NoContent()
-      }
+    case GET -> Root / "update-payment-status" / PatientVisitIdVar(visitId) as user
+         if user.role != Doctor =>
+      visits.updatePaymentStatus(visitId) >> NoContent()
 
   }
 

@@ -10,6 +10,7 @@ import org.http4s.dsl.impl._
 
 import babymed.services.users.domain.types.RegionId
 import babymed.services.users.domain.types.UserId
+import babymed.services.visits.domain.types.PatientVisitId
 import babymed.services.visits.domain.types.ServiceId
 import babymed.support.services.syntax.http4s._
 import babymed.syntax.refined.commonSyntaxAutoRefineV
@@ -23,4 +24,5 @@ package object routes {
   object UserIdVar extends MyPathVar(str => Try(UserId(UUID.fromString(str))))
   object RegionIdVar extends MyPathVar(str => Try(RegionId(UUID.fromString(str))))
   object ServiceIdVar extends MyPathVar(str => Try(ServiceId(UUID.fromString(str))))
+  object PatientVisitIdVar extends MyPathVar(str => Try(PatientVisitId(UUID.fromString(str))))
 }

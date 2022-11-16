@@ -71,8 +71,8 @@ object VisitRoutersSpec extends HttpSuite with PatientVisitGenerators with UserG
   val visits: Visits[F] = new Visits[F] {
     override def create(createPatientVisit: CreatePatientVisit): F[PatientVisit] =
       Sync[F].delay(patientVisit)
-    override def get(filters: PatientVisitFilters): F[List[PatientVisitInfo]] =
-      Sync[F].delay(List(patientVisitInfo))
+    override def get(filters: PatientVisitFilters): F[ResponseData[PatientVisitInfo]] =
+      Sync[F].delay(ResponseData(List(patientVisitInfo), total))
     override def getTotal(filters: PatientVisitFilters): F[Long] =
       Sync[F].delay(total)
     override def updatePaymentStatus(id: types.PatientVisitId): F[Unit] =
@@ -114,7 +114,7 @@ object VisitRoutersSpec extends HttpSuite with PatientVisitGenerators with UserG
 
   test("Create patient visit with correct role") {
     authedReq() { token =>
-      POST(createServiceGen.get, uri"/visit/create").bearer(
+      POST(createPatientVisitGen().get, uri"/visit/create").bearer(
         NonEmptyString.unsafeFrom(token.value)
       )
     } {
@@ -125,11 +125,13 @@ object VisitRoutersSpec extends HttpSuite with PatientVisitGenerators with UserG
 
   test("Get All Patients visits") {
     authedReq() { token =>
-      GET(uri"/visit/report").bearer(NonEmptyString.unsafeFrom(token.value))
+      POST(PatientVisitFilters.Empty, uri"/visit/report").bearer(
+        NonEmptyString.unsafeFrom(token.value)
+      )
     } {
       case request -> security =>
         expectHttpBodyAndStatus(VisitRouters[F](security, visits).routes, request)(
-          List(patientVisitInfo),
+          ResponseData(List(patientVisitInfo), total),
           Status.Ok,
         )
     }
@@ -143,7 +145,7 @@ object VisitRoutersSpec extends HttpSuite with PatientVisitGenerators with UserG
       )
     } {
       case request -> security =>
-        expectHttpStatus(VisitRouters[F](security, visits).routes, request)(Status.NoContent)
+        expectNotFound(VisitRouters[F](security, visits).routes, request)
     }
   }
 
