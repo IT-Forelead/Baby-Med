@@ -44,7 +44,7 @@ object VisitsRepositorySpec extends DBSuite with PatientVisitGenerators {
         repo
           .get(PatientVisitFilters(patientId = data.patient.id1.some))
           .map { visits =>
-            assert(visits.map(_.patientVisit.patientId) == List(data.patient.id1))
+            assert(visits.map(_.patientVisit.patientId).contains(data.patient.id1))
           }
     }
     object Case2 extends TestCase[Res] {
