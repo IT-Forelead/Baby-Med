@@ -1,5 +1,25 @@
-CREATE TYPE ROLE AS ENUM ('super_manager', 'doctor', 'tech_admin', 'admin');
-CREATE TYPE PAYMENT_STATUS AS ENUM ('fully_paid', 'not_paid', 'partially_paid');
+CREATE TABLE IF NOT EXISTS role
+(
+    name    VARCHAR NOT NULL PRIMARY KEY,
+    deleted BOOLEAN NOT NULL DEFAULT false
+);
+
+INSERT INTO role
+VALUES ('super_manager'),
+       ('doctor'),
+       ('tech_admin'),
+       ('admin');
+
+CREATE TABLE IF NOT EXISTS payment_status
+(
+    name    VARCHAR NOT NULL PRIMARY KEY,
+    deleted BOOLEAN NOT NULL DEFAULT false
+);
+
+INSERT INTO payment_status
+VALUES ('fully_paid'),
+       ('not_paid'),
+       ('partially_paid');
 
 CREATE TABLE IF NOT EXISTS regions
 (
@@ -473,7 +493,8 @@ CREATE TABLE IF NOT EXISTS users
     firstname  VARCHAR   NOT NULL,
     lastname   VARCHAR   NOT NULL,
     phone      VARCHAR   NOT NULL UNIQUE,
-    role       ROLE      NOT NULL,
+    role       VARCHAR   NOT NULL
+        CONSTRAINT fk_role REFERENCES role (name) ON UPDATE CASCADE ON DELETE NO ACTION NOT NULL,
     password   VARCHAR   NOT NULL
 );
 
@@ -499,22 +520,23 @@ CREATE TABLE IF NOT EXISTS patients
 
 CREATE TABLE IF NOT EXISTS services
 (
-    id          UUID PRIMARY KEY,
-    name        VARCHAR   NOT NULL,
-    cost        NUMERIC   NOT NULL,
-    deleted     BOOLEAN   NOT NULL DEFAULT false
+    id      UUID PRIMARY KEY,
+    name    VARCHAR NOT NULL,
+    cost    NUMERIC NOT NULL,
+    deleted BOOLEAN NOT NULL DEFAULT false
 );
 
 CREATE TABLE IF NOT EXISTS visits
 (
-    id          UUID PRIMARY KEY,
-    created_at  TIMESTAMP NOT NULL,
-    patient_id  UUID      NOT NULL
-            CONSTRAINT fk_patient_id REFERENCES patients (id) ON UPDATE CASCADE ON DELETE NO ACTION,
-    user_id     UUID      NOT NULL
-            CONSTRAINT fk_user_id REFERENCES users (id) ON UPDATE CASCADE ON DELETE NO ACTION,
-    service_id  UUID      NOT NULL
-            CONSTRAINT fk_service_id REFERENCES services (id) ON UPDATE CASCADE ON DELETE NO ACTION,
-    payment_status  PAYMENT_STATUS NOT NULL DEFAULT 'not_paid',
-    deleted     BOOLEAN   NOT NULL DEFAULT false
+    id             UUID PRIMARY KEY,
+    created_at     TIMESTAMP NOT NULL,
+    patient_id     UUID      NOT NULL
+        CONSTRAINT fk_patient_id REFERENCES patients (id) ON UPDATE CASCADE ON DELETE NO ACTION,
+    user_id        UUID      NOT NULL
+        CONSTRAINT fk_user_id REFERENCES users (id) ON UPDATE CASCADE ON DELETE NO ACTION,
+    service_id     UUID      NOT NULL
+        CONSTRAINT fk_service_id REFERENCES services (id) ON UPDATE CASCADE ON DELETE NO ACTION,
+    payment_status VARCHAR   NOT NULL
+        CONSTRAINT fk_payment_status REFERENCES payment_status (name) ON UPDATE CASCADE ON DELETE NO ACTION DEFAULT 'not_paid',
+    deleted        BOOLEAN   NOT NULL                                                                       DEFAULT false
 );

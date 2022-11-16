@@ -1,10 +1,10 @@
 package babymed.domain
 
 import scala.collection.immutable
-
 import enumeratum.values.StringCirceEnum
 import enumeratum.values.StringEnum
 import enumeratum.values.StringEnumEntry
+import io.circe.Codec
 
 sealed abstract class Role(val value: String) extends StringEnumEntry
 
