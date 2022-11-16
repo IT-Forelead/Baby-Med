@@ -14,8 +14,8 @@ import babymed.util.ConfigDecoders.appModeConfigDecoder
 object ConfigLoader {
   def load[F[_]: Async]: F[Config] = (
     env("APP_MODE").as[AppMode],
-    GrpcServerConfig.configValues("USERS"),
-    HttpServerConfig.configValues("USERS"),
+    GrpcServerConfig.configValues("VISITS"),
+    HttpServerConfig.configValues("VISITS"),
     DataBaseConfig.configValues,
   ).parMapN(Config.apply).load[F]
 }
