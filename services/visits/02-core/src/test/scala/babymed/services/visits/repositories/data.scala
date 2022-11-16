@@ -23,10 +23,15 @@ import babymed.services.users.generators.PatientGenerators
 import babymed.services.users.generators.UserGenerators
 import babymed.services.users.repositories.sql.PatientsSql
 import babymed.services.users.repositories.sql.UsersSql
+import babymed.services.visits.domain.CreatePatientVisit
 import babymed.services.visits.domain.CreateService
+import babymed.services.visits.domain.types.PatientVisitId
 import babymed.services.visits.domain.types.ServiceId
 import babymed.services.visits.generators.PatientVisitGenerators
+import babymed.services.visits.repositories.VisitsRepositorySpec.createPatientVisitGen
 import babymed.services.visits.repositories.sql.ServicesSql
+import babymed.services.visits.repositories.sql.VisitsSql
+import babymed.services.visits.repositories.sql.patientVisitId
 import babymed.support.skunk.syntax.all.skunkSyntaxQueryOps
 import babymed.syntax.refined.commonSyntaxAutoUnwrapV
 import babymed.util.RandomGenerator
@@ -74,8 +79,22 @@ object data extends PatientVisitGenerators with UserGenerators with PatientGener
     val values: Map[ServiceId, CreateService] = Map(id1 -> data1, id2 -> data2, id3 -> data3)
   }
 
+  object visits {
+    val id1: PatientVisitId = patientVisitIdGen.get
+    val id2: PatientVisitId = patientVisitIdGen.get
+    val id3: PatientVisitId = patientVisitIdGen.get
+    val data1: CreatePatientVisit =
+      createPatientVisitGen(data.patient.id1.some, data.user.id1.some, data.service.id1.some).get
+    val data2: CreatePatientVisit =
+      createPatientVisitGen(data.patient.id2.some, data.user.id2.some, data.service.id2.some).get
+    val data3: CreatePatientVisit =
+      createPatientVisitGen(data.patient.id3.some, data.user.id3.some, data.service.id3.some).get
+    val values: Map[PatientVisitId, CreatePatientVisit] =
+      Map(id1 -> data1, id2 -> data2, id3 -> data3)
+  }
+
   def setup(implicit session: Resource[IO, Session[IO]]): IO[Unit] =
-    setupPatients *> setupUsers *> setupServices
+    setupPatients *> setupUsers *> setupServices *> setupVisits
 
   private def setupPatients(implicit session: Resource[IO, Session[IO]]): IO[Unit] =
     patient.values.toList.traverse_ {
@@ -97,5 +116,11 @@ object data extends PatientVisitGenerators with UserGenerators with PatientGener
     service.values.toList.traverse_ {
       case id -> data =>
         ServicesSql.insertSql.queryUnique(id ~ data)
+    }
+
+  private def setupVisits(implicit session: Resource[IO, Session[IO]]): IO[Unit] =
+    visits.values.toList.traverse_ {
+      case id -> data =>
+        VisitsSql.insert.queryUnique(id ~ LocalDateTime.now() ~ data)
     }
 }

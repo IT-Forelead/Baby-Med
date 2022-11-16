@@ -66,7 +66,7 @@ object VisitsSql {
 
   val insert: Query[PatientVisitId ~ LocalDateTime ~ CreatePatientVisit, PatientVisit] =
     sql"""INSERT INTO visits VALUES ($encoder)
-         RETURNING id, created_at, user_id, patient_id, service_id, payment_status"""
+         RETURNING id, created_at, patient_id, user_id, service_id, payment_status"""
       .query(decoder)
 
   private def searchFilter(filters: PatientVisitFilters): List[Option[AppliedFragment]] =
@@ -82,7 +82,7 @@ object VisitsSql {
   def select(filters: PatientVisitFilters): AppliedFragment = {
     val baseQuery: Fragment[Void] =
       sql"""SELECT
-       visits.id, visits.created_at, visits.user_id, visits.patient_id, visits.service_id, visits.payment_status,
+       visits.id, visits.created_at, visits.patient_id, visits.user_id, visits.service_id, visits.payment_status,
        patients.id, patients.created_at, patients.firstname, patients.lastname, patients.region_id, patients.town_id, patients.address, patients.birthday, patients.phone,
        users.id, users.created_at, users.firstname, users.lastname, users.phone, users.role,
        services.id, services.name, services.cost,
