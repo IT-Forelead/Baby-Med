@@ -28,10 +28,8 @@ import babymed.services.visits.domain.CreateService
 import babymed.services.visits.domain.types.PatientVisitId
 import babymed.services.visits.domain.types.ServiceId
 import babymed.services.visits.generators.PatientVisitGenerators
-import babymed.services.visits.repositories.VisitsRepositorySpec.createPatientVisitGen
 import babymed.services.visits.repositories.sql.ServicesSql
 import babymed.services.visits.repositories.sql.VisitsSql
-import babymed.services.visits.repositories.sql.patientVisitId
 import babymed.support.skunk.syntax.all.skunkSyntaxQueryOps
 import babymed.syntax.refined.commonSyntaxAutoUnwrapV
 import babymed.util.RandomGenerator
