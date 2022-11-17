@@ -3,7 +3,6 @@ package babymed.services.visits.repositories
 import eu.timepit.refined.types.string.NonEmptyString
 import skunk._
 import skunk.codec.all._
-import skunk.data.Type
 import squants.Money
 
 import babymed.domain.PaymentStatus

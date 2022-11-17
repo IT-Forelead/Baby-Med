@@ -2,10 +2,8 @@ package babymed.services.users.repositories
 
 import eu.timepit.refined.types.string.NonEmptyString
 import skunk._
-import skunk.codec.all._
 import skunk.codec.all.uuid
 import skunk.codec.all.varchar
-import skunk.data.Type
 import tsec.passwordhashers.PasswordHash
 import tsec.passwordhashers.jca.SCrypt
 
