@@ -26,9 +26,9 @@ object OperSmsClient {
       config: OperSmsConfig
     ): OperSmsClient[F] =
     if (config.enabled)
-      new NoOpOperSmsClientImpl[F]
-    else
       new OperSmsClientImpl[F](config)
+    else
+      new NoOpOperSmsClientImpl[F]
 
   private class NoOpOperSmsClientImpl[F[_]: Logger] extends OperSmsClient[F] {
     override def send(phone: Phone, text: NonEmptyString): F[Unit] =
