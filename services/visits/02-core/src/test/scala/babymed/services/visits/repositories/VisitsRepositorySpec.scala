@@ -19,24 +19,6 @@ object VisitsRepositorySpec extends DBSuite with PatientVisitGenerators {
   override def schemaName: String = "public"
   override def beforeAll(implicit session: Res): IO[Unit] = data.setup
 
-  test("Create Patient Visit") { implicit postgres =>
-    VisitsRepository
-      .make[F]
-      .create(
-        createPatientVisitGen(
-          data.patient.id1.some,
-          data.user.id1.some,
-          data.service.id1.some,
-        ).get
-      )
-      .map { c =>
-        assert(c.createdAt.isBefore(LocalDateTime.now()))
-      }
-      .handleError {
-        fail("Test failed.")
-      }
-  }
-
   test("Get Patient Visits") { implicit postgres =>
     val repo = VisitsRepository.make[F]
     object Case1 extends TestCase[Res] {
@@ -68,7 +50,7 @@ object VisitsRepositorySpec extends DBSuite with PatientVisitGenerators {
         repo
           .get(PatientVisitFilters(paymentStatus = NotPaid.some))
           .map { visits =>
-            assert.all(
+            assert(
               visits.forall(_.patientVisit.paymentStatus == NotPaid)
             )
           }
@@ -104,7 +86,7 @@ object VisitsRepositorySpec extends DBSuite with PatientVisitGenerators {
       .make[F]
       .getTotal(PatientVisitFilters.Empty)
       .map { total =>
-        assert(total >= 1)
+        assert(total == 3)
       }
       .handleError {
         fail("Test failed.")
@@ -113,15 +95,10 @@ object VisitsRepositorySpec extends DBSuite with PatientVisitGenerators {
 
   test("Update Payment Status") { implicit postgres =>
     val repo = VisitsRepository.make[IO]
-    val create = createPatientVisitGen(
-      data.patient.id2.some,
-      data.user.id2.some,
-      data.service.id2.some,
-    ).get
+
     for {
-      createVisit <- repo.create(create)
-      _ <- repo.updatePaymentStatus(createVisit.id)
+      _ <- repo.updatePaymentStatus(data.visits.id1)
       visits <- repo.get(PatientVisitFilters(paymentStatus = FullyPaid.some))
-    } yield assert(visits.exists(_.patientVisit.id == createVisit.id))
+    } yield assert(visits.exists(_.patientVisit.id == data.visits.id1))
   }
 }

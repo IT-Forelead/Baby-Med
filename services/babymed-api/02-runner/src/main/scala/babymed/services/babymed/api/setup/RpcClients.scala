@@ -22,7 +22,7 @@ object RpcClients {
     for {
       userClient <- Users.client[F](config.users.channelAddress)
       patientClient <- Patients.client[F](config.users.channelAddress)
-      serviceClient <- proto.Services.client[F](config.users.channelAddress)
+      serviceClient <- proto.Services.client[F](config.visits.channelAddress)
       visitClient <- Visits.client[F](config.visits.channelAddress)
     } yield RpcClients[F](userClient, patientClient, serviceClient, visitClient)
 }

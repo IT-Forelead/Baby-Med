@@ -6,9 +6,10 @@ import cats.effect.Resource
 import cats.effect.std.Console
 import org.typelevel.log4cats.Logger
 import skunk.Session
+
 import babymed.services.visits.ServerEnvironment
-import babymed.services.visits.boundary.Visits
 import babymed.services.visits.boundary.Services
+import babymed.services.visits.boundary.Visits
 import babymed.support.database.Migrations
 
 case class ServiceEnvironment[F[_]: MonadThrow](

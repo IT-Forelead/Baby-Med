@@ -35,7 +35,7 @@ object ServicesRepository {
       }
 
     override def get: F[List[Service]] =
-      selectSql.queryList(Void)
+      selectSql.all
     override def edit(editService: EditService): F[Unit] =
       updateSql.execute(editService)
     override def delete(serviceId: ServiceId): F[Unit] =
