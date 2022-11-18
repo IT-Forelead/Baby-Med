@@ -34,12 +34,10 @@ final case class VisitRouters[F[_]: Async: JsonDecoder](
       }
 
     case ar @ POST -> Root / "report" :? page(index) +& limit(limit) as _ =>
-      ar.req.decodeR[PatientVisitFilters] { req =>
+      ar.req.decodeR[PatientVisitFilters] { patientVisitFilters =>
         visits
           .get(
-            PatientVisitFilters(
-              req.startDate,
-              req.endDate,
+            patientVisitFilters.copy(
               page = Some(index),
               limit = Some(limit),
             )
@@ -48,8 +46,8 @@ final case class VisitRouters[F[_]: Async: JsonDecoder](
       }
 
     case ar @ POST -> Root / "report" / "summary" as _ =>
-      ar.req.decodeR[PatientVisitFilters] { req =>
-        visits.getTotal(PatientVisitFilters(req.startDate, req.endDate)).flatMap(Ok(_))
+      ar.req.decodeR[PatientVisitFilters] { patientVisitFilters =>
+        visits.getTotal(patientVisitFilters).flatMap(Ok(_))
       }
 
     case GET -> Root / "update-payment-status" / PatientVisitIdVar(visitId) as user
