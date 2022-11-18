@@ -55,13 +55,13 @@ object PatientsSql {
     List(
       filters.startDate.map(sql"patients.created_at >= $timestamp"),
       filters.endDate.map(sql"patients.created_at <= $timestamp"),
-      filters.patientFirstName.map(sql"patients.firstname like $firstName"),
-      filters.patientLastName.map(sql"patients.lastname like $lastName"),
+      filters.patientFirstName.map(sql"patients.firstname ILIKE $firstName"),
+      filters.patientLastName.map(sql"patients.lastname ILIKE $lastName"),
       filters.regionId.map(sql"patients.region_id = $regionId"),
       filters.townId.map(sql"patients.town_id = $townId"),
-      filters.address.map(sql"patients.address like $address"),
+      filters.address.map(sql"patients.address ILIKE $address"),
       filters.birthday.map(sql"patients.birthday = $date"),
-      filters.phone.map(sql"patients.phone like $phone"),
+      filters.phone.map(sql"patients.phone ILIKE $phone"),
     )
 
   def select(filters: PatientFilters): AppliedFragment = {
