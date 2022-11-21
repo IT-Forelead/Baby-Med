@@ -4,6 +4,7 @@ import cats.data.OptionT
 import cats.effect.Async
 import cats.effect.Resource
 import cats.implicits._
+import org.typelevel.log4cats.Logger
 import skunk._
 import skunk.codec.all.int8
 import skunk.implicits.toIdOps
@@ -34,7 +35,7 @@ trait UsersRepository[F[_]] {
 }
 
 object UsersRepository {
-  def make[F[_]: Async](
+  def make[F[_]: Async: Logger](
       implicit
       session: Resource[F, Session[F]]
     ): UsersRepository[F] = new UsersRepository[F] {
@@ -47,7 +48,7 @@ object UsersRepository {
         password = RandomGenerator.randomPassword(6)
         passwordHash <- SCrypt.hashpw[F](password)
         user <- insert.queryUnique(id ~ now ~ createUser ~ passwordHash)
-        _ = println(user + " Password: " + password)
+        _ <- Logger[F].info(s"Phone: ${user.phone} Password: $password")
       } yield user
 
     override def validationAndCreate(createUser: CreateUser): F[User] =

@@ -2,6 +2,7 @@ package babymed.services.users.setup
 
 import cats.effect.Async
 import cats.effect.Resource
+import org.typelevel.log4cats.Logger
 import skunk.Session
 
 import babymed.services.users.repositories.PatientsRepository
@@ -14,7 +15,8 @@ case class Repositories[F[_]](
 object Repositories {
   def make[F[_]: Async](
       implicit
-      session: Resource[F, Session[F]]
+      logger: Logger[F],
+      session: Resource[F, Session[F]],
     ): Repositories[F] =
     Repositories(
       users = UsersRepository.make[F],
