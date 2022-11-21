@@ -8,7 +8,7 @@ import org.typelevel.log4cats.Logger
 import skunk.Session
 
 import babymed.services.users.ServerEnvironment
-import babymed.services.users.boundary.Customers
+import babymed.services.users.boundary.Patients
 import babymed.services.users.boundary.Users
 import babymed.support.database.Migrations
 
@@ -16,11 +16,11 @@ case class ServiceEnvironment[F[_]: MonadThrow](
     config: Config,
     repositories: Repositories[F],
   ) {
-  lazy val customers = new Customers[F](repositories.customers)
+  lazy val patients = new Patients[F](repositories.patients)
   lazy val users = new Users[F](repositories.users)
   lazy val toServer: ServerEnvironment[F] =
     ServerEnvironment(
-      services = ServerEnvironment.Services(users, customers)
+      services = ServerEnvironment.Services(users, patients)
     )
 }
 

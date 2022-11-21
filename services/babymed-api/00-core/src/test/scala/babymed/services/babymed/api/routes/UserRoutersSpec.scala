@@ -89,7 +89,7 @@ object UserRoutersSpec extends HttpSuite with UserGenerators {
 
   test("Create user with incorrect role") {
     authedReq(TechAdmin) { token =>
-      POST(createUser, uri"/users").bearer(NonEmptyString.unsafeFrom(token.value))
+      POST(createUser, uri"/user").bearer(NonEmptyString.unsafeFrom(token.value))
     } {
       case request -> security =>
         expectNotFound(UserRouters[F](security, users()).routes, request)
@@ -98,7 +98,7 @@ object UserRoutersSpec extends HttpSuite with UserGenerators {
 
   test("Create user with correct role") {
     authedReq(SuperManager) { token =>
-      POST(createUser, uri"/users").bearer(NonEmptyString.unsafeFrom(token.value))
+      POST(createUser, uri"/user").bearer(NonEmptyString.unsafeFrom(token.value))
     } {
       case request -> security =>
         expectHttpStatus(UserRouters[F](security, users()).routes, request)(Status.NoContent)
@@ -107,7 +107,7 @@ object UserRoutersSpec extends HttpSuite with UserGenerators {
 
   test("Get users with incorrect role") {
     authedReq() { token =>
-      POST(UserFilters.Empty, uri"/users/report").bearer(
+      POST(UserFilters.Empty, uri"/user/report").bearer(
         NonEmptyString.unsafeFrom(token.value)
       )
     } {
@@ -118,7 +118,7 @@ object UserRoutersSpec extends HttpSuite with UserGenerators {
 
   test("Get users with correct role") {
     authedReq(SuperManager) { token =>
-      POST(UserFilters.Empty, uri"/users/report").bearer(
+      POST(UserFilters.Empty, uri"/user/report").bearer(
         NonEmptyString.unsafeFrom(token.value)
       )
     } {
@@ -132,7 +132,7 @@ object UserRoutersSpec extends HttpSuite with UserGenerators {
 
   test("Update user with correct role") {
     authedReq(SuperManager) { token =>
-      POST(editUser, uri"/users/update").bearer(NonEmptyString.unsafeFrom(token.value))
+      POST(editUser, uri"/user/update").bearer(NonEmptyString.unsafeFrom(token.value))
     } {
       case request -> security =>
         expectHttpStatus(UserRouters[F](security, users()).routes, request)(Status.NoContent)
@@ -143,7 +143,7 @@ object UserRoutersSpec extends HttpSuite with UserGenerators {
     authedReq(SuperManager) { token =>
       GET(
         Uri
-          .unsafeFromString(s"/users/delete/${userIdGen.get}")
+          .unsafeFromString(s"/user/delete/${userIdGen.get}")
           .withQueryParam("x-token", token.value)
       )
     } {

@@ -11,21 +11,21 @@ import skunk.Session
 import skunk.implicits._
 import tsec.passwordhashers.jca.SCrypt
 
-import babymed.services.users.domain.CreateCustomer
+import babymed.services.users.domain.CreatePatient
 import babymed.services.users.domain.CreateUser
-import babymed.services.users.domain.types.CustomerId
+import babymed.services.users.domain.types.PatientId
 import babymed.services.users.domain.types.RegionId
 import babymed.services.users.domain.types.TownId
 import babymed.services.users.domain.types.UserId
-import babymed.services.users.generators.CustomerGenerators
+import babymed.services.users.generators.PatientGenerators
 import babymed.services.users.generators.UserGenerators
-import babymed.services.users.repositories.sql.CustomersSql
+import babymed.services.users.repositories.sql.PatientsSql
 import babymed.services.users.repositories.sql.UsersSql
 import babymed.support.skunk.syntax.all._
 import babymed.syntax.refined.commonSyntaxAutoUnwrapV
 import babymed.util.RandomGenerator
 
-object data extends CustomerGenerators with UserGenerators {
+object data extends PatientGenerators with UserGenerators {
   implicit private def gen2instance[T](gen: Gen[T]): T = gen.sample.get
 
   object regions {
@@ -39,13 +39,13 @@ object data extends CustomerGenerators with UserGenerators {
   }
 
   object customer {
-    val id1: CustomerId = customerIdGen.get
-    val id2: CustomerId = customerIdGen.get
-    val id3: CustomerId = customerIdGen.get
-    val data1: CreateCustomer = createCustomerGen(regions.id2.some, towns.id2.some)
-    val data2: CreateCustomer = createCustomerGen(regions.id2.some, towns.id2.some)
-    val data3: CreateCustomer = createCustomerGen(regions.id2.some, towns.id2.some)
-    val values: Map[CustomerId, CreateCustomer] = Map(id1 -> data1, id2 -> data2, id3 -> data3)
+    val id1: PatientId = patientIdGen.get
+    val id2: PatientId = patientIdGen.get
+    val id3: PatientId = patientIdGen.get
+    val data1: CreatePatient = createPatientGen(regions.id2.some, towns.id2.some)
+    val data2: CreatePatient = createPatientGen(regions.id2.some, towns.id2.some)
+    val data3: CreatePatient = createPatientGen(regions.id2.some, towns.id2.some)
+    val values: Map[PatientId, CreatePatient] = Map(id1 -> data1, id2 -> data2, id3 -> data3)
   }
 
   object user {
@@ -64,7 +64,7 @@ object data extends CustomerGenerators with UserGenerators {
   private def setupCustomers(implicit session: Resource[IO, Session[IO]]): IO[Unit] =
     customer.values.toList.traverse_ {
       case id -> data =>
-        CustomersSql.insert.queryUnique(id ~ LocalDateTime.now() ~ data)
+        PatientsSql.insert.queryUnique(id ~ LocalDateTime.now() ~ data)
     }
 
   private def setupUsers(implicit session: Resource[IO, Session[IO]]): IO[Unit] =

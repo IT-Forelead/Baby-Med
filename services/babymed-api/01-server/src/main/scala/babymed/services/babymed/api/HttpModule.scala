@@ -19,8 +19,9 @@ object HttpModule {
     NonEmptyList.of[HttpRoutes[F]](
       new AuthRoutes[F](env.security).routes,
       new UserRouters[F](env.security, env.services.users).routes,
-      new CustomerRouters[F](env.security, env.services.customers).routes,
-      new PaymentRouters[F](env.security, env.services.payments).routes,
+      new PatientRouters[F](env.security, env.services.patients).routes,
+      new ServiceRouters[F](env.security, env.services.services).routes,
+      new VisitRouters[F](env.security, env.services.visits).routes,
     )
 
   def make[F[_]: Async](

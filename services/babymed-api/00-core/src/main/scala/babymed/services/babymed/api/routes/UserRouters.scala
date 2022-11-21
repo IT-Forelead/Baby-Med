@@ -24,7 +24,7 @@ final case class UserRouters[F[_]: Async: JsonDecoder](
   )(implicit
     logger: Logger[F]
   ) extends Http4sDsl[F] {
-  private[routes] val prefixPath = "/users"
+  private[routes] val prefixPath = "/user"
 
   private[this] val privateRoutes: AuthedRoutes[User, F] = AuthedRoutes.of {
 
@@ -33,22 +33,16 @@ final case class UserRouters[F[_]: Async: JsonDecoder](
         users.validationAndCreate(createUser) *> NoContent()
       }
 
-    case ar @ POST -> Root / "report" :? page(index) +& limit(limit) as user
-         if user.role == SuperManager =>
-      ar.req.decodeR[UserFilters] { _ =>
+    case ar @ POST -> Root / "report" as user if user.role == SuperManager =>
+      ar.req.decodeR[UserFilters] { userFilters =>
         users
-          .get(
-            UserFilters(
-              page = Some(index),
-              limit = Some(limit),
-            )
-          )
+          .get(userFilters)
           .flatMap(Ok(_))
       }
 
     case ar @ POST -> Root / "report" / "summary" as _ =>
-      ar.req.decodeR[UserFilters] { _ =>
-        users.getTotal(UserFilters()).flatMap(Ok(_))
+      ar.req.decodeR[UserFilters] { userFilters =>
+        users.getTotal(userFilters).flatMap(Ok(_))
       }
 
     case ar @ POST -> Root / "update" as user if user.role == SuperManager =>

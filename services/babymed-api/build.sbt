@@ -10,8 +10,8 @@ lazy val `services_babymed-api-core` =
     .in(file("00-core"))
     .dependsOn(
       LocalProject("supports_services"),
-      LocalProject("services_users-protocol")    % CompileAndTest,
-      LocalProject("services_payments-protocol") % CompileAndTest,
+      LocalProject("services_users-protocol")  % CompileAndTest,
+      LocalProject("services_visits-protocol") % CompileAndTest,
       LocalProject("services_auth"),
     )
     .settings(

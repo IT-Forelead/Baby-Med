@@ -46,10 +46,10 @@ object UsersSql {
 
   private def userFilters(filters: UserFilters): List[Option[AppliedFragment]] =
     List(
-      filters.firstName.map(sql"firstname LIKE $firstName"),
-      filters.lastName.map(sql"lastname LIKE $lastName"),
+      filters.firstName.map(sql"firstname ILIKE $firstName"),
+      filters.lastName.map(sql"lastname ILIKE $lastName"),
       filters.role.map(sql"role = $role"),
-      filters.phone.map(sql"phone LIKE $phone"),
+      filters.phone.map(sql"phone ILIKE $phone"),
     )
 
   def select(filters: UserFilters): AppliedFragment = {

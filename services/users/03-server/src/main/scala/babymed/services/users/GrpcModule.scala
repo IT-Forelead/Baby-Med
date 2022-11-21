@@ -20,6 +20,6 @@ object GrpcModule {
     ): Resource[F, GrpcModule] =
     List(
       proto.Users.bindService[F](env.services.users),
-      proto.Customers.bindService[F](env.services.customers),
+      proto.Patients.bindService[F](env.services.patients),
     ).sequence.map(GrpcModule.apply)
 }

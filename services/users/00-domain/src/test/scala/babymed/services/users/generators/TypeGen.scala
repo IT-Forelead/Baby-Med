@@ -15,7 +15,7 @@ trait TypeGen extends Generators {
   val regionIdGen: Gen[RegionId] = idGen(RegionId.apply)
   val townIdGen: Gen[TownId] = idGen(TownId.apply)
   val addressGen: Gen[Address] = nonEmptyString.map(Address(_))
-  val customerIdGen: Gen[CustomerId] = idGen(CustomerId.apply)
+  val patientIdGen: Gen[PatientId] = idGen(PatientId.apply)
   val firstNameGen: Gen[FirstName] = nonEmptyString.map(FirstName(_))
   val lastNameGen: Gen[LastName] = nonEmptyString.map(LastName(_))
   val roleGen: Gen[Role] = Gen.oneOf(Role.values)

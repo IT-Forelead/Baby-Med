@@ -9,6 +9,6 @@ case class ServerEnvironment[F[_]](
 object ServerEnvironment {
   case class Services[F[_]](
       users: Users[F],
-      customers: Customers[F],
+      patients: Patients[F],
     )
 }
