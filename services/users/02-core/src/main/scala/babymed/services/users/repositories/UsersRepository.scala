@@ -44,8 +44,10 @@ object UsersRepository {
       for {
         id <- ID.make[F, UserId]
         now <- Calendar[F].currentDateTime
-        password <- SCrypt.hashpw[F](RandomGenerator.randomPassword(6))
-        user <- insert.queryUnique(id ~ now ~ createUser ~ password)
+        password = RandomGenerator.randomPassword(6)
+        passwordHash <- SCrypt.hashpw[F](password)
+        user <- insert.queryUnique(id ~ now ~ createUser ~ passwordHash)
+        _ = println(user + " Password: " + password)
       } yield user
 
     override def validationAndCreate(createUser: CreateUser): F[User] =
