@@ -33,14 +33,11 @@ final case class VisitRouters[F[_]: Async: JsonDecoder](
         visits.create(createVisit) *> NoContent()
       }
 
-    case ar @ POST -> Root / "report" :? page(index) +& limit(limit) as _ =>
+    case ar @ POST -> Root / "report" as _ =>
       ar.req.decodeR[PatientVisitFilters] { patientVisitFilters =>
         visits
           .get(
-            patientVisitFilters.copy(
-              page = Some(index),
-              limit = Some(limit),
-            )
+            patientVisitFilters
           )
           .flatMap(Ok(_))
       }

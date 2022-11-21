@@ -33,16 +33,10 @@ final case class UserRouters[F[_]: Async: JsonDecoder](
         users.validationAndCreate(createUser) *> NoContent()
       }
 
-    case ar @ POST -> Root / "report" :? page(index) +& limit(limit) as user
-         if user.role == SuperManager =>
+    case ar @ POST -> Root / "report" as user if user.role == SuperManager =>
       ar.req.decodeR[UserFilters] { userFilters =>
         users
-          .get(
-            userFilters.copy(
-              page = Some(index),
-              limit = Some(limit),
-            )
-          )
+          .get(userFilters)
           .flatMap(Ok(_))
       }
 

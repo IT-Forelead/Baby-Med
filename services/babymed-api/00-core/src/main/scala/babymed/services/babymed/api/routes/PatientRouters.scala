@@ -31,15 +31,10 @@ final case class PatientRouters[F[_]: Async: JsonDecoder](
         patients.create(createPatient) *> NoContent()
       }
 
-    case ar @ POST -> Root / "report" :? page(index) +& limit(limit) as _ =>
+    case ar @ POST -> Root / "report" as _ =>
       ar.req.decodeR[PatientFilters] { patientFilters =>
         patients
-          .getPatients(
-            patientFilters.copy(
-              page = Some(index),
-              limit = Some(limit),
-            )
-          )
+          .getPatients(patientFilters)
           .flatMap(Ok(_))
       }
 
