@@ -6,7 +6,6 @@ services:
     container_name: babymed_services-users
     hostname: babymed-services-users
     environment:
-      APP_MODE: ${APP_MODE}
       USERS_RPC_PORT: ${USERS_RPC_PORT}
       USERS_HTTP_PORT: ${USERS_HTTP_PORT}
       HTTP_HEADER_LOG: ${HTTP_HEADER_LOG}
@@ -25,15 +24,14 @@ services:
         fluentd-address: localhost:24224
         tag: babymed
 
-  babymed_services-payments:
+  babymed_services-visits:
     restart: always
-    image: babymed/services-payments:latest
-    container_name: babymed_services-payments
-    hostname: babymed-services-payments
+    image: babymed/services-visits:latest
+    container_name: babymed_services-visits
+    hostname: babymed-services-visits
     environment:
-      APP_MODE: ${APP_MODE}
-      PAYMENTS_RPC_PORT: ${PAYMENTS_RPC_PORT}
-      PAYMENTS_HTTP_PORT: ${PAYMENTS_HTTP_PORT}
+      VISITS_RPC_PORT: ${VISITS_RPC_PORT}
+      VISITS_HTTP_PORT: ${VISITS_HTTP_PORT}
       HTTP_HEADER_LOG: ${HTTP_HEADER_LOG}
       HTTP_BODY_LOG: ${HTTP_BODY_LOG}
       POSTGRES_HOST: postgres
@@ -56,16 +54,15 @@ services:
     container_name: babymed_services-babymed-api
     hostname: babymed-services-babymed-api
     environment:
-      APP_MODE: ${APP_MODE}
       USERS_RPC_HOST: babymed-services-users
       USERS_RPC_PORT: ${USERS_RPC_PORT}
-      PAYMENTS_RPC_HOST: babymed-services-payments
-      PAYMENTS_RPC_PORT: ${PAYMENTS_RPC_PORT}
+      VISITS_RPC_HOST: babymed-services-visits
+      VISITS_RPC_PORT: ${VISITS_RPC_PORT}
       HTTP_HEADER_LOG: ${HTTP_HEADER_LOG}
       HTTP_BODY_LOG: ${HTTP_BODY_LOG}
       BABYMED_API_HTTP_PORT: 9000
       ACCESS_TOKEN_SECRET_KEY: dah3EeJ8xohtaeJ5ahyah-
-      JWT_TOKEN_EXPIRATION: 15.minutes
+      JWT_TOKEN_EXPIRATION: 60.minutes
       REDIS_SERVER_URI: redis://redis
     networks:
       - external-net
