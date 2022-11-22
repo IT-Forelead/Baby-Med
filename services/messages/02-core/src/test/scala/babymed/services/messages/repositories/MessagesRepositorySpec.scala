@@ -2,7 +2,7 @@ package babymed.services.messages.repositories
 
 import cats.effect.IO
 
-import babymed.domain.DeliveryStatus._
+import babymed.integrations.opersms.domain.DeliveryStatus._
 import babymed.services.messages.generators.MessageGenerators
 import babymed.support.database.DBSuite
 
@@ -25,8 +25,8 @@ object MessagesRepositorySpec extends DBSuite with MessageGenerators {
   test("Change Delivery Status") { implicit postgres =>
     val repo = MessagesRepository.make[IO]
     for {
-      crm <- repo.create(createMessageGen.get.copy(deliveryStatus = Sent))
-      chm <- repo.changeStatus(crm.id, Delivered)
-    } yield assert(chm.deliveryStatus == Delivered)
+      crm <- repo.create(createMessageGen.get.copy(deliveryStatus = SENT))
+      chm <- repo.changeStatus(crm.id, DELIVERED)
+    } yield assert(chm.deliveryStatus == DELIVERED)
   }
 }

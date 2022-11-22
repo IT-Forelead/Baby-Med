@@ -18,15 +18,17 @@ lazy val `services_messages-domain` = project
         ),
   )
   .dependsOn(
-    LocalProject("common")     % CompileAndTest,
-    LocalProject("test-tools") % CompileAndTest,
+    LocalProject("common")              % CompileAndTest,
+    LocalProject("test-tools")          % CompileAndTest,
+    LocalProject("integration_opersms") % CompileAndTest,
   )
 
 lazy val `services_messages-protocol` =
   project
     .in(file("01-protocol"))
     .dependsOn(
-      `services_messages-domain` % CompileAndTest,
+      `services_messages-domain`          % CompileAndTest,
+      LocalProject("integration_opersms") % CompileAndTest,
       LocalProject("supports_services"),
     )
     .settings(
@@ -44,9 +46,10 @@ lazy val `services_messages-core` =
       libraryDependencies ++= Libraries.Logging.all
     )
     .dependsOn(
-      `services_messages-protocol`     % CompileAndTest,
-      LocalProject("support_database") % CompileAndTest,
-      LocalProject("migrations")       % CompileAndTest,
+      `services_messages-protocol`        % CompileAndTest,
+      LocalProject("support_database")    % CompileAndTest,
+      LocalProject("migrations")          % CompileAndTest,
+      LocalProject("integration_opersms") % CompileAndTest,
     )
 
 lazy val `services_messages-server` =

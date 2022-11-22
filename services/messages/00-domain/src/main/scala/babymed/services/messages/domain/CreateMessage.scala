@@ -5,8 +5,8 @@ import derevo.circe.magnolia.encoder
 import derevo.derive
 import io.circe.refined._
 
-import babymed.domain.DeliveryStatus
 import babymed.domain.MessageType
+import babymed.integrations.opersms.domain.DeliveryStatus
 import babymed.refinements.Phone
 import babymed.services.messages.domain.types.MessageText
 

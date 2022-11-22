@@ -7,10 +7,10 @@ import cats.implicits._
 import skunk.Session
 import skunk.implicits.toIdOps
 
-import babymed.domain.DeliveryStatus
 import babymed.domain.ID
 import babymed.effects.Calendar
 import babymed.effects.GenUUID
+import babymed.integrations.opersms.domain.DeliveryStatus
 import babymed.services.messages.domain.CreateMessage
 import babymed.services.messages.domain.Message
 import babymed.services.messages.domain.types.MessageId

@@ -2,8 +2,8 @@ package babymed.services.messages.generators
 
 import org.scalacheck.Gen
 
-import babymed.domain.DeliveryStatus
 import babymed.domain.MessageType
+import babymed.integrations.opersms.domain.DeliveryStatus
 import babymed.services.messages.domain.types.MessageId
 import babymed.services.messages.domain.types.MessageText
 import babymed.syntax.refined.commonSyntaxAutoRefineV

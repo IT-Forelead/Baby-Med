@@ -1,6 +1,6 @@
 package babymed.services.messages.proto
 
-import babymed.domain.DeliveryStatus
+import babymed.integrations.opersms.domain.DeliveryStatus
 import babymed.services.messages.domain.CreateMessage
 import babymed.services.messages.domain.Message
 import babymed.services.messages.domain.types.MessageId
