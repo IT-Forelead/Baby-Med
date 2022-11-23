@@ -25,7 +25,8 @@ lazy val `services_users-protocol` =
   project
     .in(file("01-protocol"))
     .dependsOn(
-      `services_users-domain` % CompileAndTest,
+      `services_users-domain`                    % CompileAndTest,
+      LocalProject("services_messages-protocol") % CompileAndTest,
       LocalProject("supports_services"),
     )
     .settings(

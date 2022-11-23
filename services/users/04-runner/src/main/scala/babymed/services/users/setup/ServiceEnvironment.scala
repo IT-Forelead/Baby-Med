@@ -14,10 +14,11 @@ import babymed.support.database.Migrations
 
 case class ServiceEnvironment[F[_]: MonadThrow](
     config: Config,
+    rpcClients: RpcClients[F],
     repositories: Repositories[F],
   ) {
   lazy val patients = new Patients[F](repositories.patients)
-  lazy val users = new Users[F](repositories.users)
+  lazy val users = new Users[F](repositories.users, rpcClients.messages)
   lazy val toServer: ServerEnvironment[F] =
     ServerEnvironment(
       services = ServerEnvironment.Services(users, patients)
@@ -29,11 +30,11 @@ object ServiceEnvironment {
     for {
       config <- Resource.eval(ConfigLoader.load[F])
       _ <- Resource.eval(Migrations.run[F](config.migrations))
-
+      services <- RpcClients.make[F](config.services)
       resource <- ServiceResources.make[F](config)
       repositories = {
         implicit val session: Resource[F, Session[F]] = resource.postgres
         Repositories.make[F]
       }
-    } yield ServiceEnvironment[F](config, repositories)
+    } yield ServiceEnvironment[F](config, services, repositories)
 }

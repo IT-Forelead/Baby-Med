@@ -12,6 +12,7 @@ import tsec.passwordhashers.jca.SCrypt
 import babymed.domain.ID
 import babymed.effects.Calendar
 import babymed.exception.PhoneInUse
+import babymed.refinements.Password
 import babymed.refinements.Phone
 import babymed.services.users.domain.CreateUser
 import babymed.services.users.domain.EditUser
@@ -25,7 +26,7 @@ import babymed.syntax.refined.commonSyntaxAutoUnwrapV
 import babymed.util.RandomGenerator
 
 trait UsersRepository[F[_]] {
-  def validationAndCreate(createUser: CreateUser): F[User]
+  def validationAndCreate(createUser: CreateUser, sendSms: Password => F[Unit]): F[User]
   def validationAndEdit(editUser: EditUser): F[Unit]
   def findByPhone(phone: Phone): F[Option[UserAndHash]]
   def get(filters: UserFilters): F[List[User]]
@@ -40,20 +41,24 @@ object UsersRepository {
     ): UsersRepository[F] = new UsersRepository[F] {
     import sql.UsersSql._
 
-    private def create(createUser: CreateUser): F[User] =
+    private def create(createUser: CreateUser, sendSms: Password => F[Unit]): F[User] =
       for {
         id <- ID.make[F, UserId]
         now <- Calendar[F].currentDateTime
         password = RandomGenerator.randomPassword(6)
         passwordHash <- SCrypt.hashpw[F](password)
         user <- insert.queryUnique(id ~ now ~ createUser ~ passwordHash)
+        _ <- sendSms(password)
         _ = println(user + " Password: " + password)
       } yield user
 
-    override def validationAndCreate(createUser: CreateUser): F[User] =
+    override def validationAndCreate(
+        createUser: CreateUser,
+        sendSms: Password => F[Unit],
+      ): F[User] =
       OptionT(selectOldUser.queryOption(createUser.phone))
         .semiflatMap(_ => PhoneInUse(createUser.phone).raiseError[F, User])
-        .getOrElseF(create(createUser))
+        .getOrElseF(create(createUser, sendSms))
 
     override def validationAndEdit(editUser: EditUser): F[Unit] =
       OptionT(selectOldUser.queryOption(editUser.phone))

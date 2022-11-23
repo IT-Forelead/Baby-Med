@@ -3,21 +3,28 @@ package babymed.services.users.repositories
 import java.time.LocalDateTime
 
 import cats.effect._
+import cats.effect.kernel.Sync
 import cats.implicits._
 import skunk.Session
 import weaver.Expectations
 
+import babymed.refinements.Password
+import babymed.refinements.Phone
 import babymed.services.users.domain.UserFilters
 import babymed.services.users.generators.UserGenerators
 import babymed.support.database.DBSuite
 
 object UserRepositorySpec extends DBSuite with UserGenerators {
   override def schemaName: String = "public"
+
+  private def sendPassword(phone: Phone)(password: Password): F[Unit] = Sync[F].unit
+
   override def beforeAll(implicit res: Res): IO[Unit] = data.setup
   test("Create User") { implicit postgres =>
+    val createUser = createUserGen.get
     UsersRepository
       .make[F]
-      .validationAndCreate(createUserGen.get)
+      .validationAndCreate(createUser, sendPassword(createUser.phone))
       .map { pr =>
         assert(pr.createdAt.isBefore(LocalDateTime.now()))
       }
@@ -29,7 +36,7 @@ object UserRepositorySpec extends DBSuite with UserGenerators {
   test("Find User by Phone") { implicit postgres =>
     val repo = UsersRepository.make[IO]
     val createUser = createUserGen.get
-    repo.validationAndCreate(createUser) >>
+    repo.validationAndCreate(createUser, sendPassword(createUser.phone)) >>
       repo
         .findByPhone(createUser.phone)
         .map { optUser =>
@@ -87,7 +94,7 @@ object UserRepositorySpec extends DBSuite with UserGenerators {
     val repo = UsersRepository.make[IO]
     val create = createUserGen.get
     for {
-      createUser <- repo.validationAndCreate(create)
+      createUser <- repo.validationAndCreate(create, sendPassword(create.phone))
       _ <- repo.delete(createUser.id)
       users <- repo.get(UserFilters.Empty)
     } yield assert(users.exists(_.id != createUser.id))
@@ -98,7 +105,7 @@ object UserRepositorySpec extends DBSuite with UserGenerators {
     val create = createUserGen.get
     val editUser = editUserGen.get
     for {
-      createUser <- repo.validationAndCreate(create)
+      createUser <- repo.validationAndCreate(create, sendPassword(create.phone))
       _ <- repo.validationAndEdit(editUser.copy(id = createUser.id))
       users <- repo.get(UserFilters.Empty)
     } yield assert(users.exists(_.phone == editUser.phone))

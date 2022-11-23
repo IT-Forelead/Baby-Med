@@ -3,7 +3,13 @@ package babymed.services.users.boundary
 import cats.effect.kernel.Sync
 import org.scalacheck.Gen
 
+import babymed.integrations.opersms.domain.DeliveryStatus
+import babymed.refinements.Password
 import babymed.refinements.Phone
+import babymed.services.messages.domain.CreateMessage
+import babymed.services.messages.domain.Message
+import babymed.services.messages.domain.types.MessageId
+import babymed.services.messages.proto.Messages
 import babymed.services.users.domain.CreateUser
 import babymed.services.users.domain.EditUser
 import babymed.services.users.domain.User
@@ -16,7 +22,10 @@ import babymed.test.TestSuite
 
 object UsersSpec extends TestSuite with UserGenerators {
   val userRepo: UsersRepository[F] = new UsersRepository[F] {
-    override def validationAndCreate(createUser: CreateUser): F[User] =
+    override def validationAndCreate(
+        createUser: CreateUser,
+        sendSms: Password => F[Unit],
+      ): F[User] =
       Sync[F].delay(userGen.get)
 
     override def validationAndEdit(editUser: EditUser): F[Unit] =
@@ -33,7 +42,12 @@ object UsersSpec extends TestSuite with UserGenerators {
     override def getTotal(filters: UserFilters): UsersSpec.F[Long] = Sync[F].delay(Gen.long.get)
   }
 
-  val users: Users[F] = new Users[F](userRepo)
+  val messageRepo: Messages[F] = new Messages[F] {
+    override def send(createMessage: CreateMessage): F[Message] = ???
+    override def changeStatus(id: MessageId, deliveryStatus: DeliveryStatus): F[Message] = ???
+  }
+
+  val users: Users[F] = new Users[F](userRepo, messageRepo)
 
   loggedTest("Create User") { logger =>
     users
