@@ -27,6 +27,6 @@ object HttpModule {
       logger: Logger[F]
     ): Resource[F, F[ExitCode]] =
     HttpServer.make[F](config, allRoutes[F]).map { _ =>
-      logger.info(s"Visits service http server is started").as(ExitCode.Success)
+      logger.info(s"Messages service http server is started").as(ExitCode.Success)
     }
 }
