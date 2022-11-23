@@ -9,6 +9,7 @@ import babymed.services.messages.repositories.MessagesRepository
 case class Repositories[F[_]](
     messages: MessagesRepository[F]
   )
+
 object Repositories {
   def make[F[_]: Async](
       implicit

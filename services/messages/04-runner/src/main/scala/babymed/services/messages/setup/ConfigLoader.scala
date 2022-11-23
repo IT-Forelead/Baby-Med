@@ -3,6 +3,7 @@ package babymed.services.messages.setup
 import cats.effect.Async
 import cats.implicits._
 
+import babymed.integrations.opersms.OperSmsConfig
 import babymed.support.services.http4s.HttpServerConfig
 import babymed.support.services.rpc.GrpcServerConfig
 import babymed.support.skunk.DataBaseConfig
@@ -13,5 +14,6 @@ object ConfigLoader {
     GrpcServerConfig.configValues("MESSAGES"),
     HttpServerConfig.configValues("MESSAGES"),
     DataBaseConfig.configValues,
+    OperSmsConfig.configValues,
   ).parMapN(Config.apply).load[F]
 }

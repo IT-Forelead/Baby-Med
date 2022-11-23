@@ -1,8 +1,11 @@
 package babymed.services.messages.boundary
 
 import cats.effect.kernel.Sync
+import eu.timepit.refined.types.string.NonEmptyString
 
+import babymed.integrations.opersms.OperSmsClient
 import babymed.integrations.opersms.domain.DeliveryStatus
+import babymed.refinements.Phone
 import babymed.services.messages.domain.CreateMessage
 import babymed.services.messages.domain.Message
 import babymed.services.messages.domain.types.MessageId
@@ -18,11 +21,15 @@ object MessagesSpec extends TestSuite with MessageGenerators {
       Sync[F].delay(messageGen.get)
   }
 
-  val messages: Messages[F] = new Messages[F](messageRepo)
+  val operSmsClientMock: OperSmsClient[F] = new OperSmsClient[F] {
+    override def send(phone: Phone, text: NonEmptyString): F[Unit] = Sync[F].unit
+  }
+
+  val messages: Messages[F] = new Messages[F](messageRepo, operSmsClientMock)
 
   loggedTest("Create Message") { logger =>
     messages
-      .create(createMessageGen.get)
+      .send(createMessageGen.get)
       .as(success)
       .handleErrorWith { error =>
         logger

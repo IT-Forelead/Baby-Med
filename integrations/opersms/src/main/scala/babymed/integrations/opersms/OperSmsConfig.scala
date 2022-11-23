@@ -2,8 +2,13 @@ package babymed.integrations.opersms
 
 import java.net.URI
 
-import ciris.Secret
-import eu.timepit.refined.types.all.NonEmptyString
+import cats.implicits._
+import ciris._
+import ciris.refined.refTypeConfigDecoder
+import eu.timepit.refined.cats._
+import eu.timepit.refined.types.string.NonEmptyString
+
+import babymed.util.ConfigDecoders.javaNetUriConfigDecoder
 
 case class OperSmsConfig(
     apiURL: URI,
@@ -11,3 +16,12 @@ case class OperSmsConfig(
     password: Secret[NonEmptyString],
     enabled: Boolean = false,
   )
+
+object OperSmsConfig {
+  def configValues: ConfigValue[Effect, OperSmsConfig] = (
+    env("MESSAGE_BROKER_API").as[URI],
+    env("MESSAGE_BROKER_USERNAME").as[NonEmptyString],
+    env("MESSAGE_BROKER_PASSWORD").as[NonEmptyString].secret,
+    env("MESSAGE_BROKER_ENABLED").as[Boolean],
+  ).parMapN(OperSmsConfig.apply)
+}
