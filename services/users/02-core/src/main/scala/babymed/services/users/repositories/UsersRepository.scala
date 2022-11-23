@@ -49,7 +49,6 @@ object UsersRepository {
         passwordHash <- SCrypt.hashpw[F](password)
         user <- insert.queryUnique(id ~ now ~ createUser ~ passwordHash)
         _ <- sendSms(password)
-        _ = println(user + " Password: " + password)
       } yield user
 
     override def validationAndCreate(
