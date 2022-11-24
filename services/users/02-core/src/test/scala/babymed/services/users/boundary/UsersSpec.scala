@@ -44,7 +44,6 @@ object UsersSpec extends TestSuite with UserGenerators {
 
   val messageRepo: Messages[F] = new Messages[F] {
     override def send(createMessage: CreateMessage): F[Message] = ???
-    override def changeStatus(id: MessageId, deliveryStatus: DeliveryStatus): F[Message] = ???
   }
 
   val users: Users[F] = new Users[F](userRepo, messageRepo)

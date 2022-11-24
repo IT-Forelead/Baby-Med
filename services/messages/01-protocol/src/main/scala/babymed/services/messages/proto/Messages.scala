@@ -10,7 +10,6 @@ import babymed.support.services.syntax.marshaller.codec
 @service(Custom)
 trait Messages[F[_]] {
   def send(createMessage: CreateMessage): F[Message]
-  def changeStatus(id: MessageId, deliveryStatus: DeliveryStatus): F[Message]
 }
 
 object Messages {}
