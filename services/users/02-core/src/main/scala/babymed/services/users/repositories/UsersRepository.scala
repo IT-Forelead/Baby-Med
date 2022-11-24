@@ -12,7 +12,6 @@ import tsec.passwordhashers.jca.SCrypt
 import babymed.domain.ID
 import babymed.effects.Calendar
 import babymed.exception.PhoneInUse
-import babymed.refinements.Password
 import babymed.refinements.Phone
 import babymed.services.users.domain.CreateUser
 import babymed.services.users.domain.EditUser
