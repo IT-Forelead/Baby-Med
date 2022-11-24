@@ -6,6 +6,7 @@ import cats.data.NonEmptyList
 import cats.data.OptionT
 import cats.effect.Async
 import cats.effect.Sync
+import cats.implicits.catsSyntaxApplicativeErrorId
 import cats.implicits.catsSyntaxSemigroup
 import cats.implicits.toFunctorOps
 import eu.timepit.refined.types.string.NonEmptyString
@@ -14,6 +15,7 @@ import retry.RetryPolicies.exponentialBackoff
 import retry.RetryPolicies.limitRetries
 import retry.RetryPolicy
 
+import babymed.exception.UnknownSmsStatus
 import babymed.integrations.opersms.domain.DeliveryStatus
 import babymed.integrations.opersms.domain.RequestId
 import babymed.integrations.opersms.domain.SMS
@@ -55,7 +57,7 @@ object OperSmsClient {
   private class OperSmsClientImpl[F[_]: Async: SttpBackends.Simple: Logger](config: OperSmsConfig)
       extends OperSmsClient[F] {
     private val retryPolicy: RetryPolicy[F] =
-      limitRetries[F](3) |+| exponentialBackoff[F](1.minutes)
+      limitRetries[F](10) |+| exponentialBackoff[F](10.seconds)
 
     private lazy val client: SttpClient.CirceJson[F] = SttpClient.circeJson(
       config.apiURL,
@@ -99,7 +101,13 @@ object OperSmsClient {
             )
             .map(_.messages.headOption)
         )
-          .semiflatMap(smsStatus => changeStatus(smsStatus.status))
+          .semiflatTap(smsStatus => changeStatus(smsStatus.status))
+          .semiflatMap(smsResponse =>
+            if (smsResponse.status == DeliveryStatus.UNDEFINED)
+              UnknownSmsStatus("Sms delivery status unknown").raiseError[F, Unit]
+            else
+              Sync[F].unit
+          )
           .getOrElseF(Sync[F].unit)
       Retry[F].retry(retryPolicy)(task)
     }

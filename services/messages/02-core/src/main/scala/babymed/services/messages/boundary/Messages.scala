@@ -21,6 +21,6 @@ class Messages[F[_]: Monad](
       _ <- operSmsClient.send(createMessage.phone, createMessage.text.value, changeStatus(cm.id))
     } yield cm
 
-  private def changeStatus(id: MessageId): DeliveryStatus => F[Unit] = status =>
+  private[services] def changeStatus(id: MessageId): DeliveryStatus => F[Unit] = status =>
     messagesRepository.changeStatus(id, status).void
 }

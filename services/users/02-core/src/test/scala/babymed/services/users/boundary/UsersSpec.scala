@@ -3,12 +3,10 @@ package babymed.services.users.boundary
 import cats.effect.kernel.Sync
 import org.scalacheck.Gen
 
-import babymed.integrations.opersms.domain.DeliveryStatus
 import babymed.refinements.Password
 import babymed.refinements.Phone
 import babymed.services.messages.domain.CreateMessage
 import babymed.services.messages.domain.Message
-import babymed.services.messages.domain.types.MessageId
 import babymed.services.messages.proto.Messages
 import babymed.services.users.domain.CreateUser
 import babymed.services.users.domain.EditUser

@@ -30,14 +30,26 @@ object MessagesSpec extends TestSuite with MessageGenerators {
   }
 
   val messages: Messages[F] = new Messages[F](messageRepo, operSmsClientMock)
-//  loggedTest("Create Message") { logger =>
-//    messages
-//      .send(createMessageGen.get, changeStatus)
-//      .as(success)
-//      .handleErrorWith { error =>
-//        logger
-//          .error("Error occurred!", cause = error)
-//          .as(failure("Test failed!"))
-//      }
-//  }
+  loggedTest("Create Message") { logger =>
+    messages
+      .send(createMessageGen.get)
+      .as(success)
+      .handleErrorWith { error =>
+        logger
+          .error(s"$error Error occurred!", cause = error)
+          .as(failure("Test failed!"))
+      }
+  }
+
+  loggedTest("Change Message Status") { logger =>
+    messages
+      .send(createMessageGen.get)
+      .map(message => messages.changeStatus(message.id))
+      .as(success)
+      .handleErrorWith { error =>
+        logger
+          .error(s"$error Error occurred!", cause = error)
+          .as(failure("Test failed!"))
+      }
+  }
 }
