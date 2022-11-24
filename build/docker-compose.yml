@@ -8,6 +8,8 @@ services:
     environment:
       USERS_RPC_PORT: ${USERS_RPC_PORT}
       USERS_HTTP_PORT: ${USERS_HTTP_PORT}
+      MESSAGES_RPC_HOST: babymed-services-messages
+      MESSAGES_RPC_PORT: ${MESSAGES_RPC_PORT}
       HTTP_HEADER_LOG: ${HTTP_HEADER_LOG}
       HTTP_BODY_LOG: ${HTTP_BODY_LOG}
       POSTGRES_HOST: postgres
@@ -64,6 +66,34 @@ services:
       ACCESS_TOKEN_SECRET_KEY: dah3EeJ8xohtaeJ5ahyah-
       JWT_TOKEN_EXPIRATION: 60.minutes
       REDIS_SERVER_URI: redis://redis
+    networks:
+      - external-net
+    logging:
+      driver: "fluentd"
+      options:
+        fluentd-address: localhost:24224
+        tag: babymed
+
+  babymed_services-messages:
+    restart: always
+    image: babymed/services-messages:latest
+    container_name: babymed_services-messages
+    hostname: babymed-services-messages
+    environment:
+      MESSAGES_RPC_PORT: ${MESSAGES_RPC_PORT}
+      MESSAGES_HTTP_PORT: ${MESSAGES_HTTP_PORT}
+      HTTP_HEADER_LOG: ${HTTP_HEADER_LOG}
+      HTTP_BODY_LOG: ${HTTP_BODY_LOG}
+      POSTGRES_HOST: postgres
+      POSTGRES_PORT: 5432
+      POSTGRES_USER: ${POSTGRES_USER}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+      POSTGRES_DATABASE: ${POSTGRES_DATABASE}
+      POSTGRES_POOL_SIZE: ${POSTGRES_POOL_SIZE}
+      MESSAGE_BROKER_API: ${MESSAGE_BROKER_API}
+      MESSAGE_BROKER_USERNAME: ${MESSAGE_BROKER_USERNAME}
+      MESSAGE_BROKER_PASSWORD: ${MESSAGE_BROKER_PASSWORD}
+      MESSAGE_BROKER_ENABLED: ${MESSAGE_BROKER_ENABLED}
     networks:
       - external-net
     logging:
