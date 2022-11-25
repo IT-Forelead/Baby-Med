@@ -132,4 +132,4 @@ jobs:
             cd ~/babymed/build/
             chmod +x ./publish
             bash run
-            docker nginx restart
+            docker restart nginx
