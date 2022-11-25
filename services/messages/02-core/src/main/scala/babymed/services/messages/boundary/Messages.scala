@@ -18,9 +18,9 @@ class Messages[F[_]: Monad](
   override def send(createMessage: CreateMessage): F[Message] =
     for {
       cm <- messagesRepository.create(createMessage)
-      _ <- operSmsClient.send(createMessage.phone, createMessage.text.value)
+      _ <- operSmsClient.send(createMessage.phone, createMessage.text.value, changeStatus(cm.id))
     } yield cm
 
-  override def changeStatus(id: MessageId, deliveryStatus: DeliveryStatus): F[Message] =
-    messagesRepository.changeStatus(id, deliveryStatus)
+  private[services] def changeStatus(id: MessageId): DeliveryStatus => F[Unit] = status =>
+    messagesRepository.changeStatus(id, status).void
 }

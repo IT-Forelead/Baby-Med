@@ -20,7 +20,7 @@ object CheckStatus {
   implicit val sttpRequest: SttpRequest[CheckStatus, StatusResponse] =
     new SttpRequest[CheckStatus, StatusResponse] {
       val method: Method = Method.POST
-      val path: Path = _ => "/sms"
+      val path: Path = _ => "/status"
       def body: Body = formBody { req =>
         Map(
           "login" -> req.login,

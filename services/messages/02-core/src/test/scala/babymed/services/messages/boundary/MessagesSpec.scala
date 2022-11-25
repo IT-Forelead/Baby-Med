@@ -22,29 +22,33 @@ object MessagesSpec extends TestSuite with MessageGenerators {
   }
 
   val operSmsClientMock: OperSmsClient[F] = new OperSmsClient[F] {
-    override def send(phone: Phone, text: NonEmptyString): F[Unit] = Sync[F].unit
+    override def send(
+        phone: Phone,
+        text: NonEmptyString,
+        changeStatus: DeliveryStatus => F[Unit],
+      ): F[Unit] = Sync[F].unit
   }
 
   val messages: Messages[F] = new Messages[F](messageRepo, operSmsClientMock)
-
   loggedTest("Create Message") { logger =>
     messages
       .send(createMessageGen.get)
       .as(success)
       .handleErrorWith { error =>
         logger
-          .error("Error occurred!", cause = error)
+          .error(s"$error Error occurred!", cause = error)
           .as(failure("Test failed!"))
       }
   }
 
-  loggedTest("Change Delivery Status") { logger =>
+  loggedTest("Change Message Status") { logger =>
     messages
-      .changeStatus(messageIdGen.get, deliveryStatusGen.get)
+      .send(createMessageGen.get)
+      .map(message => messages.changeStatus(message.id))
       .as(success)
       .handleErrorWith { error =>
         logger
-          .error("Error occurred!", cause = error)
+          .error(s"$error Error occurred!", cause = error)
           .as(failure("Test failed!"))
       }
   }
