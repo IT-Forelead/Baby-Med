@@ -20,7 +20,7 @@ case class CreatePatient(
     lastname: LastName,
     regionId: RegionId,
     townId: TownId,
-    address: Address,
+    address: Option[Address],
     birthday: LocalDate,
     phone: Phone,
   )

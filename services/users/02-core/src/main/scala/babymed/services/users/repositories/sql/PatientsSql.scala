@@ -24,7 +24,7 @@ object PatientsSql {
   val townId: Codec[TownId] = identity[TownId]
 
   private val Columns =
-    patientId ~ timestamp ~ firstName ~ lastName ~ regionId ~ townId ~ address ~ date ~ phone
+    patientId ~ timestamp ~ firstName ~ lastName ~ regionId ~ townId ~ address.opt ~ date ~ phone
 
   val encoder: Encoder[PatientId ~ LocalDateTime ~ CreatePatient] = Columns.contramap {
     case id ~ createdAt ~ cp =>
