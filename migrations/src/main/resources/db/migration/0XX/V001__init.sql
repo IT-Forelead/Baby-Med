@@ -486,6 +486,28 @@ VALUES ('a144cd37-c743-47fc-88ec-c670b4fde1e7', 'Yashnobod tumani', 'dac35ec3-a9
 INSERT INTO "towns" ("id", "name", "region_id")
 VALUES ('f4989b83-fc64-4844-bd57-e721a7f0e4aa', 'Yunusobod tumani', 'dac35ec3-a904-42d7-af20-5d7e853fe1f6');
 
+CREATE TABLE IF NOT EXISTS doctor_types
+(
+    id          UUID PRIMARY KEY,
+    name        VARCHAR NOT NULL,
+    deleted     BOOLEAN NOT NULL DEFAULT false
+);
+
+CREATE TABLE IF NOT EXISTS service_types
+(
+    id          UUID PRIMARY KEY,
+    name        VARCHAR NOT NULL,
+    deleted     BOOLEAN NOT NULL DEFAULT false
+);
+
+CREATE TABLE IF NOT EXISTS partner_doctors
+(
+    id          UUID PRIMARY KEY,
+    full_name   VARCHAR NOT NULL,
+    cost        NUMERIC NOT NULL,
+    deleted     BOOLEAN NOT NULL DEFAULT false
+);
+
 CREATE TABLE IF NOT EXISTS users
 (
     id         UUID PRIMARY KEY,
@@ -495,6 +517,8 @@ CREATE TABLE IF NOT EXISTS users
     phone      VARCHAR   NOT NULL UNIQUE,
     role       VARCHAR   NOT NULL
         CONSTRAINT fk_role REFERENCES role (name) ON UPDATE CASCADE ON DELETE NO ACTION NOT NULL,
+    doctor_type_id    UUID  NULL
+        CONSTRAINT fk_doctor_type_id REFERENCES doctor_types (id) ON UPDATE CASCADE ON DELETE NO ACTION,
     password   VARCHAR   NOT NULL
 );
 
@@ -512,7 +536,7 @@ CREATE TABLE IF NOT EXISTS patients
         CONSTRAINT fk_region_id REFERENCES regions (id) ON UPDATE CASCADE ON DELETE NO ACTION,
     town_id    UUID      NOT NULL
         CONSTRAINT fk_town_id REFERENCES towns (id) ON UPDATE CASCADE ON DELETE NO ACTION,
-    address    VARCHAR   NOT NULL,
+    address    VARCHAR   NULL,
     birthday   DATE      NOT NULL,
     phone      VARCHAR UNIQUE,
     deleted    BOOLEAN   NOT NULL DEFAULT false
@@ -521,9 +545,27 @@ CREATE TABLE IF NOT EXISTS patients
 CREATE TABLE IF NOT EXISTS services
 (
     id      UUID PRIMARY KEY,
+    service_type_id  UUID   NOT NULL
+        CONSTRAINT fk_service_type_id REFERENCES service_types (id) ON UPDATE CASCADE ON DELETE NO ACTION,
     name    VARCHAR NOT NULL,
     cost    NUMERIC NOT NULL,
+    for_laboratory NUMERIC NOT NULL DEFAULT 0,
+    for_tools NUMERIC NOT NULL DEFAULT 0,
+    for_drugs NUMERIC NOT NULL DEFAULT 0,
+    partner_doctor_id  UUID     NULL
+        CONSTRAINT fk_partner_doctor_id REFERENCES partner_doctors (id) ON UPDATE CASCADE ON DELETE NO ACTION,
     deleted BOOLEAN NOT NULL DEFAULT false
+);
+
+CREATE TABLE IF NOT EXISTS service_items
+(
+    id          UUID PRIMARY KEY,
+    service_id  UUID      NOT NULL
+        CONSTRAINT fk_service_id REFERENCES services (id) ON UPDATE CASCADE ON DELETE NO ACTION,
+    user_id     UUID      NOT NULL
+        CONSTRAINT fk_user_id REFERENCES users (id) ON UPDATE CASCADE ON DELETE NO ACTION,
+    cost        NUMERIC NOT NULL DEFAULT 0,
+    deleted     BOOLEAN NOT NULL DEFAULT false
 );
 
 CREATE TABLE IF NOT EXISTS visits
@@ -532,11 +574,42 @@ CREATE TABLE IF NOT EXISTS visits
     created_at     TIMESTAMP NOT NULL,
     patient_id     UUID      NOT NULL
         CONSTRAINT fk_patient_id REFERENCES patients (id) ON UPDATE CASCADE ON DELETE NO ACTION,
-    user_id        UUID      NOT NULL
-        CONSTRAINT fk_user_id REFERENCES users (id) ON UPDATE CASCADE ON DELETE NO ACTION,
     service_id     UUID      NOT NULL
         CONSTRAINT fk_service_id REFERENCES services (id) ON UPDATE CASCADE ON DELETE NO ACTION,
     payment_status VARCHAR   NOT NULL
         CONSTRAINT fk_payment_status REFERENCES payment_status (name) ON UPDATE CASCADE ON DELETE NO ACTION DEFAULT 'not_paid',
     deleted        BOOLEAN   NOT NULL                                                                       DEFAULT false
+);
+
+CREATE TABLE IF NOT EXISTS delivery_statuses
+(
+    name    VARCHAR NOT NULL PRIMARY KEY,
+    deleted BOOLEAN NOT NULL DEFAULT false
+);
+
+INSERT INTO delivery_statuses
+VALUES ('sent'),
+       ('delivered'),
+       ('failed'),
+       ('undefined');
+
+CREATE TABLE IF NOT EXISTS message_types
+(
+    name    VARCHAR NOT NULL PRIMARY KEY,
+    deleted BOOLEAN NOT NULL DEFAULT false
+);
+
+INSERT INTO message_types
+VALUES ('registration');
+
+CREATE TABLE IF NOT EXISTS messages
+(
+    id              UUID PRIMARY KEY,
+    sent_date       TIMESTAMP NOT NULL,
+    phone           VARCHAR   NOT NULL,
+    text            VARCHAR   NOT NULL,
+    message_type    VARCHAR   NOT NULL
+        CONSTRAINT fk_message_type REFERENCES message_types (name) ON UPDATE CASCADE ON DELETE NO ACTION,
+    delivery_status VARCHAR   NOT NULL
+        CONSTRAINT fk_delivery_status REFERENCES delivery_statuses (name) ON UPDATE CASCADE ON DELETE NO ACTION DEFAULT 'sent'
 );
