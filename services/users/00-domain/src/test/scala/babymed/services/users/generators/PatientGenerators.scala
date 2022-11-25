@@ -19,7 +19,7 @@ trait PatientGenerators extends TypeGen {
       lastname <- lastNameGen
       regionId <- regionIdGen
       townId <- townIdGen
-      address <- addressGen
+      address <- addressGen.opt
       birthday <- dateGen
       phone <- phoneGen
     } yield Patient(
@@ -43,7 +43,7 @@ trait PatientGenerators extends TypeGen {
       lastname <- lastNameGen
       regionId <- regionIdGen
       townId <- townIdGen
-      address <- addressGen
+      address <- addressGen.opt
       birthday <- dateGen
       phone <- phoneGen
     } yield CreatePatient(

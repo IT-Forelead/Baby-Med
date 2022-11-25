@@ -25,7 +25,7 @@ object VisitsSql {
     patientVisitId ~ timestamp ~ patientId ~ userId ~ serviceId
   private val UserColumns = userId ~ timestamp ~ firstName ~ lastName ~ phone ~ role
   private val PatientColumns =
-    patientId ~ timestamp ~ firstName ~ lastName ~ regionId ~ townId ~ address ~ date ~ phone
+    patientId ~ timestamp ~ firstName ~ lastName ~ regionId ~ townId ~ address.opt ~ date ~ phone
 
   val encoder: Encoder[PatientVisitId ~ LocalDateTime ~ CreatePatientVisit] =
     ColumnsWithoutPaymentStatus.contramap {
