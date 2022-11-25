@@ -486,7 +486,7 @@ VALUES ('a144cd37-c743-47fc-88ec-c670b4fde1e7', 'Yashnobod tumani', 'dac35ec3-a9
 INSERT INTO "towns" ("id", "name", "region_id")
 VALUES ('f4989b83-fc64-4844-bd57-e721a7f0e4aa', 'Yunusobod tumani', 'dac35ec3-a904-42d7-af20-5d7e853fe1f6');
 
-CREATE TABLE IF NOT EXISTS doctor_types
+CREATE TABLE IF NOT EXISTS sub_roles
 (
     id          UUID PRIMARY KEY,
     name        VARCHAR NOT NULL,
@@ -517,8 +517,8 @@ CREATE TABLE IF NOT EXISTS users
     phone      VARCHAR   NOT NULL UNIQUE,
     role       VARCHAR   NOT NULL
         CONSTRAINT fk_role REFERENCES role (name) ON UPDATE CASCADE ON DELETE NO ACTION NOT NULL,
-    doctor_type_id    UUID  NULL
-        CONSTRAINT fk_doctor_type_id REFERENCES doctor_types (id) ON UPDATE CASCADE ON DELETE NO ACTION,
+    sub_role_id    UUID  NULL
+        CONSTRAINT fk_sub_role_id REFERENCES sub_roles (id) ON UPDATE CASCADE ON DELETE NO ACTION,
     password   VARCHAR   NOT NULL
 );
 
