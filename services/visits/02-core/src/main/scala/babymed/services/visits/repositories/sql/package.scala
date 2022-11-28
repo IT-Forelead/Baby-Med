@@ -23,7 +23,7 @@ package object sql {
   val patientId: Codec[PatientId] = identity[PatientId]
   val serviceId: Codec[ServiceId] = identity[ServiceId]
   val regionId: Codec[RegionId] = identity[RegionId]
-  val townId: Codec[TownId] = identity[TownId]
+  val townId: Codec[CityId] = identity[CityId]
   val serviceName: Codec[ServiceName] = nes.imap[ServiceName](ServiceName.apply)(_.value)
   val cost: Codec[Money] = numeric.imap[Money](money => UZS(money))(_.amount)
   val paymentStatus: Codec[PaymentStatus] =
@@ -36,5 +36,5 @@ package object sql {
   val role: Codec[Role] =
     varchar.eimap[Role](str => Role.values.find(_.value == str).toRight("type not found "))(_.value)
   val regionName: Codec[RegionName] = nes.imap[RegionName](RegionName.apply)(_.value)
-  val townName: Codec[TownName] = nes.imap[TownName](TownName.apply)(_.value)
+  val townName: Codec[CityName] = nes.imap[CityName](CityName.apply)(_.value)
 }

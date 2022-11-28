@@ -18,7 +18,7 @@ case class Patient(
     firstname: FirstName,
     lastname: LastName,
     regionId: RegionId,
-    townId: TownId,
+    cityId: CityId,
     address: Option[Address],
     birthday: LocalDate,
     phone: Phone,

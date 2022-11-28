@@ -7,9 +7,9 @@ import skunk.codec.all.date
 import skunk.codec.all.timestamp
 import skunk.implicits._
 
+import babymed.services.users.domain.City
 import babymed.services.users.domain.Patient
 import babymed.services.users.domain.Region
-import babymed.services.users.domain.Town
 import babymed.services.users.domain.User
 import babymed.services.visits.domain.CreatePatientVisit
 import babymed.services.visits.domain.PatientVisit
@@ -53,9 +53,9 @@ object VisitsSql {
       Region(id, name)
   }
 
-  val decTown: Decoder[Town] = (townId ~ regionId ~ townName).map {
+  val decTown: Decoder[City] = (townId ~ regionId ~ townName).map {
     case id ~ regionId ~ name =>
-      Town(id, regionId, name)
+      City(id, regionId, name)
   }
 
   val decPaymentVisitInfo: Decoder[PatientVisitInfo] =

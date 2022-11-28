@@ -8,18 +8,14 @@ import derevo.derive
 import io.circe.refined._
 
 import babymed.refinements.Phone
-import babymed.services.users.domain.types.Address
-import babymed.services.users.domain.types.FirstName
-import babymed.services.users.domain.types.LastName
-import babymed.services.users.domain.types.RegionId
-import babymed.services.users.domain.types.TownId
+import babymed.services.users.domain.types._
 
 @derive(decoder, encoder)
 case class CreatePatient(
     firstname: FirstName,
     lastname: LastName,
     regionId: RegionId,
-    townId: TownId,
+    cityId: CityId,
     address: Option[Address],
     birthday: LocalDate,
     phone: Phone,

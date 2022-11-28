@@ -10,11 +10,7 @@ import eu.timepit.refined.types.numeric.NonNegInt
 import io.circe.refined._
 
 import babymed.refinements.Phone
-import babymed.services.users.domain.types.Address
-import babymed.services.users.domain.types.FirstName
-import babymed.services.users.domain.types.LastName
-import babymed.services.users.domain.types.RegionId
-import babymed.services.users.domain.types.TownId
+import babymed.services.users.domain.types._
 
 @derive(encoder, decoder)
 case class PatientFilters(
@@ -23,7 +19,7 @@ case class PatientFilters(
     patientFirstName: Option[FirstName] = None,
     patientLastName: Option[LastName] = None,
     regionId: Option[RegionId] = None,
-    townId: Option[TownId] = None,
+    cityId: Option[CityId] = None,
     address: Option[Address] = None,
     birthday: Option[LocalDate] = None,
     phone: Option[Phone] = None,

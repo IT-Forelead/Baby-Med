@@ -15,9 +15,9 @@ import tsec.passwordhashers.jca.SCrypt
 import babymed.domain.Role.Doctor
 import babymed.services.users.domain.CreatePatient
 import babymed.services.users.domain.CreateUser
+import babymed.services.users.domain.types.CityId
 import babymed.services.users.domain.types.PatientId
 import babymed.services.users.domain.types.RegionId
-import babymed.services.users.domain.types.TownId
 import babymed.services.users.domain.types.UserId
 import babymed.services.users.generators.PatientGenerators
 import babymed.services.users.generators.UserGenerators
@@ -42,18 +42,18 @@ object data extends PatientVisitGenerators with UserGenerators with PatientGener
     val id2: RegionId = RegionId(UUID.fromString("3b316182-e55c-4e03-8811-052fcd888236"))
   }
 
-  object towns {
-    val id1: TownId = TownId(UUID.fromString("0d073b76-08ce-4b78-a88c-a0cb6f80eaf9"))
-    val id2: TownId = TownId(UUID.fromString("b272f8fe-e0a1-4157-903f-91d1b22b6770"))
+  object cities {
+    val id1: CityId = CityId(UUID.fromString("0d073b76-08ce-4b78-a88c-a0cb6f80eaf9"))
+    val id2: CityId = CityId(UUID.fromString("b272f8fe-e0a1-4157-903f-91d1b22b6770"))
   }
 
   object patient {
     val id1: PatientId = patientIdGen.get
     val id2: PatientId = patientIdGen.get
     val id3: PatientId = patientIdGen.get
-    val data1: CreatePatient = createPatientGen(regions.id2.some, towns.id2.some)
-    val data2: CreatePatient = createPatientGen(regions.id2.some, towns.id2.some)
-    val data3: CreatePatient = createPatientGen(regions.id2.some, towns.id2.some)
+    val data1: CreatePatient = createPatientGen(regions.id2.some, cities.id2.some)
+    val data2: CreatePatient = createPatientGen(regions.id2.some, cities.id2.some)
+    val data3: CreatePatient = createPatientGen(regions.id2.some, cities.id2.some)
     val values: Map[PatientId, CreatePatient] = Map(id1 -> data1, id2 -> data2, id3 -> data3)
   }
 
@@ -61,9 +61,9 @@ object data extends PatientVisitGenerators with UserGenerators with PatientGener
     val id1: UserId = userIdGen.get
     val id2: UserId = userIdGen.get
     val id3: UserId = userIdGen.get
-    val data1: CreateUser = createUserGen.get.copy(role = Doctor)
-    val data2: CreateUser = createUserGen.get.copy(role = Doctor)
-    val data3: CreateUser = createUserGen.get.copy(role = Doctor)
+    val data1: CreateUser = createUserGen().get.copy(role = Doctor)
+    val data2: CreateUser = createUserGen().get.copy(role = Doctor)
+    val data3: CreateUser = createUserGen().get.copy(role = Doctor)
     val values: Map[UserId, CreateUser] = Map(id1 -> data1, id2 -> data2, id3 -> data3)
   }
 

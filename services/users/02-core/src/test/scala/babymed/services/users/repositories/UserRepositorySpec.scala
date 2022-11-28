@@ -21,7 +21,7 @@ object UserRepositorySpec extends DBSuite with UserGenerators {
 
   override def beforeAll(implicit res: Res): IO[Unit] = data.setup
   test("Create User") { implicit postgres =>
-    val createUser = createUserGen.get
+    val createUser = createUserGen(data.subRoles.id1.some).get
     UsersRepository
       .make[F]
       .validationAndCreate(createUser, sendPassword(createUser.phone))
@@ -35,7 +35,7 @@ object UserRepositorySpec extends DBSuite with UserGenerators {
 
   test("Find User by Phone") { implicit postgres =>
     val repo = UsersRepository.make[IO]
-    val createUser = createUserGen.get
+    val createUser = createUserGen(data.subRoles.id2.some).get
     repo.validationAndCreate(createUser, sendPassword(createUser.phone)) >>
       repo
         .findByPhone(createUser.phone)
@@ -92,7 +92,7 @@ object UserRepositorySpec extends DBSuite with UserGenerators {
 
   test("Delete User") { implicit postgres =>
     val repo = UsersRepository.make[IO]
-    val create = createUserGen.get
+    val create = createUserGen(data.subRoles.id1.some).get
     for {
       createUser <- repo.validationAndCreate(create, sendPassword(create.phone))
       _ <- repo.delete(createUser.id)
@@ -102,8 +102,8 @@ object UserRepositorySpec extends DBSuite with UserGenerators {
 
   test("Edit User") { implicit postgres =>
     val repo = UsersRepository.make[IO]
-    val create = createUserGen.get
-    val editUser = editUserGen.get
+    val create = createUserGen(data.subRoles.id1.some).get
+    val editUser = editUserGen(data.subRoles.id2.some).get
     for {
       createUser <- repo.validationAndCreate(create, sendPassword(create.phone))
       _ <- repo.validationAndEdit(editUser.copy(id = createUser.id))

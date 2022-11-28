@@ -15,6 +15,10 @@ package object sql {
   def identity[A: IsUUID]: Codec[A] = uuid.imap[A](IsUUID[A].uuid.get)(IsUUID[A].uuid.apply)
 
   val nes: Codec[NonEmptyString] = varchar.imap[NonEmptyString](NonEmptyString.unsafeFrom)(_.value)
+  val patientId: Codec[PatientId] = identity[PatientId]
+  val regionId: Codec[RegionId] = identity[RegionId]
+  val cityId: Codec[CityId] = identity[CityId]
+  val subRoleId: Codec[SubRoleId] = identity[SubRoleId]
   val firstName: Codec[FirstName] = nes.imap[FirstName](FirstName.apply)(_.value)
   val lastName: Codec[LastName] = nes.imap[LastName](LastName.apply)(_.value)
   val address: Codec[Address] = nes.imap[Address](Address.apply)(_.value)
@@ -23,5 +27,5 @@ package object sql {
   val role: Codec[Role] =
     varchar.eimap[Role](str => Role.values.find(_.value == str).toRight("type not found "))(_.value)
   val regionName: Codec[RegionName] = nes.imap[RegionName](RegionName.apply)(_.value)
-  val townName: Codec[TownName] = nes.imap[TownName](TownName.apply)(_.value)
+  val cityName: Codec[CityName] = nes.imap[CityName](CityName.apply)(_.value)
 }

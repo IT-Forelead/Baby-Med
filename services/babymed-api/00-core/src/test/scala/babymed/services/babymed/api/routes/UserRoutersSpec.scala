@@ -47,8 +47,8 @@ object UserRoutersSpec extends HttpSuite with UserGenerators {
 
   lazy val total: Long = Gen.long.get
   lazy val user: User = userGen.get
-  lazy val editUser: EditUser = editUserGen.get
-  lazy val createUser: CreateUser = createUserGen.get
+  lazy val editUser: EditUser = editUserGen().get
+  lazy val createUser: CreateUser = createUserGen().get
   lazy val credentials: Credentials =
     Credentials(phoneGen.get, NonEmptyString.unsafeFrom(nonEmptyStringGen(8).get))
 

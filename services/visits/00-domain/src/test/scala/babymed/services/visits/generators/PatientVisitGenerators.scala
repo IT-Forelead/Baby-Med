@@ -48,6 +48,6 @@ trait PatientVisitGenerators
       user <- userGen
       service <- serviceGen
       region <- regionGen
-      town <- townGen
-    } yield PatientVisitInfo(patientVisit, patient, user, service, region, town)
+      city <- cityGen
+    } yield PatientVisitInfo(patientVisit, patient, user, service, region, city)
 }

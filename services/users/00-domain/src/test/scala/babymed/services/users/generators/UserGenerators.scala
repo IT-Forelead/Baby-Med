@@ -7,6 +7,7 @@ import babymed.services.users.domain.CreateUser
 import babymed.services.users.domain.EditUser
 import babymed.services.users.domain.User
 import babymed.services.users.domain.UserAndHash
+import babymed.services.users.domain.types.SubRoleId
 
 trait UserGenerators extends TypeGen {
   val userGen: Gen[User] =
@@ -17,15 +18,19 @@ trait UserGenerators extends TypeGen {
       lastname <- lastNameGen
       role <- roleGen
       phone <- phoneGen
-    } yield User(id, createdAt, firstname, lastname, phone, role)
+      subRoleId <- subRoleIdGen.opt
+    } yield User(id, createdAt, firstname, lastname, phone, role, subRoleId)
 
-  val createUserGen: Gen[CreateUser] =
+  def createUserGen(
+      maybeSubRoleId: Option[SubRoleId] = None
+    ): Gen[CreateUser] =
     for {
       firstname <- firstNameGen
       lastname <- lastNameGen
       role <- roleGen
       phone <- phoneGen
-    } yield CreateUser(firstname, lastname, phone, role)
+      subRoleId <- subRoleIdGen.opt
+    } yield CreateUser(firstname, lastname, phone, role, maybeSubRoleId.orElse(subRoleId))
 
   val userAndHashGen: Gen[UserAndHash] =
     for {
@@ -33,12 +38,15 @@ trait UserGenerators extends TypeGen {
       password <- passwordGen
     } yield UserAndHash(user, SCrypt.hashpwUnsafe(password.value))
 
-  val editUserGen: Gen[EditUser] =
+  def editUserGen(
+      maybeSubRoleId: Option[SubRoleId] = None
+    ): Gen[EditUser] =
     for {
       id <- userIdGen
       firstname <- firstNameGen
       lastname <- lastNameGen
       phone <- phoneGen
       role <- roleGen
-    } yield EditUser(id, firstname, lastname, phone, role)
+      subRoleId <- subRoleIdGen.opt
+    } yield EditUser(id, firstname, lastname, phone, role, maybeSubRoleId.orElse(subRoleId))
 }

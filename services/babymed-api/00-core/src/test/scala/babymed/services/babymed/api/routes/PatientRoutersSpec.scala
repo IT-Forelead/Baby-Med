@@ -52,7 +52,7 @@ object PatientRoutersSpec extends HttpSuite with PatientGenerators with UserGene
   lazy val patient: Patient = patientGen.get
   lazy val patientWithAddress: PatientWithAddress = patientWithAddressGen.get
   lazy val region: Region = regionGen.get
-  lazy val town: Town = townGen.get
+  lazy val city: City = cityGen.get
   lazy val total: Long = Gen.long.get
 
   def users(role: Role): Users[F] = new Users[F] {
@@ -77,8 +77,8 @@ object PatientRoutersSpec extends HttpSuite with PatientGenerators with UserGene
     override def getPatientById(patient: PatientId): F[Option[PatientWithAddress]] =
       Sync[F].delay(Option(patientWithAddress))
     override def getRegions: F[List[Region]] = Sync[F].delay(List(region))
-    override def getTownsByRegionId(regionId: RegionId): F[List[Town]] =
-      Sync[F].delay(List(town))
+    override def getCitiesByRegionId(regionId: RegionId): F[List[City]] =
+      Sync[F].delay(List(city))
   }
 
   def authedReq(
@@ -165,17 +165,17 @@ object PatientRoutersSpec extends HttpSuite with PatientGenerators with UserGene
     }
   }
 
-  test("Get Towns by RegionId") {
+  test("Get Cities by RegionId") {
     authedReq() { token =>
       GET(
         Uri
-          .unsafeFromString(s"/patient/towns/${regionIdGen.get}")
+          .unsafeFromString(s"/patient/cities/${regionIdGen.get}")
           .withQueryParam("x-token", token.value)
       )
     } {
       case request -> security =>
         expectHttpBodyAndStatus(PatientRouters[F](security, patients).routes, request)(
-          List(town),
+          List(city),
           Status.Ok,
         )
     }

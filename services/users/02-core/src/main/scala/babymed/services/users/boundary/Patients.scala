@@ -4,12 +4,12 @@ import cats.Monad
 import cats.implicits._
 
 import babymed.domain.ResponseData
+import babymed.services.users.domain.City
 import babymed.services.users.domain.CreatePatient
 import babymed.services.users.domain.Patient
 import babymed.services.users.domain.PatientFilters
 import babymed.services.users.domain.PatientWithAddress
 import babymed.services.users.domain.Region
-import babymed.services.users.domain.Town
 import babymed.services.users.domain.types.PatientId
 import babymed.services.users.domain.types.RegionId
 import babymed.services.users.proto
@@ -29,6 +29,6 @@ class Patients[F[_]: Monad](patientsRepository: PatientsRepository[F]) extends p
     patientsRepository.getTotal(filters)
   override def getRegions: F[List[Region]] =
     patientsRepository.getRegions
-  override def getTownsByRegionId(regionId: RegionId): F[List[Town]] =
-    patientsRepository.getTownsByRegionId(regionId)
+  override def getCitiesByRegionId(regionId: RegionId): F[List[City]] =
+    patientsRepository.getCitiesByRegionId(regionId)
 }

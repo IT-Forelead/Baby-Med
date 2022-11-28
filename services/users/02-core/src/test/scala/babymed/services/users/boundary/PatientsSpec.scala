@@ -3,12 +3,12 @@ package babymed.services.users.boundary
 import cats.effect.kernel.Sync
 import org.scalacheck.Gen
 
+import babymed.services.users.domain.City
 import babymed.services.users.domain.CreatePatient
 import babymed.services.users.domain.Patient
 import babymed.services.users.domain.PatientFilters
 import babymed.services.users.domain.PatientWithAddress
 import babymed.services.users.domain.Region
-import babymed.services.users.domain.Town
 import babymed.services.users.domain.types
 import babymed.services.users.domain.types.PatientId
 import babymed.services.users.generators.PatientGenerators
@@ -32,8 +32,8 @@ object PatientsSpec extends TestSuite with PatientGenerators {
     override def getRegions: F[List[Region]] =
       Sync[F].delay(List(regionGen.get))
 
-    override def getTownsByRegionId(regionId: types.RegionId): F[List[Town]] =
-      Sync[F].delay(List(townGen.get))
+    override def getCitiesByRegionId(regionId: types.RegionId): F[List[City]] =
+      Sync[F].delay(List(cityGen.get))
   }
 
   val patients: Patients[F] = new Patients[F](patientRepo)
@@ -93,9 +93,9 @@ object PatientsSpec extends TestSuite with PatientGenerators {
       }
   }
 
-  loggedTest("Get Towns by RegionId") { logger =>
+  loggedTest("Get Cities by RegionId") { logger =>
     patients
-      .getTownsByRegionId(regionIdGen.get)
+      .getCitiesByRegionId(regionIdGen.get)
       .as(success)
       .handleErrorWith { error =>
         logger

@@ -51,7 +51,7 @@ object UsersSpec extends TestSuite with UserGenerators {
 
   loggedTest("Create User") { logger =>
     users
-      .validationAndCreate(createUserGen.get)
+      .validationAndCreate(createUserGen().get)
       .as(success)
       .handleErrorWith { error =>
         logger
@@ -62,7 +62,7 @@ object UsersSpec extends TestSuite with UserGenerators {
 
   loggedTest("Edit User") { logger =>
     users
-      .validationAndEdit(editUserGen.get)
+      .validationAndEdit(editUserGen().get)
       .as(success)
       .handleErrorWith { error =>
         logger

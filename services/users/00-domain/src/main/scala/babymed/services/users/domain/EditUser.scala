@@ -16,4 +16,5 @@ case class EditUser(
     lastname: LastName,
     phone: Phone,
     role: Role,
+    subRoleId: Option[SubRoleId] = None,
   )

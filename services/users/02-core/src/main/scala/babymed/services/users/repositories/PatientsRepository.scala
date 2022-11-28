@@ -13,12 +13,12 @@ import babymed.domain.ID
 import babymed.effects.Calendar
 import babymed.effects.GenUUID
 import babymed.exception.PatientError
+import babymed.services.users.domain.City
 import babymed.services.users.domain.CreatePatient
 import babymed.services.users.domain.Patient
 import babymed.services.users.domain.PatientFilters
 import babymed.services.users.domain.PatientWithAddress
 import babymed.services.users.domain.Region
-import babymed.services.users.domain.Town
 import babymed.services.users.domain.types.PatientId
 import babymed.services.users.domain.types.RegionId
 import babymed.services.users.repositories.sql.PatientsSql
@@ -30,7 +30,7 @@ trait PatientsRepository[F[_]] {
   def get(filters: PatientFilters): F[List[PatientWithAddress]]
   def getTotal(filters: PatientFilters): F[Long]
   def getRegions: F[List[Region]]
-  def getTownsByRegionId(regionId: RegionId): F[List[Town]]
+  def getCitiesByRegionId(regionId: RegionId): F[List[City]]
 }
 
 object PatientsRepository {
@@ -69,7 +69,7 @@ object PatientsRepository {
     override def getRegions: F[List[Region]] =
       PatientsSql.selectRegions.queryList(Void)
 
-    override def getTownsByRegionId(regionId: RegionId): F[List[Town]] =
-      PatientsSql.selectTownsByRegionId.queryList(regionId)
+    override def getCitiesByRegionId(regionId: RegionId): F[List[City]] =
+      PatientsSql.selectCitiesByRegionId.queryList(regionId)
   }
 }

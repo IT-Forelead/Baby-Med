@@ -513,6 +513,21 @@ CREATE TABLE IF NOT EXISTS sub_roles
     deleted     BOOLEAN NOT NULL DEFAULT false
 );
 
+INSERT INTO "sub_roles" ("id", "name")
+VALUES ('c64c197f-b3d5-47c4-b522-b8a776e51aea', 'Akusher ginekolog');
+INSERT INTO "sub_roles" ("id", "name")
+VALUES ('7a295adf-a0ca-44e9-aa61-1e6a5f41dff9', 'Assisent ginekolog');
+INSERT INTO "sub_roles" ("id", "name")
+VALUES ('49b6e573-00e9-4bb6-914a-0d1c9649a8b1', 'Pediatr');
+INSERT INTO "sub_roles" ("id", "name")
+VALUES ('4400461f-d7d1-4036-b636-5cd5780754f4', 'Anesteziolog');
+INSERT INTO "sub_roles" ("id", "name")
+VALUES ('950839f0-b7d1-4b81-b066-021bbce9237b', 'Akusherka');
+INSERT INTO "sub_roles" ("id", "name")
+VALUES ('2485541d-d98f-42c0-bbce-85a0cb403853', 'Hamshira');
+INSERT INTO "sub_roles" ("id", "name")
+VALUES ('b4e86798-b606-4da9-9f66-077e1291487d', 'Sanetarka');
+
 CREATE TABLE IF NOT EXISTS users
 (
     id         UUID PRIMARY KEY,
@@ -521,7 +536,7 @@ CREATE TABLE IF NOT EXISTS users
     lastname   VARCHAR   NOT NULL,
     phone      VARCHAR   NOT NULL UNIQUE,
     role       VARCHAR   NOT NULL
-        CONSTRAINT fk_role REFERENCES role (name) ON UPDATE CASCADE ON DELETE NO ACTION NOT NULL,
+        CONSTRAINT fk_role REFERENCES roles (name) ON UPDATE CASCADE ON DELETE NO ACTION NOT NULL,
     sub_role_id    UUID  NULL
         CONSTRAINT fk_sub_role_id REFERENCES sub_roles (id) ON UPDATE CASCADE ON DELETE NO ACTION,
     password   VARCHAR   NOT NULL
@@ -537,6 +552,8 @@ CREATE TABLE IF NOT EXISTS patients
     created_at TIMESTAMP NOT NULL,
     firstname  VARCHAR   NOT NULL,
     lastname   VARCHAR   NOT NULL,
+    region_id  UUID      NOT NULL
+        CONSTRAINT fk_region_id REFERENCES regions (id) ON UPDATE CASCADE ON DELETE NO ACTION,
     city_id    UUID      NOT NULL
         CONSTRAINT fk_city_id REFERENCES cities (id) ON UPDATE CASCADE ON DELETE NO ACTION,
     address    VARCHAR   NULL,
@@ -571,7 +588,7 @@ CREATE TABLE IF NOT EXISTS visits
     service_id          UUID      NOT NULL
         CONSTRAINT fk_service_id REFERENCES services (id) ON UPDATE CASCADE ON DELETE NO ACTION,
     payment_status      VARCHAR   NOT NULL
-        CONSTRAINT fk_payment_status REFERENCES payment_status (name) ON UPDATE CASCADE ON DELETE NO ACTION DEFAULT 'not_paid',
+        CONSTRAINT fk_payment_status REFERENCES payment_statuses (name) ON UPDATE CASCADE ON DELETE NO ACTION DEFAULT 'not_paid',
     deleted             BOOLEAN   NOT NULL DEFAULT false
 );
 

@@ -22,7 +22,9 @@ object types {
   @derive(decoder, encoder, eqv, show, uuid)
   @newtype case class RegionId(value: UUID)
   @derive(decoder, encoder, eqv, show, uuid)
-  @newtype case class TownId(value: UUID)
+  @newtype case class CityId(value: UUID)
+  @derive(decoder, encoder, eqv, show, uuid)
+  @newtype case class SubRoleId(value: UUID)
   @derive(decoder, encoder, eqv)
   @newtype case class FirstName(value: NonEmptyString)
   @derive(decoder, encoder, eqv)
@@ -32,5 +34,5 @@ object types {
   @derive(decoder, encoder, eqv)
   @newtype case class RegionName(value: NonEmptyString)
   @derive(decoder, encoder, eqv)
-  @newtype case class TownName(value: NonEmptyString)
+  @newtype case class CityName(value: NonEmptyString)
 }
