@@ -537,8 +537,6 @@ CREATE TABLE IF NOT EXISTS patients
     created_at TIMESTAMP NOT NULL,
     firstname  VARCHAR   NOT NULL,
     lastname   VARCHAR   NOT NULL,
-    region_id  UUID      NOT NULL
-        CONSTRAINT fk_region_id REFERENCES regions (id) ON UPDATE CASCADE ON DELETE NO ACTION,
     city_id    UUID      NOT NULL
         CONSTRAINT fk_city_id REFERENCES cities (id) ON UPDATE CASCADE ON DELETE NO ACTION,
     address    VARCHAR   NULL,
