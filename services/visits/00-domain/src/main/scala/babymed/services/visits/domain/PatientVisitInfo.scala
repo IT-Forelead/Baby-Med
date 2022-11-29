@@ -13,7 +13,6 @@ import babymed.services.users.domain.User
 case class PatientVisitInfo(
     patientVisit: PatientVisit,
     patient: Patient,
-    user: User,
     service: Service,
     region: Region,
     town: City,

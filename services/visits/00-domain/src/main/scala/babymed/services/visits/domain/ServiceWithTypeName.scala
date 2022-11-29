@@ -5,14 +5,13 @@ import derevo.circe.magnolia.encoder
 import derevo.derive
 import squants.Money
 
-import babymed.services.visits.domain.types.ServiceId
-import babymed.services.visits.domain.types.ServiceName
-import babymed.services.visits.domain.types.ServiceTypeId
+import babymed.services.visits.domain.types._
 
 @derive(decoder, encoder)
-case class EditService(
+case class ServiceWithTypeName(
     id: ServiceId,
     serviceTypeId: ServiceTypeId,
     name: ServiceName,
     price: Money,
+    serviceTypeName: ServiceTypeName,
   )

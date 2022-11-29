@@ -4,15 +4,11 @@ import eu.timepit.refined.types.string.NonEmptyString
 import skunk._
 import skunk.codec.all._
 import squants.Money
-
 import babymed.domain.PaymentStatus
 import babymed.domain.Role
 import babymed.effects.IsUUID
 import babymed.services.users.domain.types._
-import babymed.services.visits.domain.types.PatientVisitId
-import babymed.services.visits.domain.types.ServiceId
-import babymed.services.visits.domain.types.ServiceName
-import babymed.services.visits.domain.types.UZS
+import babymed.services.visits.domain.types.{PatientVisitId, ServiceId, ServiceName, ServiceTypeId, ServiceTypeName, UZS}
 
 package object sql {
   def identity[A: IsUUID]: Codec[A] = uuid.imap[A](IsUUID[A].uuid.get)(IsUUID[A].uuid.apply)
@@ -22,10 +18,12 @@ package object sql {
   val userId: Codec[UserId] = identity[UserId]
   val patientId: Codec[PatientId] = identity[PatientId]
   val serviceId: Codec[ServiceId] = identity[ServiceId]
+  val serviceTypeId: Codec[ServiceTypeId] = identity[ServiceTypeId]
   val regionId: Codec[RegionId] = identity[RegionId]
   val townId: Codec[CityId] = identity[CityId]
   val serviceName: Codec[ServiceName] = nes.imap[ServiceName](ServiceName.apply)(_.value)
-  val cost: Codec[Money] = numeric.imap[Money](money => UZS(money))(_.amount)
+  val serviceTypeName: Codec[ServiceTypeName] = nes.imap[ServiceTypeName](ServiceTypeName.apply)(_.value)
+  val price: Codec[Money] = numeric.imap[Money](money => UZS(money))(_.amount)
   val paymentStatus: Codec[PaymentStatus] =
     varchar.eimap[PaymentStatus](str =>
       PaymentStatus.values.find(_.value == str).toRight("type not found ")

@@ -22,6 +22,10 @@ object types {
   @newtype case class PatientVisitId(value: UUID)
   @derive(decoder, encoder, eqv, show, uuid)
   @newtype case class ServiceId(value: UUID)
+  @derive(decoder, encoder, eqv, show, uuid)
+  @newtype case class ServiceTypeId(value: UUID)
   @derive(decoder, encoder, eqv)
   @newtype case class ServiceName(value: NonEmptyString)
+  @derive(decoder, encoder, eqv)
+  @newtype case class ServiceTypeName(value: NonEmptyString)
 }

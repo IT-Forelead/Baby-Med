@@ -18,7 +18,6 @@ case class PatientVisitFilters(
     startDate: Option[LocalDateTime] = None,
     endDate: Option[LocalDateTime] = None,
     patientId: Option[PatientId] = None,
-    userId: Option[UserId] = None,
     serviceId: Option[ServiceId] = None,
     paymentStatus: Option[PaymentStatus] = None,
     page: Option[NonNegInt] = None,

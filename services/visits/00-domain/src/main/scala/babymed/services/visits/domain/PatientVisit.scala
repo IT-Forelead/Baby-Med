@@ -8,7 +8,6 @@ import derevo.derive
 
 import babymed.domain.PaymentStatus
 import babymed.services.users.domain.types.PatientId
-import babymed.services.users.domain.types.UserId
 import babymed.services.visits.domain.types.PatientVisitId
 import babymed.services.visits.domain.types.ServiceId
 
@@ -17,7 +16,6 @@ case class PatientVisit(
     id: PatientVisitId,
     createdAt: LocalDateTime,
     patientId: PatientId,
-    userId: UserId,
     serviceId: ServiceId,
     paymentStatus: PaymentStatus,
   )
