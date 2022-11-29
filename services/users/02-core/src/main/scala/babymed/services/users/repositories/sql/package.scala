@@ -15,6 +15,7 @@ package object sql {
   def identity[A: IsUUID]: Codec[A] = uuid.imap[A](IsUUID[A].uuid.get)(IsUUID[A].uuid.apply)
 
   val nes: Codec[NonEmptyString] = varchar.imap[NonEmptyString](NonEmptyString.unsafeFrom)(_.value)
+  val userId: Codec[UserId] = identity[UserId]
   val patientId: Codec[PatientId] = identity[PatientId]
   val regionId: Codec[RegionId] = identity[RegionId]
   val cityId: Codec[CityId] = identity[CityId]

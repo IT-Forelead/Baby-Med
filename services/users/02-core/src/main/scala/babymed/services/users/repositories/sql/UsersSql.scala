@@ -20,19 +20,17 @@ import babymed.support.skunk.codecs.phone
 import babymed.support.skunk.syntax.all.skunkSyntaxFragmentOps
 
 object UsersSql {
-  val userId: Codec[UserId] = identity[UserId]
-
   private val Columns =
-    userId ~ timestamp ~ firstName ~ lastName ~ phone ~ role ~ subRoleId.opt ~ passwordHash
+    userId ~ timestamp ~ firstName ~ lastName ~ phone ~ role ~ subRoleId.opt ~ passwordHash ~ bool
 
   val encoder: Encoder[UserId ~ LocalDateTime ~ CreateUser ~ PasswordHash[SCrypt]] =
     Columns.contramap {
       case id ~ createdAt ~ cu ~ password =>
-        id ~ createdAt ~ cu.firstname ~ cu.lastname ~ cu.phone ~ cu.role ~ cu.subRoleId ~ password
+        id ~ createdAt ~ cu.firstname ~ cu.lastname ~ cu.phone ~ cu.role ~ cu.subRoleId ~ password ~ false
     }
 
   val decoderUserAndHash: Decoder[UserAndHash] = Columns.map {
-    case id ~ createdAt ~ firstName ~ lastName ~ phone ~ role ~ subRoleId ~ password =>
+    case id ~ createdAt ~ firstName ~ lastName ~ phone ~ role ~ subRoleId ~ password ~ _ =>
       UserAndHash(
         user = User(id, createdAt, firstName, lastName, phone, role, subRoleId),
         password = password,
@@ -40,7 +38,7 @@ object UsersSql {
   }
 
   val decoder: Decoder[User] = Columns.map {
-    case id ~ createdAt ~ firstName ~ lastName ~ phone ~ role ~ subRoleId ~ _ =>
+    case id ~ createdAt ~ firstName ~ lastName ~ phone ~ role ~ subRoleId ~ _ ~ _ =>
       User(id, createdAt, firstName, lastName, phone, role, subRoleId)
   }
 
@@ -58,20 +56,20 @@ object UsersSql {
     )
 
   def select(filters: UserFilters): AppliedFragment = {
-    val baseQuery: Fragment[Void] = sql"""SELECT * FROM users"""
-    baseQuery(Void).whereAndOpt(userFilters(filters): _*)
+    val baseQuery: Fragment[Void] = sql"""SELECT * FROM users WHERE deleted = false"""
+    baseQuery(Void).andOpt(userFilters(filters): _*)
   }
 
   def total(filters: UserFilters): AppliedFragment = {
-    val baseQuery: Fragment[Void] = sql"""SELECT count(*) FROM users"""
-    baseQuery(Void).whereAndOpt(userFilters(filters): _*)
+    val baseQuery: Fragment[Void] = sql"""SELECT count(*) FROM users WHERE deleted = false"""
+    baseQuery(Void).andOpt(userFilters(filters): _*)
   }
 
   val insert: Query[UserId ~ LocalDateTime ~ CreateUser ~ PasswordHash[SCrypt], User] =
     sql"""INSERT INTO users VALUES ($encoder) RETURNING *""".query(decoder)
 
   val selectByPhone: Query[Phone, UserAndHash] =
-    sql"""SELECT * FROM users WHERE phone = $phone""".query(decoderUserAndHash)
+    sql"""SELECT * FROM users WHERE phone = $phone  AND deleted = false""".query(decoderUserAndHash)
 
   val selectOldUser: Query[Phone, UserId] =
     sql"""SELECT id FROM users WHERE phone = $phone""".query(userId)
@@ -85,7 +83,7 @@ object UsersSql {
       }
 
   val deleteUserSql: Command[UserId] =
-    sql"""DELETE FROM users WHERE id = $userId""".command
+    sql"""UPDATE users SET deleted = true WHERE id = $userId""".command
 
   val selectSubRoles: Query[Void, SubRole] =
     sql"""SELECT * FROM sub_roles WHERE deleted = false""".query(decSubRole)

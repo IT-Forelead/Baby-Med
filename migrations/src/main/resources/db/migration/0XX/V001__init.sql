@@ -540,7 +540,8 @@ CREATE TABLE IF NOT EXISTS users
         CONSTRAINT fk_role REFERENCES roles (name) ON UPDATE CASCADE ON DELETE NO ACTION NOT NULL,
     sub_role_id UUID      NULL
         CONSTRAINT fk_sub_role_id REFERENCES sub_roles (id) ON UPDATE CASCADE ON DELETE NO ACTION,
-    password    VARCHAR   NOT NULL
+    password    VARCHAR   NOT NULL,
+    deleted     BOOLEAN   NOT NULL DEFAULT false
 );
 
 INSERT INTO "users" ("id", "created_at", "firstname", "lastname", "phone", "role", "password")
