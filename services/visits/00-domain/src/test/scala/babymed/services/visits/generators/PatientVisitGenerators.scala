@@ -3,9 +3,7 @@ package babymed.services.visits.generators
 import org.scalacheck.Gen
 
 import babymed.services.users.domain.types.PatientId
-import babymed.services.users.domain.types.UserId
 import babymed.services.users.generators.PatientGenerators
-import babymed.services.users.generators.UserGenerators
 import babymed.services.visits.domain.CreatePatientVisit
 import babymed.services.visits.domain.PatientVisit
 import babymed.services.visits.domain.PatientVisitInfo
@@ -13,7 +11,6 @@ import babymed.services.visits.domain.types.ServiceId
 
 trait PatientVisitGenerators
     extends TypeGen
-       with UserGenerators
        with ServiceGenerators
        with PatientGenerators {
   lazy val patientVisitGen: Gen[PatientVisit] =
@@ -41,7 +38,7 @@ trait PatientVisitGenerators
     for {
       patientVisit <- patientVisitGen
       patient <- patientGen
-      service <- serviceGen
+      service <- serviceWithTypeNameGen
       region <- regionGen
       city <- cityGen
     } yield PatientVisitInfo(patientVisit, patient, service, region, city)

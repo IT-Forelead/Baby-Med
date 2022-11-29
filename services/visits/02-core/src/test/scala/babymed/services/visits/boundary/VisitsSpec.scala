@@ -26,7 +26,7 @@ object VisitsSpec extends TestSuite with PatientVisitGenerators {
   }
 
   val visits: Visits[F] = new Visits[F](visitRepo)
-  val createService: CreateService = createServiceGen.get
+  val createService: CreateService = createServiceGen().get
 
   loggedTest("Create Patient Visit") { logger =>
     visits

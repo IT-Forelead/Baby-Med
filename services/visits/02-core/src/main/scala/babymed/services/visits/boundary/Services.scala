@@ -1,8 +1,14 @@
 package babymed.services.visits.boundary
 
 import cats.Monad
-import babymed.services.visits.domain.{CreateService, EditService, Service, ServiceType}
-import babymed.services.visits.domain.types.{ServiceId, ServiceTypeId, ServiceTypeName}
+
+import babymed.services.visits.domain.CreateService
+import babymed.services.visits.domain.EditService
+import babymed.services.visits.domain.Service
+import babymed.services.visits.domain.ServiceType
+import babymed.services.visits.domain.types.ServiceId
+import babymed.services.visits.domain.types.ServiceTypeId
+import babymed.services.visits.domain.types.ServiceTypeName
 import babymed.services.visits.proto
 import babymed.services.visits.repositories.ServicesRepository
 

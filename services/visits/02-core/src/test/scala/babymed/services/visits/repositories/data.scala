@@ -2,7 +2,6 @@ package babymed.services.visits.repositories
 
 import java.time.LocalDateTime
 import java.util.UUID
-
 import cats.effect.IO
 import cats.effect.Resource
 import cats.implicits.catsSyntaxOptionId
@@ -11,7 +10,6 @@ import org.scalacheck.Gen
 import skunk.Session
 import skunk.implicits.toIdOps
 import tsec.passwordhashers.jca.SCrypt
-
 import babymed.domain.Role.Doctor
 import babymed.services.users.domain.CreatePatient
 import babymed.services.users.domain.CreateUser
@@ -25,8 +23,7 @@ import babymed.services.users.repositories.sql.PatientsSql
 import babymed.services.users.repositories.sql.UsersSql
 import babymed.services.visits.domain.CreatePatientVisit
 import babymed.services.visits.domain.CreateService
-import babymed.services.visits.domain.types.PatientVisitId
-import babymed.services.visits.domain.types.ServiceId
+import babymed.services.visits.domain.types.{PatientVisitId, ServiceId, ServiceTypeId, ServiceTypeName}
 import babymed.services.visits.generators.PatientVisitGenerators
 import babymed.services.visits.repositories.sql.ServicesSql
 import babymed.services.visits.repositories.sql.VisitsSql
@@ -67,13 +64,23 @@ object data extends PatientVisitGenerators with UserGenerators with PatientGener
     val values: Map[UserId, CreateUser] = Map(id1 -> data1, id2 -> data2, id3 -> data3)
   }
 
+  object serviceType {
+    val id1: ServiceTypeId = serviceTypeIdGen.get
+    val id2: ServiceTypeId = serviceTypeIdGen.get
+    val id3: ServiceTypeId = serviceTypeIdGen.get
+    val data1: ServiceTypeName = serviceTypeNameGen.get
+    val data2: ServiceTypeName = serviceTypeNameGen.get
+    val data3: ServiceTypeName = serviceTypeNameGen.get
+    val values: Map[ServiceTypeId, ServiceTypeName] = Map(id1 -> data1, id2 -> data2, id3 -> data3)
+  }
+
   object service {
     val id1: ServiceId = serviceIdGen.get
     val id2: ServiceId = serviceIdGen.get
     val id3: ServiceId = serviceIdGen.get
-    val data1: CreateService = createServiceGen.get
-    val data2: CreateService = createServiceGen.get
-    val data3: CreateService = createServiceGen.get
+    val data1: CreateService = createServiceGen(data.serviceType.id1.some).get
+    val data2: CreateService = createServiceGen(data.serviceType.id2.some).get
+    val data3: CreateService = createServiceGen(data.serviceType.id3.some).get
     val values: Map[ServiceId, CreateService] = Map(id1 -> data1, id2 -> data2, id3 -> data3)
   }
 
@@ -92,7 +99,7 @@ object data extends PatientVisitGenerators with UserGenerators with PatientGener
   }
 
   def setup(implicit session: Resource[IO, Session[IO]]): IO[Unit] =
-    setupPatients *> setupUsers *> setupServices *> setupVisits
+    setupPatients *> setupUsers *> setupServiceTypes *> setupServices *> setupVisits
 
   private def setupPatients(implicit session: Resource[IO, Session[IO]]): IO[Unit] =
     patient.values.toList.traverse_ {
@@ -114,6 +121,12 @@ object data extends PatientVisitGenerators with UserGenerators with PatientGener
     service.values.toList.traverse_ {
       case id -> data =>
         ServicesSql.insertSql.queryUnique(id ~ data)
+    }
+
+  private def setupServiceTypes(implicit session: Resource[IO, Session[IO]]): IO[Unit] =
+    serviceType.values.toList.traverse_ {
+      case id -> data =>
+        ServicesSql.insertServiceTypeSql.queryUnique(id ~ data)
     }
 
   private def setupVisits(implicit session: Resource[IO, Session[IO]]): IO[Unit] =

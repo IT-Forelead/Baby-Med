@@ -40,7 +40,7 @@ object ServicesSql {
     sql"""INSERT INTO services VALUES ($encoder) RETURNING *""".query(decoder)
 
   val insertServiceTypeSql: Query[ServiceTypeId ~ ServiceTypeName, ServiceType] =
-    sql"""INSERT INTO service_types VALUES ($encoder) RETURNING *""".query(encServiceType)
+    sql"""INSERT INTO service_types VALUES ($encServiceType) RETURNING *""".query(decServiceType)
 
   val selectSql: Query[ServiceTypeId, Service] =
     sql"""SELECT * FROM services WHERE service_type_id = $serviceTypeId AND deleted = false ORDER BY name ASC"""
@@ -51,13 +51,13 @@ object ServicesSql {
       .query(decServiceType)
 
   val deleteServiceTypeSql: Command[ServiceTypeId] =
-    sql"""UPDATE services SET deleted = true WHERE id = $serviceId""".command
+    sql"""UPDATE service_types SET deleted = true WHERE id = $serviceTypeId""".command
 
   val updateSql: Command[EditService] =
-    sql"""UPDATE services SET name = $serviceName, cost = $cost WHERE id = $serviceId"""
+    sql"""UPDATE services SET name = $serviceName, cost = $price WHERE id = $serviceId"""
       .command
       .contramap { es: EditService =>
-        es.name ~ es.cost ~ es.id
+        es.name ~ es.price ~ es.id
       }
 
   val deleteSql: Command[ServiceId] =

@@ -8,7 +8,6 @@ import skunk.implicits._
 import babymed.services.users.domain.City
 import babymed.services.users.domain.Patient
 import babymed.services.users.domain.Region
-import babymed.services.users.domain.User
 import babymed.services.visits.domain.{CreatePatientVisit, PatientVisit, PatientVisitFilters, PatientVisitInfo, ServiceWithTypeName}
 import babymed.services.visits.domain.types.PatientVisitId
 import babymed.support.skunk.codecs.phone
@@ -18,7 +17,6 @@ object VisitsSql {
   private val Columns = patientVisitId ~ timestamp ~ patientId ~ serviceId ~ paymentStatus
   private val ColumnsWithoutPaymentStatus =
     patientVisitId ~ timestamp ~ patientId ~ serviceId
-  private val UserColumns = userId ~ timestamp ~ firstName ~ lastName ~ phone ~ role
   private val PatientColumns =
     patientId ~ timestamp ~ firstName ~ lastName ~ regionId ~ cityId ~ address.opt ~ date ~ phone
 
@@ -37,7 +35,6 @@ object VisitsSql {
     case id ~ createdAt ~ firstName ~ lastName ~ regionId ~ cityId ~ address ~ birthday ~ phone =>
       Patient(id, createdAt, firstName, lastName, regionId, cityId, address, birthday, phone)
   }
-
   val decRegion: Decoder[Region] = (regionId ~ regionName).map {
     case id ~ name =>
       Region(id, name)

@@ -7,7 +7,6 @@ import derevo.derive
 import babymed.services.users.domain.City
 import babymed.services.users.domain.Patient
 import babymed.services.users.domain.Region
-import babymed.services.users.domain.User
 
 @derive(encoder, decoder)
 case class PatientVisitInfo(

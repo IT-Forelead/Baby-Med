@@ -4,11 +4,17 @@ import cats.effect._
 import cats.implicits.toFlatMapOps
 import skunk._
 import skunk.implicits.toIdOps
+
 import babymed.domain.ID
 import babymed.effects.Calendar
 import babymed.effects.GenUUID
-import babymed.services.visits.domain.{CreateService, EditService, Service, ServiceType}
-import babymed.services.visits.domain.types.{ServiceId, ServiceTypeId, ServiceTypeName}
+import babymed.services.visits.domain.CreateService
+import babymed.services.visits.domain.EditService
+import babymed.services.visits.domain.Service
+import babymed.services.visits.domain.ServiceType
+import babymed.services.visits.domain.types.ServiceId
+import babymed.services.visits.domain.types.ServiceTypeId
+import babymed.services.visits.domain.types.ServiceTypeName
 import babymed.support.skunk.syntax.all._
 
 trait ServicesRepository[F[_]] {
