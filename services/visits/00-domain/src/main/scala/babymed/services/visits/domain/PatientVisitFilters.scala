@@ -10,7 +10,6 @@ import io.circe.refined._
 
 import babymed.domain.PaymentStatus
 import babymed.services.users.domain.types.PatientId
-import babymed.services.users.domain.types.UserId
 import babymed.services.visits.domain.types.ServiceId
 
 @derive(encoder, decoder)

@@ -9,10 +9,7 @@ import babymed.services.visits.domain.PatientVisit
 import babymed.services.visits.domain.PatientVisitInfo
 import babymed.services.visits.domain.types.ServiceId
 
-trait PatientVisitGenerators
-    extends TypeGen
-       with ServiceGenerators
-       with PatientGenerators {
+trait PatientVisitGenerators extends TypeGen with ServiceGenerators with PatientGenerators {
   lazy val patientVisitGen: Gen[PatientVisit] =
     for {
       id <- patientVisitIdGen
@@ -38,8 +35,8 @@ trait PatientVisitGenerators
     for {
       patientVisit <- patientVisitGen
       patient <- patientGen
-      service <- serviceWithTypeNameGen
+      serviceWithTypeName <- serviceWithTypeNameGen
       region <- regionGen
       city <- cityGen
-    } yield PatientVisitInfo(patientVisit, patient, service, region, city)
+    } yield PatientVisitInfo(patientVisit, patient, serviceWithTypeName, region, city)
 }

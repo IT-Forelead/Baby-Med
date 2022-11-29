@@ -60,14 +60,15 @@ object ServicesRepositorySpec extends DBSuite with ServiceGenerators {
       .map { s =>
         assert(s.name == create.name)
       }
-      .handleError {
-        fail("Test failed.")
+      .handleError { error =>
+        println("ERROR::::::::::::::::::: " + error)
+        failure("Test failed.")
       }
   }
 
   test("Get Services by TypeId") { implicit postgres =>
     val repo = ServicesRepository.make[F]
-    val create: CreateService = createServiceGen(data.serviceType.id1.some).get
+    val create: CreateService = createServiceGen().get
 
     repo.create(create) *>
       repo

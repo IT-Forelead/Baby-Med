@@ -103,7 +103,7 @@ object VisitRoutersSpec extends HttpSuite with PatientVisitGenerators with UserG
 
   test("Create patient visit with incorrect role") {
     authedReq(Doctor) { token =>
-      POST(createServiceGen.get, uri"/visit/create").bearer(
+      POST(createServiceGen().get, uri"/visit/create").bearer(
         NonEmptyString.unsafeFrom(token.value)
       )
     } {
