@@ -2,6 +2,7 @@ package babymed.services.visits.repositories
 
 import java.time.LocalDateTime
 import java.util.UUID
+
 import cats.effect.IO
 import cats.effect.Resource
 import cats.implicits.catsSyntaxOptionId
@@ -10,6 +11,7 @@ import org.scalacheck.Gen
 import skunk.Session
 import skunk.implicits.toIdOps
 import tsec.passwordhashers.jca.SCrypt
+
 import babymed.domain.Role.Doctor
 import babymed.services.users.domain.CreatePatient
 import babymed.services.users.domain.CreateUser
@@ -23,7 +25,10 @@ import babymed.services.users.repositories.sql.PatientsSql
 import babymed.services.users.repositories.sql.UsersSql
 import babymed.services.visits.domain.CreatePatientVisit
 import babymed.services.visits.domain.CreateService
-import babymed.services.visits.domain.types.{PatientVisitId, ServiceId, ServiceTypeId, ServiceTypeName}
+import babymed.services.visits.domain.types.PatientVisitId
+import babymed.services.visits.domain.types.ServiceId
+import babymed.services.visits.domain.types.ServiceTypeId
+import babymed.services.visits.domain.types.ServiceTypeName
 import babymed.services.visits.generators.PatientVisitGenerators
 import babymed.services.visits.repositories.sql.ServicesSql
 import babymed.services.visits.repositories.sql.VisitsSql
@@ -99,7 +104,7 @@ object data extends PatientVisitGenerators with UserGenerators with PatientGener
   }
 
   def setup(implicit session: Resource[IO, Session[IO]]): IO[Unit] =
-    setupPatients *> setupUsers *> setupServiceTypes *> setupServices *> setupVisits
+    setupPatients *> setupServiceTypes *> setupServices *> setupVisits
 
   private def setupPatients(implicit session: Resource[IO, Session[IO]]): IO[Unit] =
     patient.values.toList.traverse_ {

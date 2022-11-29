@@ -1,6 +1,8 @@
 package babymed.services.visits.repositories
 
+import cats.effect.IO
 import cats.implicits.catsSyntaxOptionId
+
 import babymed.services.visits.domain.CreateService
 import babymed.services.visits.domain.types.ServiceTypeName
 import babymed.services.visits.generators.ServiceGenerators
@@ -8,6 +10,7 @@ import babymed.support.database.DBSuite
 
 object ServicesRepositorySpec extends DBSuite with ServiceGenerators {
   override def schemaName: String = "public"
+  override def beforeAll(implicit session: Res): IO[Unit] = data.setup
 
   test("Create Service Type") { implicit postgres =>
     val typeName = serviceTypeNameGen.get
@@ -68,7 +71,7 @@ object ServicesRepositorySpec extends DBSuite with ServiceGenerators {
 
   test("Get Services by TypeId") { implicit postgres =>
     val repo = ServicesRepository.make[F]
-    val create: CreateService = createServiceGen().get
+    val create: CreateService = createServiceGen(data.serviceType.id1.some).get
 
     repo.create(create) *>
       repo

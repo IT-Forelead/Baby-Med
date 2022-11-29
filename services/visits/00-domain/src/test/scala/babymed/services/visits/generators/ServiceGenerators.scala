@@ -1,8 +1,10 @@
 package babymed.services.visits.generators
 
 import org.scalacheck.Gen
+
 import babymed.services.visits.domain._
-import babymed.services.visits.domain.types.{ServiceId, ServiceTypeId}
+import babymed.services.visits.domain.types.ServiceId
+import babymed.services.visits.domain.types.ServiceTypeId
 
 trait ServiceGenerators extends TypeGen {
   lazy val serviceGen: Gen[Service] =
@@ -29,8 +31,8 @@ trait ServiceGenerators extends TypeGen {
     } yield ServiceType(id, name)
 
   def createServiceGen(
-    maybeServiceTypeId: Option[ServiceTypeId] = None
-  ): Gen[CreateService] =
+      maybeServiceTypeId: Option[ServiceTypeId] = None
+    ): Gen[CreateService] =
     for {
       serviceTypeId <- serviceTypeIdGen
       name <- serviceNameGen

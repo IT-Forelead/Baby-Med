@@ -54,7 +54,7 @@ object ServicesSql {
     sql"""UPDATE service_types SET deleted = true WHERE id = $serviceTypeId""".command
 
   val updateSql: Command[EditService] =
-    sql"""UPDATE services SET name = $serviceName, cost = $price WHERE id = $serviceId"""
+    sql"""UPDATE services SET name = $serviceName, price = $price WHERE id = $serviceId"""
       .command
       .contramap { es: EditService =>
         es.name ~ es.price ~ es.id

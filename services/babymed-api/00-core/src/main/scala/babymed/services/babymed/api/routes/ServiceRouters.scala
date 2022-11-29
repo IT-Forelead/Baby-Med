@@ -31,7 +31,7 @@ final case class ServiceRouters[F[_]: Async: JsonDecoder](
         services.create(createService) *> NoContent()
       }
 
-    case GET -> Root / "report" / ServiceTypeIdVar(serviceTypeId)as _ =>
+    case GET -> Root / "report" / ServiceTypeIdVar(serviceTypeId) as _ =>
       services.get(serviceTypeId).flatMap(Ok(_))
 
     case ar @ POST -> Root / "edit" as user if user.role != Doctor =>

@@ -2,8 +2,14 @@ package babymed.services.visits.boundary
 
 import cats.effect.kernel.Sync
 import cats.implicits.catsSyntaxOptionId
-import babymed.services.visits.domain.{CreateService, EditService, Service, ServiceType}
-import babymed.services.visits.domain.types.{ServiceId, ServiceTypeId, ServiceTypeName}
+
+import babymed.services.visits.domain.CreateService
+import babymed.services.visits.domain.EditService
+import babymed.services.visits.domain.Service
+import babymed.services.visits.domain.ServiceType
+import babymed.services.visits.domain.types.ServiceId
+import babymed.services.visits.domain.types.ServiceTypeId
+import babymed.services.visits.domain.types.ServiceTypeName
 import babymed.services.visits.generators.ServiceGenerators
 import babymed.services.visits.repositories.ServicesRepository
 import babymed.test.TestSuite
