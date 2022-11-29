@@ -42,7 +42,7 @@ object VisitsSql {
       Region(id, name)
   }
 
-  val decCity: Decoder[City] = (cityId ~ townName ~ regionId ~ bool).map {
+  val decCity: Decoder[City] = (cityId ~ cityName ~ regionId ~ bool).map {
     case id ~ name ~ regionId ~ _ =>
       City(id, regionId, name)
   }

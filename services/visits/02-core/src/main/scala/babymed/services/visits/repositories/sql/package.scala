@@ -41,5 +41,5 @@ package object sql {
   val role: Codec[Role] =
     varchar.eimap[Role](str => Role.values.find(_.value == str).toRight("type not found "))(_.value)
   val regionName: Codec[RegionName] = nes.imap[RegionName](RegionName.apply)(_.value)
-  val townName: Codec[CityName] = nes.imap[CityName](CityName.apply)(_.value)
+  val cityName: Codec[CityName] = nes.imap[CityName](CityName.apply)(_.value)
 }
