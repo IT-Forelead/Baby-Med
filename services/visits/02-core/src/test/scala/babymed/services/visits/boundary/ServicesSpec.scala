@@ -26,6 +26,41 @@ object ServicesSpec extends TestSuite with ServiceGenerators {
   val services: Services[F] = new Services[F](serviceRepo)
   val createService: CreateService = createServiceGen().get
 
+  loggedTest("Create Service Type") { logger =>
+    services
+      .createServiceType(serviceTypeNameGen.get)
+      .as(success)
+      .handleErrorWith { error =>
+        logger
+          .error("Error occurred!", cause = error)
+          .as(failure("Test failed!"))
+      }
+  }
+
+  loggedTest("Get All Service Types") { logger =>
+    services
+      .getServiceTypes
+      .as(success)
+      .handleErrorWith { error =>
+        logger
+          .error("Error occurred!", cause = error)
+          .as(failure("Test failed!"))
+      }
+  }
+
+  loggedTest("Delete Service Type") { logger =>
+    val typeName: ServiceTypeName = serviceTypeNameGen.get
+    services
+      .createServiceType(typeName)
+      .map(serviceType => services.deleteServiceType(serviceType.id))
+      .as(success)
+      .handleErrorWith { error =>
+        logger
+          .error("Error occurred!", cause = error)
+          .as(failure("Test failed!"))
+      }
+  }
+
   loggedTest("Create Service") { logger =>
     services
       .create(createServiceGen().get)
