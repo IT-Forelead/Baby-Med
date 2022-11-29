@@ -82,11 +82,11 @@ object data extends PatientVisitGenerators with UserGenerators with PatientGener
     val id2: PatientVisitId = patientVisitIdGen.get
     val id3: PatientVisitId = patientVisitIdGen.get
     val data1: CreatePatientVisit =
-      createPatientVisitGen(data.patient.id1.some, data.user.id1.some, data.service.id1.some).get
+      createPatientVisitGen(data.patient.id1.some, data.service.id1.some).get
     val data2: CreatePatientVisit =
-      createPatientVisitGen(data.patient.id2.some, data.user.id2.some, data.service.id2.some).get
+      createPatientVisitGen(data.patient.id2.some, data.service.id2.some).get
     val data3: CreatePatientVisit =
-      createPatientVisitGen(data.patient.id3.some, data.user.id3.some, data.service.id3.some).get
+      createPatientVisitGen(data.patient.id3.some, data.service.id3.some).get
     val values: Map[PatientVisitId, CreatePatientVisit] =
       Map(id1 -> data1, id2 -> data2, id3 -> data3)
   }

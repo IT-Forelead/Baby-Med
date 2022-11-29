@@ -39,7 +39,8 @@ CREATE TABLE IF NOT EXISTS sms_message_types
     deleted BOOLEAN NOT NULL DEFAULT false
 );
 
-INSERT INTO sms_message_types VALUES ('registration');
+INSERT INTO sms_message_types
+VALUES ('registration');
 
 CREATE TABLE IF NOT EXISTS regions
 (
@@ -508,9 +509,9 @@ VALUES ('f4989b83-fc64-4844-bd57-e721a7f0e4aa', 'Yunusobod tumani', 'dac35ec3-a9
 
 CREATE TABLE IF NOT EXISTS sub_roles
 (
-    id          UUID PRIMARY KEY,
-    name        VARCHAR NOT NULL,
-    deleted     BOOLEAN NOT NULL DEFAULT false
+    id      UUID PRIMARY KEY,
+    name    VARCHAR NOT NULL,
+    deleted BOOLEAN NOT NULL DEFAULT false
 );
 
 INSERT INTO "sub_roles" ("id", "name")
@@ -530,16 +531,16 @@ VALUES ('b4e86798-b606-4da9-9f66-077e1291487d', 'Sanetarka');
 
 CREATE TABLE IF NOT EXISTS users
 (
-    id         UUID PRIMARY KEY,
-    created_at TIMESTAMP NOT NULL,
-    firstname  VARCHAR   NOT NULL,
-    lastname   VARCHAR   NOT NULL,
-    phone      VARCHAR   NOT NULL UNIQUE,
-    role       VARCHAR   NOT NULL
+    id          UUID PRIMARY KEY,
+    created_at  TIMESTAMP NOT NULL,
+    firstname   VARCHAR   NOT NULL,
+    lastname    VARCHAR   NOT NULL,
+    phone       VARCHAR   NOT NULL UNIQUE,
+    role        VARCHAR   NOT NULL
         CONSTRAINT fk_role REFERENCES roles (name) ON UPDATE CASCADE ON DELETE NO ACTION NOT NULL,
-    sub_role_id    UUID  NULL
+    sub_role_id UUID      NULL
         CONSTRAINT fk_sub_role_id REFERENCES sub_roles (id) ON UPDATE CASCADE ON DELETE NO ACTION,
-    password   VARCHAR   NOT NULL
+    password    VARCHAR   NOT NULL
 );
 
 INSERT INTO "users" ("id", "created_at", "firstname", "lastname", "phone", "role", "password")
@@ -564,68 +565,68 @@ CREATE TABLE IF NOT EXISTS patients
 
 CREATE TABLE IF NOT EXISTS service_types
 (
-    id          UUID PRIMARY KEY,
-    name        VARCHAR NOT NULL,
-    deleted     BOOLEAN NOT NULL DEFAULT false
+    id      UUID PRIMARY KEY,
+    name    VARCHAR NOT NULL,
+    deleted BOOLEAN NOT NULL DEFAULT false
 );
 
 CREATE TABLE IF NOT EXISTS services
 (
-    id                  UUID PRIMARY KEY,
-    service_type_id     UUID   NOT NULL
+    id              UUID PRIMARY KEY,
+    service_type_id UUID    NOT NULL
         CONSTRAINT fk_service_type_id REFERENCES service_types (id) ON UPDATE CASCADE ON DELETE NO ACTION,
-    name                VARCHAR NOT NULL,
-    price               NUMERIC NOT NULL,
-    deleted             BOOLEAN NOT NULL DEFAULT false
+    name            VARCHAR NOT NULL,
+    price           NUMERIC NOT NULL,
+    deleted         BOOLEAN NOT NULL DEFAULT false
 );
 
 CREATE TABLE IF NOT EXISTS visits
 (
-    id                  UUID PRIMARY KEY,
-    created_at          TIMESTAMP NOT NULL,
-    patient_id          UUID      NOT NULL
+    id             UUID PRIMARY KEY,
+    created_at     TIMESTAMP NOT NULL,
+    patient_id     UUID      NOT NULL
         CONSTRAINT fk_patient_id REFERENCES patients (id) ON UPDATE CASCADE ON DELETE NO ACTION,
-    service_id          UUID      NOT NULL
+    service_id     UUID      NOT NULL
         CONSTRAINT fk_service_id REFERENCES services (id) ON UPDATE CASCADE ON DELETE NO ACTION,
-    payment_status      VARCHAR   NOT NULL
+    payment_status VARCHAR   NOT NULL
         CONSTRAINT fk_payment_status REFERENCES payment_statuses (name) ON UPDATE CASCADE ON DELETE NO ACTION DEFAULT 'not_paid',
-    deleted             BOOLEAN   NOT NULL DEFAULT false
+    deleted        BOOLEAN   NOT NULL                                                                         DEFAULT false
 );
 
 CREATE TABLE IF NOT EXISTS sms_messages
 (
-    id                      UUID PRIMARY KEY,
-    sent_date               TIMESTAMP NOT NULL,
-    phone                   VARCHAR   NOT NULL,
-    text                    VARCHAR   NOT NULL,
-    sms_message_type        VARCHAR   NOT NULL
+    id               UUID PRIMARY KEY,
+    sent_date        TIMESTAMP NOT NULL,
+    phone            VARCHAR   NOT NULL,
+    text             VARCHAR   NOT NULL,
+    sms_message_type VARCHAR   NOT NULL
         CONSTRAINT fk_sms_message_type REFERENCES sms_message_types (name) ON UPDATE CASCADE ON DELETE NO ACTION,
-    delivery_status         VARCHAR   NOT NULL
+    delivery_status  VARCHAR   NOT NULL
         CONSTRAINT fk_delivery_status REFERENCES delivery_statuses (name) ON UPDATE CASCADE ON DELETE NO ACTION DEFAULT 'sent'
 );
 
 CREATE TABLE IF NOT EXISTS operation_expenses
 (
-    id                      UUID PRIMARY KEY,
-    created_at              TIMESTAMP NOT NULL,
-    visit_id                UUID   NOT NULL
+    id                   UUID PRIMARY KEY,
+    created_at           TIMESTAMP NOT NULL,
+    visit_id             UUID      NOT NULL
         CONSTRAINT fk_visit_id REFERENCES visits (id) ON UPDATE CASCADE ON DELETE NO ACTION,
-    for_laboratory          NUMERIC NOT NULL DEFAULT 0,
-    for_tools               NUMERIC NOT NULL DEFAULT 0,
-    for_drugs               NUMERIC NOT NULL DEFAULT 0,
-    partner_doctor_name     VARCHAR NULL,
-    partner_doctor_price    NUMERIC NULL,
-    deleted                 BOOLEAN NOT NULL DEFAULT false
+    for_laboratory       NUMERIC   NOT NULL DEFAULT 0,
+    for_tools            NUMERIC   NOT NULL DEFAULT 0,
+    for_drugs            NUMERIC   NOT NULL DEFAULT 0,
+    partner_doctor_name  VARCHAR   NULL,
+    partner_doctor_price NUMERIC   NULL,
+    deleted              BOOLEAN   NOT NULL DEFAULT false
 );
 
 CREATE TABLE IF NOT EXISTS operation_expense_items
 (
-    operation_expense_id    UUID NOT NULL
+    operation_expense_id UUID    NOT NULL
         CONSTRAINT fk_operation_expense_id REFERENCES operation_expenses (id) ON UPDATE CASCADE ON DELETE NO ACTION,
-    user_id                 UUID NOT NULL
+    user_id              UUID    NOT NULL
         CONSTRAINT fk_user_id REFERENCES users (id) ON UPDATE CASCADE ON DELETE NO ACTION,
-    sub_role_id             UUID NOT NULL
+    sub_role_id          UUID    NOT NULL
         CONSTRAINT fk_service_id REFERENCES services (id) ON UPDATE CASCADE ON DELETE NO ACTION,
-    price                   NUMERIC NOT NULL DEFAULT 0,
-    deleted                 BOOLEAN NOT NULL DEFAULT false
+    price                NUMERIC NOT NULL DEFAULT 0,
+    deleted              BOOLEAN NOT NULL DEFAULT false
 );

@@ -20,7 +20,7 @@ package object sql {
   val serviceId: Codec[ServiceId] = identity[ServiceId]
   val serviceTypeId: Codec[ServiceTypeId] = identity[ServiceTypeId]
   val regionId: Codec[RegionId] = identity[RegionId]
-  val townId: Codec[CityId] = identity[CityId]
+  val cityId: Codec[CityId] = identity[CityId]
   val serviceName: Codec[ServiceName] = nes.imap[ServiceName](ServiceName.apply)(_.value)
   val serviceTypeName: Codec[ServiceTypeName] = nes.imap[ServiceTypeName](ServiceTypeName.apply)(_.value)
   val price: Codec[Money] = numeric.imap[Money](money => UZS(money))(_.amount)

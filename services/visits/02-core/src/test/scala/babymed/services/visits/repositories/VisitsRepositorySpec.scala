@@ -32,9 +32,9 @@ object VisitsRepositorySpec extends DBSuite with PatientVisitGenerators {
     object Case2 extends TestCase[Res] {
       override def check(implicit dao: Resource[IO, Session[IO]]): IO[Expectations] =
         repo
-          .get(PatientVisitFilters(userId = data.user.id1.some))
+          .get(PatientVisitFilters(endDate = LocalDateTime.now().minusMinutes(1).some))
           .map { visits =>
-            assert(visits.map(_.patientVisit.userId).contains(data.user.id1))
+            assert(visits.isEmpty)
           }
     }
     object Case3 extends TestCase[Res] {
@@ -63,21 +63,12 @@ object VisitsRepositorySpec extends DBSuite with PatientVisitGenerators {
             assert(visits.length == 3)
           }
     }
-    object Case6 extends TestCase[Res] {
-      override def check(implicit dao: Resource[IO, Session[IO]]): IO[Expectations] =
-        repo
-          .get(PatientVisitFilters(endDate = LocalDateTime.now().minusMinutes(1).some))
-          .map { visits =>
-            assert(visits.isEmpty)
-          }
-    }
     List(
       Case1,
       Case2,
       Case3,
       Case4,
       Case5,
-      Case6,
     ).traverse(_.check).map(_.reduce(_ and _))
   }
 

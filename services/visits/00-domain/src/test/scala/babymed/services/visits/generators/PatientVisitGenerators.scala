@@ -21,23 +21,19 @@ trait PatientVisitGenerators
       id <- patientVisitIdGen
       createdAt <- localDateTimeGen
       patientId <- patientIdGen
-      userId <- userIdGen
       serviceId <- serviceIdGen
       payment_status <- paymentStatusGen
-    } yield PatientVisit(id, createdAt, patientId, userId, serviceId, payment_status)
+    } yield PatientVisit(id, createdAt, patientId, serviceId, payment_status)
 
   def createPatientVisitGen(
       maybePatientId: Option[PatientId] = None,
-      maybeUserId: Option[UserId] = None,
       maybeServiceId: Option[ServiceId] = None,
     ): Gen[CreatePatientVisit] =
     for {
       patientId <- patientIdGen
-      userId <- userIdGen
       serviceId <- serviceIdGen
     } yield CreatePatientVisit(
       maybePatientId.getOrElse(patientId),
-      maybeUserId.getOrElse(userId),
       maybeServiceId.getOrElse(serviceId),
     )
 
@@ -45,9 +41,8 @@ trait PatientVisitGenerators
     for {
       patientVisit <- patientVisitGen
       patient <- patientGen
-      user <- userGen
       service <- serviceGen
       region <- regionGen
       city <- cityGen
-    } yield PatientVisitInfo(patientVisit, patient, user, service, region, city)
+    } yield PatientVisitInfo(patientVisit, patient, service, region, city)
 }
