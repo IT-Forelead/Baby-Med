@@ -3,7 +3,7 @@ package babymed.services.users.repositories.sql
 import java.time.LocalDateTime
 
 import skunk._
-import skunk.codec.all.timestamp
+import skunk.codec.all._
 import skunk.implicits._
 import tsec.passwordhashers.PasswordHash
 import tsec.passwordhashers.jca.SCrypt
@@ -11,6 +11,7 @@ import tsec.passwordhashers.jca.SCrypt
 import babymed.refinements.Phone
 import babymed.services.users.domain.CreateUser
 import babymed.services.users.domain.EditUser
+import babymed.services.users.domain.SubRole
 import babymed.services.users.domain.User
 import babymed.services.users.domain.UserAndHash
 import babymed.services.users.domain.UserFilters
@@ -41,6 +42,11 @@ object UsersSql {
   val decoder: Decoder[User] = Columns.map {
     case id ~ createdAt ~ firstName ~ lastName ~ phone ~ role ~ subRoleId ~ _ =>
       User(id, createdAt, firstName, lastName, phone, role, subRoleId)
+  }
+
+  val decSubRole: Decoder[SubRole] = (subRoleId ~ subRoleName ~ bool).map {
+    case id ~ name ~ _ =>
+      SubRole(id, name)
   }
 
   private def userFilters(filters: UserFilters): List[Option[AppliedFragment]] =
@@ -80,4 +86,7 @@ object UsersSql {
 
   val deleteUserSql: Command[UserId] =
     sql"""DELETE FROM users WHERE id = $userId""".command
+
+  val selectSubRoles: Query[Void, SubRole] =
+    sql"""SELECT * FROM sub_roles WHERE deleted = false""".query(decSubRole)
 }

@@ -22,6 +22,7 @@ import babymed.services.auth.domain.types._
 import babymed.services.auth.impl.Security
 import babymed.services.users.domain.CreateUser
 import babymed.services.users.domain.EditUser
+import babymed.services.users.domain.SubRole
 import babymed.services.users.domain.User
 import babymed.services.users.domain.UserAndHash
 import babymed.services.users.domain.UserFilters
@@ -64,6 +65,7 @@ object AuthRoutersSpec extends HttpSuite with UserGenerators {
     override def get(filters: UserFilters): F[ResponseData[User]] = ???
     override def delete(userId: UserId): F[Unit] = ???
     override def getTotal(filters: UserFilters): F[Long] = ???
+    override def getSubRoles: F[List[SubRole]] = ???
   }
 
   test("Authorization - Login [ OK ]") {

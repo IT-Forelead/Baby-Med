@@ -35,4 +35,6 @@ object types {
   @newtype case class RegionName(value: NonEmptyString)
   @derive(decoder, encoder, eqv)
   @newtype case class CityName(value: NonEmptyString)
+  @derive(decoder, encoder, eqv)
+  @newtype case class SubRoleName(value: NonEmptyString)
 }

@@ -110,4 +110,17 @@ object UserRepositorySpec extends DBSuite with UserGenerators {
       users <- repo.get(UserFilters.Empty)
     } yield assert(users.exists(_.phone == editUser.phone))
   }
+
+  test("Get All Sub Roles") { implicit postgres =>
+    UsersRepository
+      .make[F]
+      .getSubRoles
+      .map { subRoles =>
+        assert(subRoles.nonEmpty)
+      }
+      .handleError { error =>
+        println("ERROR::::::::::::::::::: " + error)
+        failure("Test failed.")
+      }
+  }
 }

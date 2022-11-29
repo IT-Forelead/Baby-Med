@@ -64,6 +64,7 @@ object ServiceRoutersSpec extends HttpSuite with ServiceGenerators with UserGene
     override def get(filters: UserFilters): F[ResponseData[User]] = ???
     override def delete(userId: UserId): F[Unit] = ???
     override def getTotal(filters: UserFilters): F[Long] = ???
+    override def getSubRoles: F[List[SubRole]] = ???
   }
 
   val services: Services[F] = new Services[F] {

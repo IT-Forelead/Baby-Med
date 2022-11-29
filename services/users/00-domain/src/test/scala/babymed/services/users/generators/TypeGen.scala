@@ -22,6 +22,7 @@ trait TypeGen extends Generators {
   val roleGen: Gen[Role] = Gen.oneOf(Role.values)
   val regionNameGen: Gen[RegionName] = nonEmptyString.map(RegionName(_))
   val cityNameGen: Gen[CityName] = nonEmptyString.map(CityName(_))
+  val subRoleNameGen: Gen[SubRoleName] = nonEmptyString.map(SubRoleName(_))
 
   lazy val passwordGen: Gen[Password] =
     Gen.listOfN(6, passwordChars).map(_.mkString)

@@ -6,6 +6,7 @@ import babymed.domain.ResponseData
 import babymed.refinements.Phone
 import babymed.services.users.domain.CreateUser
 import babymed.services.users.domain.EditUser
+import babymed.services.users.domain.SubRole
 import babymed.services.users.domain.User
 import babymed.services.users.domain.UserAndHash
 import babymed.services.users.domain.UserFilters
@@ -19,6 +20,7 @@ trait Users[F[_]] {
   def validationAndEdit(editUser: EditUser): F[Unit]
   def find(phone: Phone): F[Option[UserAndHash]]
   def get(filters: UserFilters): F[ResponseData[User]]
+  def getSubRoles: F[List[SubRole]]
   def delete(userId: UserId): F[Unit]
   def getTotal(filters: UserFilters): F[Long]
 }

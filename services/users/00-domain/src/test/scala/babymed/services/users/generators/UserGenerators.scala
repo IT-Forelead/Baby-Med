@@ -5,6 +5,7 @@ import tsec.passwordhashers.jca.SCrypt
 
 import babymed.services.users.domain.CreateUser
 import babymed.services.users.domain.EditUser
+import babymed.services.users.domain.SubRole
 import babymed.services.users.domain.User
 import babymed.services.users.domain.UserAndHash
 import babymed.services.users.domain.types.SubRoleId
@@ -49,4 +50,10 @@ trait UserGenerators extends TypeGen {
       role <- roleGen
       subRoleId <- subRoleIdGen.opt
     } yield EditUser(id, firstname, lastname, phone, role, maybeSubRoleId.orElse(subRoleId))
+
+  val subRoleGen: Gen[SubRole] =
+    for {
+      id <- subRoleIdGen
+      name <- subRoleNameGen
+    } yield SubRole(id, name)
 }

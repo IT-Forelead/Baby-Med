@@ -16,6 +16,7 @@ import babymed.refinements.Password
 import babymed.refinements.Phone
 import babymed.services.users.domain.CreateUser
 import babymed.services.users.domain.EditUser
+import babymed.services.users.domain.SubRole
 import babymed.services.users.domain.User
 import babymed.services.users.domain.UserAndHash
 import babymed.services.users.domain.UserFilters
@@ -32,6 +33,7 @@ trait UsersRepository[F[_]] {
   def get(filters: UserFilters): F[List[User]]
   def delete(userId: UserId): F[Unit]
   def getTotal(filters: UserFilters): F[Long]
+  def getSubRoles: F[List[SubRole]]
 }
 
 object UsersRepository {
@@ -79,5 +81,8 @@ object UsersRepository {
       val query = UsersSql.total(filters)
       query.fragment.query(int8).queryUnique(query.argument)
     }
+
+    override def getSubRoles: F[List[SubRole]] =
+      selectSubRoles.queryList(Void)
   }
 }
