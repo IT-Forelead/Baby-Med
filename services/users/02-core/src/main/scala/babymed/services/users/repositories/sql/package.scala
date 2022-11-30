@@ -22,6 +22,7 @@ package object sql {
   val subRoleId: Codec[SubRoleId] = identity[SubRoleId]
   val firstName: Codec[FirstName] = nes.imap[FirstName](FirstName.apply)(_.value)
   val lastName: Codec[LastName] = nes.imap[LastName](LastName.apply)(_.value)
+  val fullName: Codec[Fullname] = nes.imap[Fullname](Fullname.apply)(_.value)
   val address: Codec[Address] = nes.imap[Address](Address.apply)(_.value)
   val passwordHash: Codec[PasswordHash[SCrypt]] =
     varchar.imap[PasswordHash[SCrypt]](PasswordHash[SCrypt])(_.toString)

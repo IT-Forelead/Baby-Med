@@ -11,7 +11,9 @@ import babymed.services.users.domain.CreatePatient
 import babymed.services.users.domain.Patient
 import babymed.services.users.domain.PatientFilters
 import babymed.services.users.domain.PatientWithAddress
+import babymed.services.users.domain.PatientWithName
 import babymed.services.users.domain.Region
+import babymed.services.users.domain.types.Fullname
 import babymed.services.users.domain.types.PatientId
 import babymed.services.users.domain.types.RegionId
 import babymed.support.skunk.codecs._
@@ -46,6 +48,12 @@ object PatientsSql {
       PatientWithAddress(patient, region, city)
   }
 
+  val decPatientWithName: Decoder[PatientWithName] =
+    (patientId ~ firstName ~ lastName ~ phone).map {
+      case patientId ~ firstName ~ lastName ~ phone =>
+        PatientWithName(patientId, firstName, lastName, phone)
+    }
+
   private def searchFilter(filters: PatientFilters): List[Option[AppliedFragment]] =
     List(
       filters.startDate.map(sql"patients.created_at >= $timestamp"),
@@ -75,6 +83,26 @@ object PatientsSql {
       sql"""SELECT count(*) FROM patients WHERE deleted = false"""
     baseQuery(Void).andOpt(searchFilter(filters): _*)
   }
+
+//  private def searchByName(name: Fullname): List[Option[AppliedFragment]] =
+//    List(
+//      sql"patients.firstname ILIKE $fullName",
+//      sql"patients.lastname ILIKE $fullName",
+//    )
+
+//  def selectByName(name: Fullname): AppliedFragment = {
+//    val baseQuery: Fragment[Void] =
+//      sql"""SELECT patients.id, patients.firstname, patients.lastname, patients.phone
+//           FROM patients WHERE patients.deleted = false"""
+//
+//    baseQuery(Void).andOpt(searchByName(name): _*)
+//  }
+
+  val getPatientsByName: Query[Fullname ~ Fullname, PatientWithName] =
+    sql"""SELECT patients.id, patients.firstname, patients.lastname, patients.phone
+       FROM patients WHERE patients.deleted = false AND (
+           patients.firstname ILIKE $fullName OR patients.lastname ILIKE $fullName
+        ) ORDER BY lastname, firstname """.query(decPatientWithName)
 
   val selectById: Query[PatientId, PatientWithAddress] =
     sql"""SELECT patients.*, regions.*, cities.*

@@ -6,7 +6,9 @@ import babymed.services.users.domain.CreatePatient
 import babymed.services.users.domain.Patient
 import babymed.services.users.domain.PatientFilters
 import babymed.services.users.domain.PatientWithAddress
+import babymed.services.users.domain.PatientWithName
 import babymed.services.users.domain.Region
+import babymed.services.users.domain.types.Fullname
 import babymed.services.users.domain.types.PatientId
 import babymed.services.users.domain.types.RegionId
 import babymed.support.services.service
@@ -20,6 +22,7 @@ trait Patients[F[_]] {
   def getTotalPatients(filters: PatientFilters): F[Long]
   def getRegions: F[List[Region]]
   def getCitiesByRegionId(regionId: RegionId): F[List[City]]
+  def getPatientsByName(name: Fullname): F[List[PatientWithName]]
 }
 
 object Patients {}

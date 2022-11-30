@@ -1,7 +1,6 @@
 package babymed.services.babymed.api.routes
 
 import scala.concurrent.duration.DurationInt
-
 import cats.effect.kernel.Sync
 import ciris.Secret
 import dev.profunktor.auth.jwt.JwtToken
@@ -16,7 +15,6 @@ import org.http4s.implicits.http4sLiteralsSyntax
 import org.scalacheck.Gen
 import tsec.passwordhashers.jca.SCrypt
 import weaver.Expectations
-
 import babymed.domain.ResponseData
 import babymed.domain.Role
 import babymed.domain.Role.Doctor
@@ -80,6 +78,10 @@ object PatientRoutersSpec extends HttpSuite with PatientGenerators with UserGene
     override def getRegions: F[List[Region]] = Sync[F].delay(List(region))
     override def getCitiesByRegionId(regionId: RegionId): F[List[City]] =
       Sync[F].delay(List(city))
+    override def getPatientsByName(
+        name: types.Fullname
+      ): PatientRoutersSpec.F[List[PatientWithName]] =
+      ???
   }
 
   def authedReq(

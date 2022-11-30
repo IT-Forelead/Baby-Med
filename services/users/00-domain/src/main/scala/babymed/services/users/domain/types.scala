@@ -30,6 +30,8 @@ object types {
   @derive(decoder, encoder, eqv)
   @newtype case class LastName(value: NonEmptyString)
   @derive(decoder, encoder, eqv)
+  @newtype case class Fullname(value: NonEmptyString)
+  @derive(decoder, encoder, eqv)
   @newtype case class Address(value: NonEmptyString)
   @derive(decoder, encoder, eqv)
   @newtype case class RegionName(value: NonEmptyString)

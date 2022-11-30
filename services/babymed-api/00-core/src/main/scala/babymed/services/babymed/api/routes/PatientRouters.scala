@@ -31,6 +31,9 @@ final case class PatientRouters[F[_]: Async: JsonDecoder](
         patients.create(createPatient) *> NoContent()
       }
 
+    case GET -> Root / "search-by-fullname" / PatientNameVar(fullname) as _ =>
+      patients.getPatientsByName(fullname).flatMap(Ok(_))
+
     case ar @ POST -> Root / "report" as _ =>
       ar.req.decodeR[PatientFilters] { patientFilters =>
         patients
