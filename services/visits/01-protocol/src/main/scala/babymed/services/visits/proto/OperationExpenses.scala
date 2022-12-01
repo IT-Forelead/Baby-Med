@@ -1,7 +1,7 @@
 package babymed.services.visits.proto
 
 import babymed.domain.ResponseData
-import babymed.services.visits.domain.{CreateOperationExpense, OperationExpense, OperationExpenseFilters, OperationExpenseItemWithUser, OperationExpenseWithPatientVisit}
+import babymed.services.visits.domain._
 import babymed.services.visits.domain.types.OperationExpenseId
 import babymed.support.services.service
 
@@ -12,3 +12,5 @@ trait OperationExpenses[F[_]] {
   def getTotal(filters: OperationExpenseFilters): F[Long]
   def getItemsById(id: OperationExpenseId): F[List[OperationExpenseItemWithUser]]
 }
+
+object OperationExpenses {}

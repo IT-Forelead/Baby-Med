@@ -8,19 +8,19 @@ import org.typelevel.log4cats.Logger
 import skunk.Session
 
 import babymed.services.visits.ServerEnvironment
-import babymed.services.visits.boundary.Services
-import babymed.services.visits.boundary.Visits
+import babymed.services.visits.boundary._
 import babymed.support.database.Migrations
 
 case class ServiceEnvironment[F[_]: MonadThrow](
     config: Config,
     repositories: Repositories[F],
   ) {
+  lazy val operationExpenses = new OperationExpenses[F](repositories.operationExpenses)
   lazy val services = new Services[F](repositories.services)
   lazy val visits = new Visits[F](repositories.visits)
   lazy val toServer: ServerEnvironment[F] =
     ServerEnvironment(
-      services = ServerEnvironment.Services(services, visits)
+      services = ServerEnvironment.Services(operationExpenses, services, visits)
     )
 }
 
