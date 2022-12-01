@@ -42,6 +42,11 @@ object UsersSql {
       User(id, createdAt, firstName, lastName, phone, role, subRoleId)
   }
 
+  val decUserWithSubRole: Decoder[User] = (Columns ~ subRoleName.opt).map {
+    case id ~ createdAt ~ firstName ~ lastName ~ phone ~ role ~ subRoleId ~ _ ~ _ ~ subRoleName =>
+      User(id, createdAt, firstName, lastName, phone, role, subRoleId, subRoleName)
+  }
+
   val decSubRole: Decoder[SubRole] = (subRoleId ~ subRoleName ~ bool).map {
     case id ~ name ~ _ =>
       SubRole(id, name)
@@ -56,7 +61,10 @@ object UsersSql {
     )
 
   def select(filters: UserFilters): AppliedFragment = {
-    val baseQuery: Fragment[Void] = sql"""SELECT * FROM users WHERE deleted = false"""
+    val baseQuery: Fragment[Void] =
+      sql"""SELECT users.*, sub_roles.name FROM users
+        INNER JOIN sub_roles ON users.sub_role_id = sub_roles.id
+        WHERE users.deleted = false"""
     baseQuery(Void).andOpt(userFilters(filters): _*)
   }
 
@@ -69,7 +77,7 @@ object UsersSql {
     sql"""INSERT INTO users VALUES ($encoder) RETURNING *""".query(decoder)
 
   val selectByPhone: Query[Phone, UserAndHash] =
-    sql"""SELECT * FROM users WHERE phone = $phone  AND deleted = false""".query(decoderUserAndHash)
+    sql"""SELECT * FROM users WHERE phone = $phone AND deleted = false""".query(decoderUserAndHash)
 
   val selectOldUser: Query[Phone, UserId] =
     sql"""SELECT id FROM users WHERE phone = $phone""".query(userId)

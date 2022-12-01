@@ -20,4 +20,5 @@ case class User(
     phone: Phone,
     role: Role,
     subRoleId: Option[SubRoleId] = None,
+    subRoleName: Option[SubRoleName] = None,
   )

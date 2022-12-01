@@ -71,7 +71,7 @@ object UsersRepository {
 
     override def get(filters: UserFilters): F[List[User]] = {
       val query = UsersSql.select(filters).paginateOpt(filters.limit, filters.page)
-      query.fragment.query(UsersSql.decoder).queryList(query.argument)
+      query.fragment.query(UsersSql.decUserWithSubRole).queryList(query.argument)
     }
 
     override def delete(userId: UserId): F[Unit] =
