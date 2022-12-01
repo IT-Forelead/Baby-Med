@@ -4,6 +4,7 @@ import org.scalacheck.Gen
 
 import babymed.services.users.generators.UserGenerators
 import babymed.services.visits.domain._
+import babymed.services.visits.domain.types.PatientVisitId
 
 trait OperationExpenseGenerators
     extends TypeGen
@@ -51,7 +52,9 @@ trait OperationExpenseGenerators
       price <- priceGen
     } yield CreateOperationExpenseItem(userId, subRoleId, price)
 
-  lazy val createOperationExpenseGen: Gen[CreateOperationExpense] =
+  def createOperationExpenseGen(
+      maybePatientVisitId: Option[PatientVisitId] = None
+    ): Gen[CreateOperationExpense] =
     for {
       patientVisitId <- patientVisitIdGen
       items <- createOperationExpenseItemGen
@@ -61,7 +64,7 @@ trait OperationExpenseGenerators
       partnerDoctorFullName <- partnerDoctorFullNameGen.opt
       partnerDoctorPrice <- priceGen.opt
     } yield CreateOperationExpense(
-      patientVisitId,
+      maybePatientVisitId.getOrElse(patientVisitId),
       List(items),
       forLaboratory,
       forTools,

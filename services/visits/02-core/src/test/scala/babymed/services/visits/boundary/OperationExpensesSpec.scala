@@ -26,7 +26,7 @@ object OperationExpensesSpec extends TestSuite with OperationExpenseGenerators {
 
   loggedTest("Create Operation Expense") { logger =>
     operationExpenses
-      .create(createOperationExpenseGen.get)
+      .create(createOperationExpenseGen().get)
       .as(success)
       .handleErrorWith { error =>
         logger

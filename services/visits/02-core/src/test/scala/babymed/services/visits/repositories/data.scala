@@ -18,25 +18,31 @@ import babymed.services.users.domain.CreateUser
 import babymed.services.users.domain.types.CityId
 import babymed.services.users.domain.types.PatientId
 import babymed.services.users.domain.types.RegionId
+import babymed.services.users.domain.types.SubRoleId
 import babymed.services.users.domain.types.UserId
-import babymed.services.users.generators.PatientGenerators
-import babymed.services.users.generators.UserGenerators
-import babymed.services.users.repositories.sql.PatientsSql
-import babymed.services.users.repositories.sql.UsersSql
+import babymed.services.users.generators._
+import babymed.services.users.repositories.sql._
+import babymed.services.visits.domain.CreateOperationExpense
 import babymed.services.visits.domain.CreatePatientVisit
 import babymed.services.visits.domain.CreateService
+import babymed.services.visits.domain.OperationExpense
+import babymed.services.visits.domain.OperationExpenseItem
+import babymed.services.visits.domain.types.OperationExpenseId
 import babymed.services.visits.domain.types.PatientVisitId
 import babymed.services.visits.domain.types.ServiceId
 import babymed.services.visits.domain.types.ServiceTypeId
 import babymed.services.visits.domain.types.ServiceTypeName
-import babymed.services.visits.generators.PatientVisitGenerators
-import babymed.services.visits.repositories.sql.ServicesSql
-import babymed.services.visits.repositories.sql.VisitsSql
+import babymed.services.visits.generators._
+import babymed.services.visits.repositories.sql._
 import babymed.support.skunk.syntax.all.skunkSyntaxQueryOps
 import babymed.syntax.refined.commonSyntaxAutoUnwrapV
 import babymed.util.RandomGenerator
 
-object data extends PatientVisitGenerators with UserGenerators with PatientGenerators {
+object data
+    extends PatientVisitGenerators
+       with UserGenerators
+       with PatientGenerators
+       with OperationExpenseGenerators {
   implicit private def gen2instance[T](gen: Gen[T]): T = gen.sample.get
 
   object regions {
@@ -47,6 +53,11 @@ object data extends PatientVisitGenerators with UserGenerators with PatientGener
   object cities {
     val id1: CityId = CityId(UUID.fromString("0d073b76-08ce-4b78-a88c-a0cb6f80eaf9"))
     val id2: CityId = CityId(UUID.fromString("b272f8fe-e0a1-4157-903f-91d1b22b6770"))
+  }
+
+  object subRoles {
+    val id1: SubRoleId = SubRoleId(UUID.fromString("c64c197f-b3d5-47c4-b522-b8a776e51aea"))
+    val id2: SubRoleId = SubRoleId(UUID.fromString("49b6e573-00e9-4bb6-914a-0d1c9649a8b1"))
   }
 
   object patient {
@@ -63,9 +74,9 @@ object data extends PatientVisitGenerators with UserGenerators with PatientGener
     val id1: UserId = userIdGen.get
     val id2: UserId = userIdGen.get
     val id3: UserId = userIdGen.get
-    val data1: CreateUser = createUserGen().get.copy(role = Doctor)
-    val data2: CreateUser = createUserGen().get.copy(role = Doctor)
-    val data3: CreateUser = createUserGen().get.copy(role = Doctor)
+    val data1: CreateUser = createUserGen(subRoles.id2.some).get.copy(role = Doctor)
+    val data2: CreateUser = createUserGen(subRoles.id2.some).get.copy(role = Doctor)
+    val data3: CreateUser = createUserGen(subRoles.id2.some).get.copy(role = Doctor)
     val values: Map[UserId, CreateUser] = Map(id1 -> data1, id2 -> data2, id3 -> data3)
   }
 
@@ -103,8 +114,49 @@ object data extends PatientVisitGenerators with UserGenerators with PatientGener
       Map(id1 -> data1, id2 -> data2, id3 -> data3)
   }
 
+  object operationExpenses {
+    val id1: OperationExpenseId = operationExpenseIdGen.get
+    val id2: OperationExpenseId = operationExpenseIdGen.get
+    val id3: OperationExpenseId = operationExpenseIdGen.get
+    val data1: CreateOperationExpense =
+      createOperationExpenseGen(data.visits.id1.some).get
+    val data2: CreateOperationExpense =
+      createOperationExpenseGen(data.visits.id1.some).get
+    val data3: CreateOperationExpense =
+      createOperationExpenseGen(data.visits.id1.some).get
+    val values: Map[OperationExpenseId, CreateOperationExpense] =
+      Map(id1 -> data1, id2 -> data2, id3 -> data3)
+  }
+
+  object operationExpenseItems {
+    val data1: OperationExpenseItem =
+      OperationExpenseItem(
+        operationExpenseId = data.operationExpenses.id1,
+        userId = data.user.id1,
+        subRoleId = data.subRoles.id1,
+        price = priceGen.get,
+      )
+    val data2: OperationExpenseItem =
+      OperationExpenseItem(
+        operationExpenseId = data.operationExpenses.id2,
+        userId = data.user.id2,
+        subRoleId = data.subRoles.id2,
+        price = priceGen.get,
+      )
+    val data3: OperationExpenseItem =
+      OperationExpenseItem(
+        operationExpenseId = data.operationExpenses.id3,
+        userId = data.user.id3,
+        subRoleId = data.subRoles.id2,
+        price = priceGen.get,
+      )
+    val values: List[OperationExpenseItem] =
+      List(data1, data2, data3)
+  }
+
   def setup(implicit session: Resource[IO, Session[IO]]): IO[Unit] =
-    setupPatients *> setupServiceTypes *> setupServices *> setupVisits
+    setupPatients *> setupServiceTypes *> setupServices *> setupVisits *>
+      setupUsers *> setupOperationExpenses *> setupOperationExpenseItems
 
   private def setupPatients(implicit session: Resource[IO, Session[IO]]): IO[Unit] =
     patient.values.toList.traverse_ {
@@ -138,5 +190,29 @@ object data extends PatientVisitGenerators with UserGenerators with PatientGener
     visits.values.toList.traverse_ {
       case id -> data =>
         VisitsSql.insert.queryUnique(id ~ LocalDateTime.now() ~ data)
+    }
+
+  private def setupOperationExpenses(implicit session: Resource[IO, Session[IO]]): IO[Unit] =
+    operationExpenses.values.toList.traverse_ {
+      case id -> data =>
+        OperationExpensesSql
+          .insert
+          .queryUnique(
+            OperationExpense(
+              id = id,
+              createdAt = LocalDateTime.now(),
+              patientVisitId = data.patientVisitId,
+              forLaboratory = data.forTools,
+              forTools = data.forTools,
+              forDrugs = data.forDrugs,
+              partnerDoctorFullName = data.partnerDoctorFullName,
+              partnerDoctorPrice = data.partnerDoctorPrice,
+            )
+          )
+    }
+
+  private def setupOperationExpenseItems(implicit session: Resource[IO, Session[IO]]): IO[Unit] =
+    operationExpenseItems.values.traverse_ { data =>
+      OperationExpensesSql.insertItem.queryUnique(data)
     }
 }

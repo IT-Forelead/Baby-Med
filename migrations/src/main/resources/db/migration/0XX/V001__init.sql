@@ -627,7 +627,7 @@ CREATE TABLE IF NOT EXISTS operation_expense_items
     user_id              UUID    NOT NULL
         CONSTRAINT fk_user_id REFERENCES users (id) ON UPDATE CASCADE ON DELETE NO ACTION,
     sub_role_id          UUID    NOT NULL
-        CONSTRAINT fk_service_id REFERENCES services (id) ON UPDATE CASCADE ON DELETE NO ACTION,
+        CONSTRAINT fk_sub_role_id REFERENCES sub_roles (id) ON UPDATE CASCADE ON DELETE NO ACTION,
     price                NUMERIC NOT NULL DEFAULT 0,
     deleted              BOOLEAN NOT NULL DEFAULT false
 );
