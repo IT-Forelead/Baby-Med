@@ -54,16 +54,16 @@ object UsersSql {
 
   private def userFilters(filters: UserFilters): List[Option[AppliedFragment]] =
     List(
-      filters.firstName.map(sql"firstname ILIKE $firstName"),
-      filters.lastName.map(sql"lastname ILIKE $lastName"),
-      filters.role.map(sql"role = $role"),
-      filters.phone.map(sql"phone ILIKE $phone"),
+      filters.firstName.map(sql"users.firstname ILIKE $firstName"),
+      filters.lastName.map(sql"users.lastname ILIKE $lastName"),
+      filters.role.map(sql"users.role = $role"),
+      filters.phone.map(sql"users.phone ILIKE $phone"),
     )
 
   def select(filters: UserFilters): AppliedFragment = {
     val baseQuery: Fragment[Void] =
       sql"""SELECT users.*, sub_roles.name FROM users
-        INNER JOIN sub_roles ON users.sub_role_id = sub_roles.id
+        LEFT JOIN sub_roles ON users.sub_role_id = sub_roles.id
         WHERE users.deleted = false"""
     baseQuery(Void).andOpt(userFilters(filters): _*)
   }
