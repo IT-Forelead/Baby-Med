@@ -1,11 +1,9 @@
 package babymed.services.babymed.api
 
-import java.time.LocalDateTime
 import java.util.UUID
 
 import scala.util.Try
 
-import eu.timepit.refined.types.numeric.NonNegInt
 import eu.timepit.refined.types.string.NonEmptyString
 import org.http4s.dsl.impl._
 
@@ -15,8 +13,6 @@ import babymed.services.users.domain.types.UserId
 import babymed.services.visits.domain.types.PatientVisitId
 import babymed.services.visits.domain.types.ServiceId
 import babymed.services.visits.domain.types.ServiceTypeId
-import babymed.support.services.syntax.http4s._
-import babymed.syntax.refined.commonSyntaxAutoRefineV
 import babymed.util.MyPathVar
 
 package object routes {

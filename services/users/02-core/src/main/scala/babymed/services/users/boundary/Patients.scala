@@ -2,9 +2,18 @@ package babymed.services.users.boundary
 
 import cats.Monad
 import cats.implicits._
+
 import babymed.domain.ResponseData
-import babymed.services.users.domain.{City, CreatePatient, Patient, PatientFilters, PatientWithAddress, PatientWithName, Region}
-import babymed.services.users.domain.types.{Fullname, PatientId, RegionId}
+import babymed.services.users.domain.City
+import babymed.services.users.domain.CreatePatient
+import babymed.services.users.domain.Patient
+import babymed.services.users.domain.PatientFilters
+import babymed.services.users.domain.PatientWithAddress
+import babymed.services.users.domain.PatientWithName
+import babymed.services.users.domain.Region
+import babymed.services.users.domain.types.Fullname
+import babymed.services.users.domain.types.PatientId
+import babymed.services.users.domain.types.RegionId
 import babymed.services.users.proto
 import babymed.services.users.repositories.PatientsRepository
 

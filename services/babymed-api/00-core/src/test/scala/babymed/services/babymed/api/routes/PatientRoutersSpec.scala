@@ -1,6 +1,7 @@
 package babymed.services.babymed.api.routes
 
 import scala.concurrent.duration.DurationInt
+
 import cats.effect.kernel.Sync
 import ciris.Secret
 import dev.profunktor.auth.jwt.JwtToken
@@ -15,6 +16,7 @@ import org.http4s.implicits.http4sLiteralsSyntax
 import org.scalacheck.Gen
 import tsec.passwordhashers.jca.SCrypt
 import weaver.Expectations
+
 import babymed.domain.ResponseData
 import babymed.domain.Role
 import babymed.domain.Role.Doctor

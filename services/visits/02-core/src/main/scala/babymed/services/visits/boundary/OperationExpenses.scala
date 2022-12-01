@@ -2,8 +2,9 @@ package babymed.services.visits.boundary
 
 import cats.Monad
 import cats.implicits._
+
 import babymed.domain.ResponseData
-import babymed.services.visits.domain.{CreateOperationExpense, OperationExpense, OperationExpenseFilters, OperationExpenseItemWithUser, OperationExpenseWithPatientVisit}
+import babymed.services.visits.domain._
 import babymed.services.visits.domain.types.OperationExpenseId
 import babymed.services.visits.proto
 import babymed.services.visits.repositories.OperationExpensesRepository
@@ -12,7 +13,9 @@ class OperationExpenses[F[_]: Monad](operationExpensesRepository: OperationExpen
     extends proto.OperationExpenses[F] {
   override def create(createOperationExpense: CreateOperationExpense): F[OperationExpense] =
     operationExpensesRepository.create(createOperationExpense)
-  override def get(filters: OperationExpenseFilters): F[ResponseData[OperationExpenseWithPatientVisit]] =
+  override def get(
+      filters: OperationExpenseFilters
+    ): F[ResponseData[OperationExpenseWithPatientVisit]] =
     for {
       operationExpenses <- operationExpensesRepository.get(filters)
       total <- operationExpensesRepository.getTotal(filters)

@@ -4,6 +4,7 @@ import babymed.domain.ResponseData
 import babymed.services.visits.domain._
 import babymed.services.visits.domain.types.OperationExpenseId
 import babymed.support.services.service
+import babymed.support.services.syntax.marshaller.codec
 
 @service(Custom)
 trait OperationExpenses[F[_]] {

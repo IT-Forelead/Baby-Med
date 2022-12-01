@@ -3,13 +3,8 @@ package babymed.services.users.boundary
 import cats.effect.kernel.Sync
 import org.scalacheck.Gen
 
-import babymed.services.users.domain.City
-import babymed.services.users.domain.CreatePatient
-import babymed.services.users.domain.Patient
-import babymed.services.users.domain.PatientFilters
-import babymed.services.users.domain.PatientWithAddress
-import babymed.services.users.domain.Region
-import babymed.services.users.domain.types
+import babymed.services.users.domain._
+import babymed.services.users.domain.types.Fullname
 import babymed.services.users.domain.types.PatientId
 import babymed.services.users.generators.PatientGenerators
 import babymed.services.users.repositories.PatientsRepository
@@ -34,6 +29,9 @@ object PatientsSpec extends TestSuite with PatientGenerators {
 
     override def getCitiesByRegionId(regionId: types.RegionId): F[List[City]] =
       Sync[F].delay(List(cityGen.get))
+
+    override def getPatientsByName(name: Fullname): F[List[PatientWithName]] =
+      ???
   }
 
   val patients: Patients[F] = new Patients[F](patientRepo)
