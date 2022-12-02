@@ -34,6 +34,7 @@ import babymed.services.visits.domain.types.ServiceTypeId
 import babymed.services.visits.domain.types.ServiceTypeName
 import babymed.services.visits.generators._
 import babymed.services.visits.repositories.sql._
+import babymed.support.skunk.syntax.all.skunkSyntaxCommandOps
 import babymed.support.skunk.syntax.all.skunkSyntaxQueryOps
 import babymed.syntax.refined.commonSyntaxAutoUnwrapV
 import babymed.util.RandomGenerator
@@ -212,7 +213,7 @@ object data
     }
 
   private def setupOperationExpenseItems(implicit session: Resource[IO, Session[IO]]): IO[Unit] =
-    operationExpenseItems.values.traverse_ { data =>
-      OperationExpensesSql.insertItem.queryUnique(data)
-    }
+    OperationExpensesSql
+      .insertItems(operationExpenseItems.values)
+      .execute(operationExpenseItems.values)
 }
