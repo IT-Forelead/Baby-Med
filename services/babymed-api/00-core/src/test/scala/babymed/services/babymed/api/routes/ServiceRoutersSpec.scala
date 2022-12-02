@@ -33,6 +33,7 @@ import babymed.services.visits.domain.CreateService
 import babymed.services.visits.domain.EditService
 import babymed.services.visits.domain.Service
 import babymed.services.visits.domain.ServiceType
+import babymed.services.visits.domain.ServiceWithTypeName
 import babymed.services.visits.domain.types.ServiceId
 import babymed.services.visits.domain.types.ServiceTypeId
 import babymed.services.visits.domain.types.ServiceTypeName
@@ -55,6 +56,7 @@ object ServiceRoutersSpec extends HttpSuite with ServiceGenerators with UserGene
     Credentials(phoneGen.get, NonEmptyString.unsafeFrom(nonEmptyStringGen(8).get))
   lazy val service: Service = serviceGen.get
   lazy val serviceType: ServiceType = serviceTypeGen.get
+  lazy val serviceWithTypeName: ServiceWithTypeName = serviceWithTypeNameGen.get
 
   def users(role: Role): Users[F] = new Users[F] {
     override def find(phone: Phone): F[Option[UserAndHash]] =
@@ -72,8 +74,10 @@ object ServiceRoutersSpec extends HttpSuite with ServiceGenerators with UserGene
   val services: Services[F] = new Services[F] {
     override def create(createService: CreateService): F[Service] =
       Sync[F].delay(service)
-    override def get(serviceTypeId: ServiceTypeId): F[List[Service]] =
+    override def getServicesByTypeId(serviceTypeId: ServiceTypeId): F[List[Service]] =
       Sync[F].delay(List(service))
+    override def get: F[List[ServiceWithTypeName]] =
+      Sync[F].delay(List(serviceWithTypeName))
     override def edit(editService: EditService): F[Unit] = Sync[F].unit
     override def delete(serviceId: ServiceId): F[Unit] = Sync[F].unit
     override def createServiceType(name: ServiceTypeName): F[ServiceType] =
@@ -130,12 +134,25 @@ object ServiceRoutersSpec extends HttpSuite with ServiceGenerators with UserGene
   test("Get Services by TypeId") {
     val serviceTypeId = serviceTypeIdGen.get
     authedReq() { token =>
-      GET(Uri.unsafeFromString(s"/service/report/$serviceTypeId"))
+      GET(Uri.unsafeFromString(s"/service/services-by-type-id/$serviceTypeId"))
         .bearer(NonEmptyString.unsafeFrom(token.value))
     } {
       case request -> security =>
         expectHttpBodyAndStatus(ServiceRouters[F](security, services).routes, request)(
           List(service),
+          Status.Ok,
+        )
+    }
+  }
+
+  test("Get All Services") {
+    authedReq() { token =>
+      GET(uri"/service/services")
+        .bearer(NonEmptyString.unsafeFrom(token.value))
+    } {
+      case request -> security =>
+        expectHttpBodyAndStatus(ServiceRouters[F](security, services).routes, request)(
+          List(serviceWithTypeName),
           Status.Ok,
         )
     }

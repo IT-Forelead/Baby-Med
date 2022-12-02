@@ -7,6 +7,7 @@ import babymed.services.visits.domain.CreateService
 import babymed.services.visits.domain.EditService
 import babymed.services.visits.domain.Service
 import babymed.services.visits.domain.ServiceType
+import babymed.services.visits.domain.ServiceWithTypeName
 import babymed.services.visits.domain.types.ServiceId
 import babymed.services.visits.domain.types.ServiceTypeId
 import babymed.services.visits.domain.types.ServiceTypeName
@@ -18,8 +19,10 @@ object ServicesSpec extends TestSuite with ServiceGenerators {
   val serviceRepo: ServicesRepository[F] = new ServicesRepository[F] {
     override def create(createService: CreateService): F[Service] =
       Sync[F].delay(serviceGen.get)
-    override def get(serviceTypeId: ServiceTypeId): F[List[Service]] =
+    override def getServicesByTypeId(serviceTypeId: ServiceTypeId): F[List[Service]] =
       Sync[F].delay(List(serviceGen.get))
+    override def get: F[List[ServiceWithTypeName]] =
+      Sync[F].delay(List(serviceWithTypeNameGen.get))
     override def edit(editService: EditService): F[Unit] = Sync[F].unit
     override def delete(serviceId: ServiceId): F[Unit] = Sync[F].unit
     override def createServiceType(name: ServiceTypeName): F[ServiceType] =
@@ -78,9 +81,20 @@ object ServicesSpec extends TestSuite with ServiceGenerators {
       }
   }
 
+  loggedTest("Get All Services") { logger =>
+    services
+      .get
+      .as(success)
+      .handleErrorWith { error =>
+        logger
+          .error("Error occurred!", cause = error)
+          .as(failure("Test failed!"))
+      }
+  }
+
   loggedTest("Get Services by ServiceTypeId") { logger =>
     services
-      .get(serviceTypeIdGen.get)
+      .getServicesByTypeId(serviceTypeIdGen.get)
       .as(success)
       .handleErrorWith { error =>
         logger

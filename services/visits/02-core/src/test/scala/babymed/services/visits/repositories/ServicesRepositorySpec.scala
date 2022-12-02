@@ -41,6 +41,22 @@ object ServicesRepositorySpec extends DBSuite with ServiceGenerators {
         }
   }
 
+  test("Get All Services") { implicit postgres =>
+    val repo = ServicesRepository.make[F]
+    val create = createServiceGen(data.serviceType.id2.some).get
+
+    repo.create(create) *>
+      repo
+        .get
+        .map { services =>
+          assert(services.exists(_.name == create.name))
+        }
+        .handleError { error =>
+          println("ERROR::::::::::::::::::: " + error)
+          failure("Test failed.")
+        }
+  }
+
   test("Delete Service Type") { implicit postgres =>
     val repo = ServicesRepository.make[F]
     val typeName: ServiceTypeName = serviceTypeNameGen.get
@@ -75,7 +91,7 @@ object ServicesRepositorySpec extends DBSuite with ServiceGenerators {
 
     repo.create(create) *>
       repo
-        .get(data.serviceType.id1)
+        .getServicesByTypeId(data.serviceType.id1)
         .map { services =>
           assert(services.exists(_.name == create.name))
         }
@@ -92,7 +108,7 @@ object ServicesRepositorySpec extends DBSuite with ServiceGenerators {
       service <- repo.create(create)
       editService = editServiceGen(service.id.some).get
       _ <- repo.edit(editService)
-      services <- repo.get(data.serviceType.id2)
+      services <- repo.getServicesByTypeId(data.serviceType.id2)
     } yield assert(services.exists(_.name == editService.name)))
       .handleError { error =>
         println("ERROR::::::::::::::::::: " + error)
@@ -106,7 +122,7 @@ object ServicesRepositorySpec extends DBSuite with ServiceGenerators {
     (for {
       service <- repo.create(create)
       _ <- repo.delete(service.id)
-      services <- repo.get(data.serviceType.id3)
+      services <- repo.getServicesByTypeId(data.serviceType.id3)
     } yield assert(!services.contains(service)))
       .handleError { error =>
         println("ERROR::::::::::::::::::: " + error)

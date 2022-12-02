@@ -6,6 +6,7 @@ import babymed.services.visits.domain.CreateService
 import babymed.services.visits.domain.EditService
 import babymed.services.visits.domain.Service
 import babymed.services.visits.domain.ServiceType
+import babymed.services.visits.domain.ServiceWithTypeName
 import babymed.services.visits.domain.types.ServiceId
 import babymed.services.visits.domain.types.ServiceTypeId
 import babymed.services.visits.domain.types.ServiceTypeName
@@ -15,8 +16,10 @@ import babymed.services.visits.repositories.ServicesRepository
 class Services[F[_]: Monad](servicesRepository: ServicesRepository[F]) extends proto.Services[F] {
   override def create(createService: CreateService): F[Service] =
     servicesRepository.create(createService)
-  override def get(serviceTypeId: ServiceTypeId): F[List[Service]] =
-    servicesRepository.get(serviceTypeId)
+  override def get: F[List[ServiceWithTypeName]] =
+    servicesRepository.get
+  override def getServicesByTypeId(serviceTypeId: ServiceTypeId): F[List[Service]] =
+    servicesRepository.getServicesByTypeId(serviceTypeId)
   override def edit(editService: EditService): F[Unit] =
     servicesRepository.edit(editService)
   override def delete(serviceId: ServiceId): F[Unit] =

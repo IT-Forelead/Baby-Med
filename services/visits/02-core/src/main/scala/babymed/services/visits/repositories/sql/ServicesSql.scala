@@ -8,6 +8,7 @@ import babymed.services.visits.domain.CreateService
 import babymed.services.visits.domain.EditService
 import babymed.services.visits.domain.Service
 import babymed.services.visits.domain.ServiceType
+import babymed.services.visits.domain.ServiceWithTypeName
 import babymed.services.visits.domain.types.ServiceId
 import babymed.services.visits.domain.types.ServiceTypeId
 import babymed.services.visits.domain.types.ServiceTypeName
@@ -36,6 +37,11 @@ object ServicesSql {
       ServiceType(id, name)
   }
 
+  val decServiceWithTypeName: Decoder[ServiceWithTypeName] = (Columns ~ serviceTypeName).map {
+    case id ~ serviceTypeId ~ name ~ price ~ _ ~ serviceTypeName =>
+      ServiceWithTypeName(id, serviceTypeId, name, price, serviceTypeName)
+  }
+
   val insertSql: Query[ServiceId ~ CreateService, Service] =
     sql"""INSERT INTO services VALUES ($encoder) RETURNING *""".query(decoder)
 
@@ -49,6 +55,12 @@ object ServicesSql {
   val selectServiceTypesSql: Query[Void, ServiceType] =
     sql"""SELECT * FROM service_types WHERE deleted = false ORDER BY name ASC"""
       .query(decServiceType)
+
+  val selectServicesSql: Query[Void, ServiceWithTypeName] =
+    sql"""SELECT services.*, service_types.name FROM services
+        INNER JOIN service_types ON services.service_type_id = service_types.id
+        WHERE services.deleted = false"""
+      .query(decServiceWithTypeName)
 
   val deleteServiceTypeSql: Command[ServiceTypeId] =
     sql"""UPDATE service_types SET deleted = true WHERE id = $serviceTypeId""".command
