@@ -73,8 +73,10 @@ object OperationExpensesSql {
   val insert: Query[OperationExpense, OperationExpense] =
     sql"""INSERT INTO operation_expenses VALUES ($encoder) RETURNING *""".query(decoder)
 
-  val insertItem: Query[OperationExpenseItem, OperationExpenseItem] =
-    sql"""INSERT INTO operation_expense_items VALUES ($encItem) RETURNING *""".query(decItem)
+  def insertItems(item: List[OperationExpenseItem]): Command[item.type] = {
+    val enc = encItem.values.list(item)
+    sql"""INSERT INTO operation_expense_items VALUES $enc""".command
+  }
 
   private def searchFilter(filters: OperationExpenseFilters): List[Option[AppliedFragment]] =
     List(

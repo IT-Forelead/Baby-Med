@@ -44,6 +44,15 @@ object OperationExpensesRepository {
             partnerDoctorPrice = createOperationExpense.partnerDoctorPrice,
           )
         )
+        list = createOperationExpense.operationExpenseItems.map { item =>
+          OperationExpenseItem(
+            operationExpenseId = operationExpense.id,
+            userId = item.userId,
+            subRoleId = item.subRoleId,
+            price = item.price,
+          )
+        }
+        _ <- insertItems(list).execute(list)
       } yield operationExpense
 
     override def get(
