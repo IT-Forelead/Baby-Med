@@ -84,20 +84,6 @@ object PatientsSql {
     baseQuery(Void).andOpt(searchFilter(filters): _*)
   }
 
-//  private def searchByName(name: Fullname): List[Option[AppliedFragment]] =
-//    List(
-//      sql"patients.firstname ILIKE $fullName",
-//      sql"patients.lastname ILIKE $fullName",
-//    )
-
-//  def selectByName(name: Fullname): AppliedFragment = {
-//    val baseQuery: Fragment[Void] =
-//      sql"""SELECT patients.id, patients.firstname, patients.lastname, patients.phone
-//           FROM patients WHERE patients.deleted = false"""
-//
-//    baseQuery(Void).andOpt(searchByName(name): _*)
-//  }
-
   val getPatientsByName: Query[Fullname ~ Fullname, PatientWithName] =
     sql"""SELECT patients.id, patients.firstname, patients.lastname, patients.phone
        FROM patients WHERE patients.deleted = false AND (
