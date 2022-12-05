@@ -10,6 +10,7 @@ import babymed.services.messages.domain.Message
 import babymed.services.messages.proto.Messages
 import babymed.services.users.domain.CreateUser
 import babymed.services.users.domain.EditUser
+import babymed.services.users.domain.SubRole
 import babymed.services.users.domain.User
 import babymed.services.users.domain.UserAndHash
 import babymed.services.users.domain.UserFilters
@@ -28,16 +29,16 @@ object UsersSpec extends TestSuite with UserGenerators {
 
     override def validationAndEdit(editUser: EditUser): F[Unit] =
       Sync[F].unit
-
     override def findByPhone(phone: Phone): F[Option[UserAndHash]] =
       Sync[F].delay(userAndHashGen.getOpt)
-
     override def get(filters: UserFilters): F[List[User]] =
       Sync[F].delay(List(userGen.get))
-
-    override def delete(userId: UserId): UsersSpec.F[Unit] = Sync[F].unit
-
-    override def getTotal(filters: UserFilters): UsersSpec.F[Long] = Sync[F].delay(Gen.long.get)
+    override def delete(userId: UserId): UsersSpec.F[Unit] =
+      Sync[F].unit
+    override def getTotal(filters: UserFilters): UsersSpec.F[Long] =
+      Sync[F].delay(Gen.long.get)
+    override def getSubRoles: F[List[SubRole]] =
+      Sync[F].delay(List(subRoleGen.get))
   }
 
   val messageRepo: Messages[F] = new Messages[F] {
@@ -48,7 +49,7 @@ object UsersSpec extends TestSuite with UserGenerators {
 
   loggedTest("Create User") { logger =>
     users
-      .validationAndCreate(createUserGen.get)
+      .validationAndCreate(createUserGen().get)
       .as(success)
       .handleErrorWith { error =>
         logger
@@ -59,7 +60,7 @@ object UsersSpec extends TestSuite with UserGenerators {
 
   loggedTest("Edit User") { logger =>
     users
-      .validationAndEdit(editUserGen.get)
+      .validationAndEdit(editUserGen().get)
       .as(success)
       .handleErrorWith { error =>
         logger
@@ -93,6 +94,17 @@ object UsersSpec extends TestSuite with UserGenerators {
   loggedTest("Delete User") { implicit logger =>
     users
       .delete(userId = userIdGen.get)
+      .as(success)
+      .handleErrorWith { error =>
+        logger
+          .error("Error occurred!", cause = error)
+          .as(failure("Test failed!"))
+      }
+  }
+
+  loggedTest("Get All Sub Roles") { implicit logger =>
+    users
+      .getSubRoles
       .as(success)
       .handleErrorWith { error =>
         logger

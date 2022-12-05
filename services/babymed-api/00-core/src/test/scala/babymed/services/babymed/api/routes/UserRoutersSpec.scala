@@ -47,8 +47,9 @@ object UserRoutersSpec extends HttpSuite with UserGenerators {
 
   lazy val total: Long = Gen.long.get
   lazy val user: User = userGen.get
-  lazy val editUser: EditUser = editUserGen.get
-  lazy val createUser: CreateUser = createUserGen.get
+  lazy val editUser: EditUser = editUserGen().get
+  lazy val createUser: CreateUser = createUserGen().get
+  lazy val subRole: SubRole = subRoleGen.get
   lazy val credentials: Credentials =
     Credentials(phoneGen.get, NonEmptyString.unsafeFrom(nonEmptyStringGen(8).get))
 
@@ -63,6 +64,7 @@ object UserRoutersSpec extends HttpSuite with UserGenerators {
       Sync[F].delay(ResponseData(List(user), total))
     override def delete(userId: UserId): F[Unit] = Sync[F].unit
     override def getTotal(filters: UserFilters): F[Long] = Sync[F].delay(total)
+    override def getSubRoles: F[List[SubRole]] = Sync[F].delay(List(subRole))
   }
 
   def authedReq(
@@ -149,6 +151,22 @@ object UserRoutersSpec extends HttpSuite with UserGenerators {
     } {
       case request -> security =>
         expectHttpStatus(UserRouters[F](security, users()).routes, request)(Status.NoContent)
+    }
+  }
+
+  test("Get All Sub Roles") {
+    authedReq() { token =>
+      GET(
+        Uri
+          .unsafeFromString("/user/sub-roles")
+          .withQueryParam("x-token", token.value)
+      )
+    } {
+      case request -> security =>
+        expectHttpBodyAndStatus(UserRouters[F](security, users()).routes, request)(
+          List(subRole),
+          Status.Ok,
+        )
     }
   }
 }

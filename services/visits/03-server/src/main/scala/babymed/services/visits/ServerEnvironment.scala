@@ -8,6 +8,7 @@ case class ServerEnvironment[F[_]](
 
 object ServerEnvironment {
   case class Services[F[_]](
+      operationExpenses: OperationExpenses[F],
       services: proto.Services[F],
       visits: Visits[F],
     )

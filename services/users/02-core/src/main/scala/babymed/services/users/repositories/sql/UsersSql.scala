@@ -3,7 +3,7 @@ package babymed.services.users.repositories.sql
 import java.time.LocalDateTime
 
 import skunk._
-import skunk.codec.all.timestamp
+import skunk.codec.all._
 import skunk.implicits._
 import tsec.passwordhashers.PasswordHash
 import tsec.passwordhashers.jca.SCrypt
@@ -11,6 +11,7 @@ import tsec.passwordhashers.jca.SCrypt
 import babymed.refinements.Phone
 import babymed.services.users.domain.CreateUser
 import babymed.services.users.domain.EditUser
+import babymed.services.users.domain.SubRole
 import babymed.services.users.domain.User
 import babymed.services.users.domain.UserAndHash
 import babymed.services.users.domain.UserFilters
@@ -19,70 +20,79 @@ import babymed.support.skunk.codecs.phone
 import babymed.support.skunk.syntax.all.skunkSyntaxFragmentOps
 
 object UsersSql {
-  val userId: Codec[UserId] = identity[UserId]
-
-  private val ColumnsWithPassword =
-    userId ~ timestamp ~ firstName ~ lastName ~ phone ~ role ~ passwordHash
-  private val Columns = userId ~ timestamp ~ firstName ~ lastName ~ phone ~ role
+  private val Columns =
+    userId ~ timestamp ~ firstName ~ lastName ~ phone ~ role ~ subRoleId.opt ~ passwordHash ~ bool
 
   val encoder: Encoder[UserId ~ LocalDateTime ~ CreateUser ~ PasswordHash[SCrypt]] =
-    ColumnsWithPassword.contramap {
+    Columns.contramap {
       case id ~ createdAt ~ cu ~ password =>
-        id ~ createdAt ~ cu.firstname ~ cu.lastname ~ cu.phone ~ cu.role ~ password
+        id ~ createdAt ~ cu.firstname ~ cu.lastname ~ cu.phone ~ cu.role ~ cu.subRoleId ~ password ~ false
     }
 
-  val decoderUserAndHash: Decoder[UserAndHash] = ColumnsWithPassword.map {
-    case id ~ createdAt ~ firstName ~ lastName ~ phone ~ role ~ password =>
+  val decoderUserAndHash: Decoder[UserAndHash] = Columns.map {
+    case id ~ createdAt ~ firstName ~ lastName ~ phone ~ role ~ subRoleId ~ password ~ _ =>
       UserAndHash(
-        user = User(id, createdAt, firstName, lastName, phone, role),
+        user = User(id, createdAt, firstName, lastName, phone, role, subRoleId),
         password = password,
       )
   }
 
   val decoder: Decoder[User] = Columns.map {
-    case id ~ createdAt ~ firstName ~ lastName ~ phone ~ role =>
-      User(id, createdAt, firstName, lastName, phone, role)
+    case id ~ createdAt ~ firstName ~ lastName ~ phone ~ role ~ subRoleId ~ _ ~ _ =>
+      User(id, createdAt, firstName, lastName, phone, role, subRoleId)
+  }
+
+  val decUserWithSubRole: Decoder[User] = (Columns ~ subRoleName.opt).map {
+    case id ~ createdAt ~ firstName ~ lastName ~ phone ~ role ~ subRoleId ~ _ ~ _ ~ subRoleName =>
+      User(id, createdAt, firstName, lastName, phone, role, subRoleId, subRoleName)
+  }
+
+  val decSubRole: Decoder[SubRole] = (subRoleId ~ subRoleName ~ bool).map {
+    case id ~ name ~ _ =>
+      SubRole(id, name)
   }
 
   private def userFilters(filters: UserFilters): List[Option[AppliedFragment]] =
     List(
-      filters.firstName.map(sql"firstname ILIKE $firstName"),
-      filters.lastName.map(sql"lastname ILIKE $lastName"),
-      filters.role.map(sql"role = $role"),
-      filters.phone.map(sql"phone ILIKE $phone"),
+      filters.firstName.map(sql"users.firstname ILIKE $firstName"),
+      filters.lastName.map(sql"users.lastname ILIKE $lastName"),
+      filters.role.map(sql"users.role = $role"),
+      filters.phone.map(sql"users.phone ILIKE $phone"),
     )
 
   def select(filters: UserFilters): AppliedFragment = {
     val baseQuery: Fragment[Void] =
-      sql"""SELECT id, created_at, firstname, lastname, phone, role FROM users"""
-
-    baseQuery(Void).whereAndOpt(userFilters(filters): _*)
+      sql"""SELECT users.*, sub_roles.name FROM users
+        LEFT JOIN sub_roles ON users.sub_role_id = sub_roles.id
+        WHERE users.deleted = false"""
+    baseQuery(Void).andOpt(userFilters(filters): _*)
   }
 
   def total(filters: UserFilters): AppliedFragment = {
-    val baseQuery: Fragment[Void] =
-      sql"""SELECT count(*) FROM users"""
-    baseQuery(Void).whereAndOpt(userFilters(filters): _*)
+    val baseQuery: Fragment[Void] = sql"""SELECT count(*) FROM users WHERE deleted = false"""
+    baseQuery(Void).andOpt(userFilters(filters): _*)
   }
 
   val insert: Query[UserId ~ LocalDateTime ~ CreateUser ~ PasswordHash[SCrypt], User] =
-    sql"""INSERT INTO users VALUES ($encoder) RETURNING id, created_at, firstname, lastname, phone, role"""
-      .query(decoder)
+    sql"""INSERT INTO users VALUES ($encoder) RETURNING *""".query(decoder)
 
   val selectByPhone: Query[Phone, UserAndHash] =
-    sql"""SELECT * FROM users WHERE phone = $phone""".query(decoderUserAndHash)
+    sql"""SELECT * FROM users WHERE phone = $phone AND deleted = false""".query(decoderUserAndHash)
 
   val selectOldUser: Query[Phone, UserId] =
     sql"""SELECT id FROM users WHERE phone = $phone""".query(userId)
 
   val updateUserSql: Command[EditUser] =
-    sql"""UPDATE users SET firstname = $firstName, lastname = $lastName, phone = $phone, role = $role
+    sql"""UPDATE users SET firstname = $firstName, lastname = $lastName, phone = $phone, role = $role, sub_role_id = ${subRoleId.opt}
         WHERE id = $userId"""
       .command
       .contramap { eu: EditUser =>
-        eu.firstname ~ eu.lastname ~ eu.phone ~ eu.role ~ eu.id
+        eu.firstname ~ eu.lastname ~ eu.phone ~ eu.role ~ eu.subRoleId ~ eu.id
       }
 
   val deleteUserSql: Command[UserId] =
-    sql"""DELETE FROM users WHERE id = $userId""".command
+    sql"""UPDATE users SET deleted = true WHERE id = $userId""".command
+
+  val selectSubRoles: Query[Void, SubRole] =
+    sql"""SELECT * FROM sub_roles WHERE deleted = false""".query(decSubRole)
 }

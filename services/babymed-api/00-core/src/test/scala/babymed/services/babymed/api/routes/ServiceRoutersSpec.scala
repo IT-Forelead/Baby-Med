@@ -32,7 +32,11 @@ import babymed.services.users.proto.Users
 import babymed.services.visits.domain.CreateService
 import babymed.services.visits.domain.EditService
 import babymed.services.visits.domain.Service
-import babymed.services.visits.domain.types
+import babymed.services.visits.domain.ServiceType
+import babymed.services.visits.domain.ServiceWithTypeName
+import babymed.services.visits.domain.types.ServiceId
+import babymed.services.visits.domain.types.ServiceTypeId
+import babymed.services.visits.domain.types.ServiceTypeName
 import babymed.services.visits.generators.ServiceGenerators
 import babymed.services.visits.proto.Services
 import babymed.support.redis.RedisClientMock
@@ -51,6 +55,8 @@ object ServiceRoutersSpec extends HttpSuite with ServiceGenerators with UserGene
   lazy val credentials: Credentials =
     Credentials(phoneGen.get, NonEmptyString.unsafeFrom(nonEmptyStringGen(8).get))
   lazy val service: Service = serviceGen.get
+  lazy val serviceType: ServiceType = serviceTypeGen.get
+  lazy val serviceWithTypeName: ServiceWithTypeName = serviceWithTypeNameGen.get
 
   def users(role: Role): Users[F] = new Users[F] {
     override def find(phone: Phone): F[Option[UserAndHash]] =
@@ -62,18 +68,23 @@ object ServiceRoutersSpec extends HttpSuite with ServiceGenerators with UserGene
     override def get(filters: UserFilters): F[ResponseData[User]] = ???
     override def delete(userId: UserId): F[Unit] = ???
     override def getTotal(filters: UserFilters): F[Long] = ???
+    override def getSubRoles: F[List[SubRole]] = ???
   }
 
   val services: Services[F] = new Services[F] {
     override def create(createService: CreateService): F[Service] =
       Sync[F].delay(service)
-    override def get: F[List[Service]] = Sync[F].delay(List(service))
-    override def edit(
-        editService: EditService
-      ): ServiceRoutersSpec.F[Unit] = Sync[F].unit
-    override def delete(
-        serviceId: types.ServiceId
-      ): ServiceRoutersSpec.F[Unit] = Sync[F].unit
+    override def getServicesByTypeId(serviceTypeId: ServiceTypeId): F[List[Service]] =
+      Sync[F].delay(List(service))
+    override def get: F[List[ServiceWithTypeName]] =
+      Sync[F].delay(List(serviceWithTypeName))
+    override def edit(editService: EditService): F[Unit] = Sync[F].unit
+    override def delete(serviceId: ServiceId): F[Unit] = Sync[F].unit
+    override def createServiceType(name: ServiceTypeName): F[ServiceType] =
+      Sync[F].delay(serviceType)
+    override def getServiceTypes: F[List[ServiceType]] =
+      Sync[F].delay(List(serviceType))
+    override def deleteServiceType(id: ServiceTypeId): F[Unit] = Sync[F].unit
   }
 
   def authedReq(
@@ -100,7 +111,7 @@ object ServiceRoutersSpec extends HttpSuite with ServiceGenerators with UserGene
 
   test("Create service with incorrect role") {
     authedReq(Doctor) { token =>
-      POST(createServiceGen.get, uri"/service/create").bearer(
+      POST(createServiceGen().get, uri"/service/create").bearer(
         NonEmptyString.unsafeFrom(token.value)
       )
     } {
@@ -111,7 +122,7 @@ object ServiceRoutersSpec extends HttpSuite with ServiceGenerators with UserGene
 
   test("Create service with correct role") {
     authedReq() { token =>
-      POST(createServiceGen.get, uri"/service/create").bearer(
+      POST(createServiceGen().get, uri"/service/create").bearer(
         NonEmptyString.unsafeFrom(token.value)
       )
     } {
@@ -120,13 +131,28 @@ object ServiceRoutersSpec extends HttpSuite with ServiceGenerators with UserGene
     }
   }
 
-  test("Get All Services") {
+  test("Get Services by TypeId") {
+    val serviceTypeId = serviceTypeIdGen.get
     authedReq() { token =>
-      GET(uri"/service/report").bearer(NonEmptyString.unsafeFrom(token.value))
+      GET(Uri.unsafeFromString(s"/service/services-by-type-id/$serviceTypeId"))
+        .bearer(NonEmptyString.unsafeFrom(token.value))
     } {
       case request -> security =>
         expectHttpBodyAndStatus(ServiceRouters[F](security, services).routes, request)(
           List(service),
+          Status.Ok,
+        )
+    }
+  }
+
+  test("Get All Services") {
+    authedReq() { token =>
+      GET(uri"/service/services")
+        .bearer(NonEmptyString.unsafeFrom(token.value))
+    } {
+      case request -> security =>
+        expectHttpBodyAndStatus(ServiceRouters[F](security, services).routes, request)(
+          List(serviceWithTypeName),
           Status.Ok,
         )
     }
@@ -172,6 +198,64 @@ object ServiceRoutersSpec extends HttpSuite with ServiceGenerators with UserGene
       GET(Uri.unsafeFromString(s"/service/delete/$serviceId")).bearer(
         NonEmptyString.unsafeFrom(token.value)
       )
+    } {
+      case request -> security =>
+        expectHttpStatus(ServiceRouters[F](security, services).routes, request)(Status.NoContent)
+    }
+  }
+
+  test("Create Service Type with incorrect role") {
+    authedReq(Doctor) { token =>
+      POST(serviceTypeNameGen.get, uri"/service/create-service-type").bearer(
+        NonEmptyString.unsafeFrom(token.value)
+      )
+    } {
+      case request -> security =>
+        expectNotFound(ServiceRouters[F](security, services).routes, request)
+    }
+  }
+
+  test("Create Service Type with correct role") {
+    authedReq() { token =>
+      POST(serviceTypeNameGen.get, uri"/service/create-service-type").bearer(
+        NonEmptyString.unsafeFrom(token.value)
+      )
+    } {
+      case request -> security =>
+        expectHttpStatus(ServiceRouters[F](security, services).routes, request)(Status.NoContent)
+    }
+  }
+
+  test("Get Service Types") {
+    authedReq() { token =>
+      GET(uri"/service/service-types")
+        .bearer(NonEmptyString.unsafeFrom(token.value))
+    } {
+      case request -> security =>
+        expectHttpBodyAndStatus(ServiceRouters[F](security, services).routes, request)(
+          List(serviceType),
+          Status.Ok,
+        )
+    }
+  }
+
+  test("Delete Service Type with incorrect role") {
+    authedReq(Doctor) { token =>
+      val serviceTypeId = serviceTypeGen.get.id
+      GET(Uri.unsafeFromString(s"/service/delete-service-type/$serviceTypeId")).bearer(
+        NonEmptyString.unsafeFrom(token.value)
+      )
+    } {
+      case request -> security =>
+        expectNotFound(ServiceRouters[F](security, services).routes, request)
+    }
+  }
+
+  test("Delete Service Type with correct role") {
+    authedReq() { token =>
+      val serviceTypeId = serviceTypeGen.get.id
+      GET(Uri.unsafeFromString(s"/service/delete-service-type/$serviceTypeId"))
+        .bearer(NonEmptyString.unsafeFrom(token.value))
     } {
       case request -> security =>
         expectHttpStatus(ServiceRouters[F](security, services).routes, request)(Status.NoContent)

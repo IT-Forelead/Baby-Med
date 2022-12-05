@@ -19,6 +19,7 @@ object GrpcModule {
       env: ServerEnvironment[F]
     ): Resource[F, GrpcModule] =
     List(
+      proto.OperationExpenses.bindService[F](env.services.operationExpenses),
       proto.Services.bindService[F](env.services.services),
       proto.Visits.bindService[F](env.services.visits),
     ).sequence.map(GrpcModule.apply)

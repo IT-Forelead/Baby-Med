@@ -21,7 +21,7 @@ object PatientsRepositorySpec extends DBSuite with PatientGenerators {
   test("Create Patient") { implicit postgres =>
     PatientsRepository
       .make[F]
-      .create(createPatientGen(data.regions.id1.some, data.towns.id1.some).get)
+      .create(createPatientGen(data.regions.id1.some, data.cities.id1.some).get)
       .map { c =>
         assert(c.createdAt.isBefore(LocalDateTime.now()))
       }
@@ -33,9 +33,9 @@ object PatientsRepositorySpec extends DBSuite with PatientGenerators {
   test("Get Patient by Id") { implicit postgres =>
     PatientsRepository
       .make[F]
-      .getPatientById(data.customer.id1)
+      .getPatientById(data.patient.id1)
       .map { patients =>
-        assert(patients.exists(_.patient.id == data.customer.id1))
+        assert(patients.exists(_.patient.id == data.patient.id1))
       }
       .handleError { error =>
         println("ERROR::::::::::::::::::: " + error)
@@ -43,46 +43,46 @@ object PatientsRepositorySpec extends DBSuite with PatientGenerators {
       }
   }
 
-  test("Get Customers") { implicit postgres =>
+  test("Get Patients") { implicit postgres =>
     val repo = PatientsRepository.make[F]
     object Case1 extends TestCase[Res] {
       override def check(implicit dao: Resource[IO, Session[IO]]): IO[Expectations] =
         repo
-          .get(PatientFilters(patientFirstName = data.customer.data1.firstname.some))
-          .map { customers =>
-            assert(customers.map(_.patient.id) == List(data.customer.id1))
+          .get(PatientFilters(patientFirstName = data.patient.data1.firstname.some))
+          .map { patients =>
+            assert(patients.map(_.patient.id) == List(data.patient.id1))
           }
     }
     object Case2 extends TestCase[Res] {
       override def check(implicit dao: Resource[IO, Session[IO]]): IO[Expectations] =
         repo
           .get(PatientFilters(regionId = data.regions.id2.some))
-          .map { customers =>
-            assert.same(customers.map(_.patient.id), data.customer.values.keys.toList)
+          .map { patients =>
+            assert.same(patients.map(_.patient.id), data.patient.values.keys.toList)
           }
     }
     object Case3 extends TestCase[Res] {
       override def check(implicit dao: Resource[IO, Session[IO]]): IO[Expectations] =
         repo
-          .get(PatientFilters(townId = data.towns.id2.some))
-          .map { customers =>
-            assert.same(customers.map(_.patient.id), data.customer.values.keys.toList)
+          .get(PatientFilters(cityId = data.cities.id2.some))
+          .map { patients =>
+            assert.same(patients.map(_.patient.id), data.patient.values.keys.toList)
           }
     }
     object Case4 extends TestCase[Res] {
       override def check(implicit dao: Resource[IO, Session[IO]]): IO[Expectations] =
         repo
-          .get(PatientFilters(phone = data.customer.data1.phone.some))
-          .map { customers =>
-            assert.same(customers.map(_.patient.id), List(data.customer.id1))
+          .get(PatientFilters(phone = data.patient.data1.phone.some))
+          .map { patients =>
+            assert.same(patients.map(_.patient.id), List(data.patient.id1))
           }
     }
     object Case5 extends TestCase[Res] {
       override def check(implicit dao: Resource[IO, Session[IO]]): IO[Expectations] =
         repo
           .get(PatientFilters(phone = Some("+998990123456")))
-          .map { customers =>
-            assert(customers.isEmpty)
+          .map { patients =>
+            assert(patients.isEmpty)
           }
     }
     object Case6 extends TestCase[Res] {
@@ -94,16 +94,16 @@ object PatientsRepositorySpec extends DBSuite with PatientGenerators {
               regionId = data.regions.id2.some,
             )
           )
-          .map { customers =>
-            assert(customers.length == 3)
+          .map { patients =>
+            assert(patients.length == 3)
           }
     }
     object Case7 extends TestCase[Res] {
       override def check(implicit dao: Resource[IO, Session[IO]]): IO[Expectations] =
         repo
           .get(PatientFilters(endDate = LocalDateTime.now().minusMinutes(1).some))
-          .map { customers =>
-            assert(customers.isEmpty)
+          .map { patients =>
+            assert(patients.isEmpty)
           }
     }
     List(
@@ -117,7 +117,7 @@ object PatientsRepositorySpec extends DBSuite with PatientGenerators {
     ).traverse(_.check).map(_.reduce(_ and _))
   }
 
-  test("Get Customer Total") { implicit postgres =>
+  test("Get Patient Total") { implicit postgres =>
     PatientsRepository
       .make[F]
       .getTotal(PatientFilters.Empty)
@@ -142,12 +142,12 @@ object PatientsRepositorySpec extends DBSuite with PatientGenerators {
       }
   }
 
-  test("Get Towns by RegionId") { implicit postgres =>
+  test("Get Cities by RegionId") { implicit postgres =>
     PatientsRepository
       .make[F]
-      .getTownsByRegionId(data.regions.id1)
-      .map { towns =>
-        assert(towns.nonEmpty)
+      .getCitiesByRegionId(data.regions.id1)
+      .map { cities =>
+        assert(cities.nonEmpty)
       }
       .handleError { error =>
         println("ERROR::::::::::::::::::: " + error)

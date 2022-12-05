@@ -3,41 +3,31 @@ package babymed.services.visits.generators
 import org.scalacheck.Gen
 
 import babymed.services.users.domain.types.PatientId
-import babymed.services.users.domain.types.UserId
 import babymed.services.users.generators.PatientGenerators
-import babymed.services.users.generators.UserGenerators
 import babymed.services.visits.domain.CreatePatientVisit
 import babymed.services.visits.domain.PatientVisit
 import babymed.services.visits.domain.PatientVisitInfo
 import babymed.services.visits.domain.types.ServiceId
 
-trait PatientVisitGenerators
-    extends TypeGen
-       with UserGenerators
-       with ServiceGenerators
-       with PatientGenerators {
+trait PatientVisitGenerators extends TypeGen with ServiceGenerators with PatientGenerators {
   lazy val patientVisitGen: Gen[PatientVisit] =
     for {
       id <- patientVisitIdGen
       createdAt <- localDateTimeGen
       patientId <- patientIdGen
-      userId <- userIdGen
       serviceId <- serviceIdGen
       payment_status <- paymentStatusGen
-    } yield PatientVisit(id, createdAt, patientId, userId, serviceId, payment_status)
+    } yield PatientVisit(id, createdAt, patientId, serviceId, payment_status)
 
   def createPatientVisitGen(
       maybePatientId: Option[PatientId] = None,
-      maybeUserId: Option[UserId] = None,
       maybeServiceId: Option[ServiceId] = None,
     ): Gen[CreatePatientVisit] =
     for {
       patientId <- patientIdGen
-      userId <- userIdGen
       serviceId <- serviceIdGen
     } yield CreatePatientVisit(
       maybePatientId.getOrElse(patientId),
-      maybeUserId.getOrElse(userId),
       maybeServiceId.getOrElse(serviceId),
     )
 
@@ -45,9 +35,8 @@ trait PatientVisitGenerators
     for {
       patientVisit <- patientVisitGen
       patient <- patientGen
-      user <- userGen
-      service <- serviceGen
+      serviceWithTypeName <- serviceWithTypeNameGen
       region <- regionGen
-      town <- townGen
-    } yield PatientVisitInfo(patientVisit, patient, user, service, region, town)
+      city <- cityGen
+    } yield PatientVisitInfo(patientVisit, patient, serviceWithTypeName, region, city)
 }

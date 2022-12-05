@@ -7,10 +7,12 @@ import squants.Money
 
 import babymed.services.visits.domain.types.ServiceId
 import babymed.services.visits.domain.types.ServiceName
+import babymed.services.visits.domain.types.ServiceTypeId
 
 @derive(decoder, encoder)
 case class EditService(
     id: ServiceId,
+    serviceTypeId: ServiceTypeId,
     name: ServiceName,
-    cost: Money,
+    price: Money,
   )

@@ -11,14 +11,22 @@ import babymed.effects.GenUUID
 import babymed.services.visits.domain.CreateService
 import babymed.services.visits.domain.EditService
 import babymed.services.visits.domain.Service
+import babymed.services.visits.domain.ServiceType
+import babymed.services.visits.domain.ServiceWithTypeName
 import babymed.services.visits.domain.types.ServiceId
+import babymed.services.visits.domain.types.ServiceTypeId
+import babymed.services.visits.domain.types.ServiceTypeName
 import babymed.support.skunk.syntax.all._
 
 trait ServicesRepository[F[_]] {
   def create(createService: CreateService): F[Service]
-  def get: F[List[Service]]
+  def get: F[List[ServiceWithTypeName]]
+  def getServicesByTypeId(serviceTypeId: ServiceTypeId): F[List[Service]]
   def edit(editService: EditService): F[Unit]
   def delete(serviceId: ServiceId): F[Unit]
+  def createServiceType(name: ServiceTypeName): F[ServiceType]
+  def getServiceTypes: F[List[ServiceType]]
+  def deleteServiceType(id: ServiceTypeId): F[Unit]
 }
 
 object ServicesRepository {
@@ -34,11 +42,23 @@ object ServicesRepository {
         insertSql.queryUnique(id ~ createService)
       }
 
-    override def get: F[List[Service]] =
-      selectSql.all
+    override def getServicesByTypeId(serviceTypeId: ServiceTypeId): F[List[Service]] =
+      selectSql.queryList(serviceTypeId)
     override def edit(editService: EditService): F[Unit] =
       updateSql.execute(editService)
     override def delete(serviceId: ServiceId): F[Unit] =
       deleteSql.execute(serviceId)
+
+    override def createServiceType(name: ServiceTypeName): F[ServiceType] =
+      ID.make[F, ServiceTypeId].flatMap { id =>
+        insertServiceTypeSql.queryUnique(id ~ name)
+      }
+
+    override def getServiceTypes: F[List[ServiceType]] =
+      selectServiceTypesSql.all
+    override def get: F[List[ServiceWithTypeName]] =
+      selectServicesSql.all
+    override def deleteServiceType(serviceId: ServiceTypeId): F[Unit] =
+      deleteServiceTypeSql.execute(serviceId)
   }
 }

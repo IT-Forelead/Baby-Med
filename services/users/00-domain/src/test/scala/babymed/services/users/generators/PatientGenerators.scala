@@ -2,13 +2,13 @@ package babymed.services.users.generators
 
 import org.scalacheck.Gen
 
+import babymed.services.users.domain.City
 import babymed.services.users.domain.CreatePatient
 import babymed.services.users.domain.Patient
 import babymed.services.users.domain.PatientWithAddress
 import babymed.services.users.domain.Region
-import babymed.services.users.domain.Town
+import babymed.services.users.domain.types.CityId
 import babymed.services.users.domain.types.RegionId
-import babymed.services.users.domain.types.TownId
 
 trait PatientGenerators extends TypeGen {
   lazy val patientGen: Gen[Patient] =
@@ -18,8 +18,8 @@ trait PatientGenerators extends TypeGen {
       firstname <- firstNameGen
       lastname <- lastNameGen
       regionId <- regionIdGen
-      townId <- townIdGen
-      address <- addressGen
+      cityId <- cityIdGen
+      address <- addressGen.opt
       birthday <- dateGen
       phone <- phoneGen
     } yield Patient(
@@ -28,7 +28,7 @@ trait PatientGenerators extends TypeGen {
       firstname,
       lastname,
       regionId,
-      townId,
+      cityId,
       address,
       birthday,
       phone,
@@ -36,21 +36,21 @@ trait PatientGenerators extends TypeGen {
 
   def createPatientGen(
       maybeRegionId: Option[RegionId] = None,
-      maybeTownId: Option[TownId] = None,
+      maybeCityId: Option[CityId] = None,
     ): Gen[CreatePatient] =
     for {
       firstname <- firstNameGen
       lastname <- lastNameGen
       regionId <- regionIdGen
-      townId <- townIdGen
-      address <- addressGen
+      cityId <- cityIdGen
+      address <- addressGen.opt
       birthday <- dateGen
       phone <- phoneGen
     } yield CreatePatient(
       firstname,
       lastname,
       maybeRegionId.getOrElse(regionId),
-      maybeTownId.getOrElse(townId),
+      maybeCityId.getOrElse(cityId),
       address,
       birthday,
       phone,
@@ -62,17 +62,17 @@ trait PatientGenerators extends TypeGen {
       name <- regionNameGen
     } yield Region(id, name)
 
-  lazy val townGen: Gen[Town] =
+  lazy val cityGen: Gen[City] =
     for {
-      id <- townIdGen
+      id <- cityIdGen
       regionId <- regionIdGen
-      name <- townNameGen
-    } yield Town(id, regionId, name)
+      name <- cityNameGen
+    } yield City(id, regionId, name)
 
   lazy val patientWithAddressGen: Gen[PatientWithAddress] =
     for {
       patient <- patientGen
       region <- regionGen
-      town <- townGen
-    } yield PatientWithAddress(patient, region, town)
+      city <- cityGen
+    } yield PatientWithAddress(patient, region, city)
 }

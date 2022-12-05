@@ -66,6 +66,7 @@ object VisitRoutersSpec extends HttpSuite with PatientVisitGenerators with UserG
     override def get(filters: UserFilters): F[ResponseData[User]] = ???
     override def delete(userId: UserId): F[Unit] = ???
     override def getTotal(filters: UserFilters): F[Long] = ???
+    override def getSubRoles: F[List[SubRole]] = ???
   }
 
   val visits: Visits[F] = new Visits[F] {
@@ -103,7 +104,7 @@ object VisitRoutersSpec extends HttpSuite with PatientVisitGenerators with UserG
 
   test("Create patient visit with incorrect role") {
     authedReq(Doctor) { token =>
-      POST(createServiceGen.get, uri"/visit/create").bearer(
+      POST(createServiceGen().get, uri"/visit/create").bearer(
         NonEmptyString.unsafeFrom(token.value)
       )
     } {

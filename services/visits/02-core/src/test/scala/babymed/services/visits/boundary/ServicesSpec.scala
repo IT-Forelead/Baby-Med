@@ -6,7 +6,11 @@ import cats.implicits.catsSyntaxOptionId
 import babymed.services.visits.domain.CreateService
 import babymed.services.visits.domain.EditService
 import babymed.services.visits.domain.Service
-import babymed.services.visits.domain.types
+import babymed.services.visits.domain.ServiceType
+import babymed.services.visits.domain.ServiceWithTypeName
+import babymed.services.visits.domain.types.ServiceId
+import babymed.services.visits.domain.types.ServiceTypeId
+import babymed.services.visits.domain.types.ServiceTypeName
 import babymed.services.visits.generators.ServiceGenerators
 import babymed.services.visits.repositories.ServicesRepository
 import babymed.test.TestSuite
@@ -15,22 +19,60 @@ object ServicesSpec extends TestSuite with ServiceGenerators {
   val serviceRepo: ServicesRepository[F] = new ServicesRepository[F] {
     override def create(createService: CreateService): F[Service] =
       Sync[F].delay(serviceGen.get)
-    override def get: F[List[Service]] =
+    override def getServicesByTypeId(serviceTypeId: ServiceTypeId): F[List[Service]] =
       Sync[F].delay(List(serviceGen.get))
-    override def edit(
-        editService: EditService
-      ): ServicesSpec.F[Unit] = Sync[F].unit
-    override def delete(
-        serviceId: types.ServiceId
-      ): ServicesSpec.F[Unit] = Sync[F].unit
+    override def get: F[List[ServiceWithTypeName]] =
+      Sync[F].delay(List(serviceWithTypeNameGen.get))
+    override def edit(editService: EditService): F[Unit] = Sync[F].unit
+    override def delete(serviceId: ServiceId): F[Unit] = Sync[F].unit
+    override def createServiceType(name: ServiceTypeName): F[ServiceType] =
+      Sync[F].delay(serviceTypeGen.get)
+    override def getServiceTypes: F[List[ServiceType]] =
+      Sync[F].delay(List(serviceTypeGen.get))
+    override def deleteServiceType(id: ServiceTypeId): F[Unit] = Sync[F].unit
   }
 
   val services: Services[F] = new Services[F](serviceRepo)
-  val createService: CreateService = createServiceGen.get
+  val createService: CreateService = createServiceGen().get
+
+  loggedTest("Create Service Type") { logger =>
+    services
+      .createServiceType(serviceTypeNameGen.get)
+      .as(success)
+      .handleErrorWith { error =>
+        logger
+          .error("Error occurred!", cause = error)
+          .as(failure("Test failed!"))
+      }
+  }
+
+  loggedTest("Get All Service Types") { logger =>
+    services
+      .getServiceTypes
+      .as(success)
+      .handleErrorWith { error =>
+        logger
+          .error("Error occurred!", cause = error)
+          .as(failure("Test failed!"))
+      }
+  }
+
+  loggedTest("Delete Service Type") { logger =>
+    val typeName: ServiceTypeName = serviceTypeNameGen.get
+    services
+      .createServiceType(typeName)
+      .map(serviceType => services.deleteServiceType(serviceType.id))
+      .as(success)
+      .handleErrorWith { error =>
+        logger
+          .error("Error occurred!", cause = error)
+          .as(failure("Test failed!"))
+      }
+  }
 
   loggedTest("Create Service") { logger =>
     services
-      .create(createServiceGen.get)
+      .create(createServiceGen().get)
       .as(success)
       .handleErrorWith { error =>
         logger
@@ -42,6 +84,17 @@ object ServicesSpec extends TestSuite with ServiceGenerators {
   loggedTest("Get All Services") { logger =>
     services
       .get
+      .as(success)
+      .handleErrorWith { error =>
+        logger
+          .error("Error occurred!", cause = error)
+          .as(failure("Test failed!"))
+      }
+  }
+
+  loggedTest("Get Services by ServiceTypeId") { logger =>
+    services
+      .getServicesByTypeId(serviceTypeIdGen.get)
       .as(success)
       .handleErrorWith { error =>
         logger

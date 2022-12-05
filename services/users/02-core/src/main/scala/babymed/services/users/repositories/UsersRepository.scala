@@ -3,7 +3,9 @@ package babymed.services.users.repositories
 import cats.data.OptionT
 import cats.effect.Async
 import cats.effect.Resource
+import cats.effect.Sync
 import cats.implicits._
+import org.typelevel.log4cats.Logger
 import skunk._
 import skunk.codec.all.int8
 import skunk.implicits.toIdOps
@@ -16,6 +18,7 @@ import babymed.refinements.Password
 import babymed.refinements.Phone
 import babymed.services.users.domain.CreateUser
 import babymed.services.users.domain.EditUser
+import babymed.services.users.domain.SubRole
 import babymed.services.users.domain.User
 import babymed.services.users.domain.UserAndHash
 import babymed.services.users.domain.UserFilters
@@ -32,10 +35,11 @@ trait UsersRepository[F[_]] {
   def get(filters: UserFilters): F[List[User]]
   def delete(userId: UserId): F[Unit]
   def getTotal(filters: UserFilters): F[Long]
+  def getSubRoles: F[List[SubRole]]
 }
 
 object UsersRepository {
-  def make[F[_]: Async](
+  def make[F[_]: Async: Logger](
       implicit
       session: Resource[F, Session[F]]
     ): UsersRepository[F] = new UsersRepository[F] {
@@ -61,15 +65,25 @@ object UsersRepository {
 
     override def validationAndEdit(editUser: EditUser): F[Unit] =
       OptionT(selectOldUser.queryOption(editUser.phone))
-        .semiflatMap(_ => PhoneInUse(editUser.phone).raiseError[F, Unit])
-        .getOrElseF(UsersSql.updateUserSql.execute(editUser))
+        .cataF(
+          UsersSql.updateUserSql.execute(editUser),
+          oldUserId =>
+            if (oldUserId == editUser.id)
+              UsersSql.updateUserSql.execute(editUser)
+            else
+              PhoneInUse(editUser.phone).raiseError[F, Unit],
+        )
+        .handleErrorWith { error =>
+          Logger[F].error(s"Error occurred while updating User information, error: $error")
+          Sync[F].raiseError(new Exception("Error occurred while updating User information"))
+        }
 
     override def findByPhone(phone: Phone): F[Option[UserAndHash]] =
       selectByPhone.queryOption(phone)
 
     override def get(filters: UserFilters): F[List[User]] = {
       val query = UsersSql.select(filters).paginateOpt(filters.limit, filters.page)
-      query.fragment.query(UsersSql.decoder).queryList(query.argument)
+      query.fragment.query(UsersSql.decUserWithSubRole).queryList(query.argument)
     }
 
     override def delete(userId: UserId): F[Unit] =
@@ -79,5 +93,8 @@ object UsersRepository {
       val query = UsersSql.total(filters)
       query.fragment.query(int8).queryUnique(query.argument)
     }
+
+    override def getSubRoles: F[List[SubRole]] =
+      selectSubRoles.queryList(Void)
   }
 }

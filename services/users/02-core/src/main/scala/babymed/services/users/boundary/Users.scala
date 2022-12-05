@@ -13,6 +13,7 @@ import babymed.services.messages.domain.types.MessageText
 import babymed.services.messages.proto.Messages
 import babymed.services.users.domain.CreateUser
 import babymed.services.users.domain.EditUser
+import babymed.services.users.domain.SubRole
 import babymed.services.users.domain.User
 import babymed.services.users.domain.UserAndHash
 import babymed.services.users.domain.UserFilters
@@ -48,4 +49,6 @@ class Users[F[_]: Monad](usersRepository: UsersRepository[F], messages: Messages
     usersRepository.delete(userId)
   override def getTotal(filters: UserFilters): F[Long] =
     usersRepository.getTotal(filters)
+  override def getSubRoles: F[List[SubRole]] =
+    usersRepository.getSubRoles
 }

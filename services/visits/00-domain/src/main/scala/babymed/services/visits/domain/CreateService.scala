@@ -6,9 +6,11 @@ import derevo.derive
 import squants.Money
 
 import babymed.services.visits.domain.types.ServiceName
+import babymed.services.visits.domain.types.ServiceTypeId
 
 @derive(decoder, encoder)
 case class CreateService(
+    serviceTypeId: ServiceTypeId,
     name: ServiceName,
-    cost: Money,
+    price: Money,
   )

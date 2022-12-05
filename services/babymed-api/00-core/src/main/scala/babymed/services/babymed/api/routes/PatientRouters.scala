@@ -31,6 +31,9 @@ final case class PatientRouters[F[_]: Async: JsonDecoder](
         patients.create(createPatient) *> NoContent()
       }
 
+    case GET -> Root / "search-by-fullname" / PatientNameVar(fullname) as _ =>
+      patients.getPatientsByName(fullname).flatMap(Ok(_))
+
     case ar @ POST -> Root / "report" as _ =>
       ar.req.decodeR[PatientFilters] { patientFilters =>
         patients
@@ -46,8 +49,8 @@ final case class PatientRouters[F[_]: Async: JsonDecoder](
     case GET -> Root / "regions" as _ =>
       patients.getRegions.flatMap(Ok(_))
 
-    case GET -> Root / "towns" / RegionIdVar(regionId) as _ =>
-      patients.getTownsByRegionId(regionId).flatMap(Ok(_))
+    case GET -> Root / "cities" / RegionIdVar(regionId) as _ =>
+      patients.getCitiesByRegionId(regionId).flatMap(Ok(_))
   }
 
   lazy val routes: HttpRoutes[F] = Router(

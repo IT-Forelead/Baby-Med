@@ -30,9 +30,9 @@ object MessagesSql {
   }
 
   val insert: Query[MessageId ~ LocalDateTime ~ CreateMessage, Message] =
-    sql"""INSERT INTO messages VALUES ($encoder) RETURNING *""".query(decoder)
+    sql"""INSERT INTO sms_messages VALUES ($encoder) RETURNING *""".query(decoder)
 
   val changeStatusSql: Query[DeliveryStatus ~ MessageId, Message] =
-    sql"""UPDATE messages SET delivery_status = $deliveryStatus WHERE id = $messageId RETURNING *"""
+    sql"""UPDATE sms_messages SET delivery_status = $deliveryStatus WHERE id = $messageId RETURNING *"""
       .query(decoder)
 }

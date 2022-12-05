@@ -4,10 +4,10 @@ import cats.effect.Async
 import cats.effect.Resource
 import skunk.Session
 
-import babymed.services.visits.repositories.ServicesRepository
-import babymed.services.visits.repositories.VisitsRepository
+import babymed.services.visits.repositories._
 
 case class Repositories[F[_]](
+    operationExpenses: OperationExpensesRepository[F],
     services: ServicesRepository[F],
     visits: VisitsRepository[F],
   )
@@ -17,6 +17,7 @@ object Repositories {
       session: Resource[F, Session[F]]
     ): Repositories[F] =
     Repositories(
+      operationExpenses = OperationExpensesRepository.make[F],
       services = ServicesRepository.make[F],
       visits = VisitsRepository.make[F],
     )

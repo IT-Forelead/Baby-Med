@@ -8,5 +8,5 @@ import derevo.derive
 case class PatientWithAddress(
     patient: Patient,
     region: Region,
-    town: Town,
+    city: City,
   )

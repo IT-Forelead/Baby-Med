@@ -13,6 +13,7 @@ import babymed.services.auth.impl.Security
 import babymed.services.users.domain.User
 import babymed.services.visits.domain.CreateService
 import babymed.services.visits.domain.EditService
+import babymed.services.visits.domain.types.ServiceTypeName
 import babymed.services.visits.proto.Services
 import babymed.support.services.syntax.all._
 
@@ -31,7 +32,10 @@ final case class ServiceRouters[F[_]: Async: JsonDecoder](
         services.create(createService) *> NoContent()
       }
 
-    case GET -> Root / "report" as _ =>
+    case GET -> Root / "services-by-type-id" / ServiceTypeIdVar(serviceTypeId) as _ =>
+      services.getServicesByTypeId(serviceTypeId).flatMap(Ok(_))
+
+    case GET -> Root / "services" as _ =>
       services.get.flatMap(Ok(_))
 
     case ar @ POST -> Root / "edit" as user if user.role != Doctor =>
@@ -41,6 +45,18 @@ final case class ServiceRouters[F[_]: Async: JsonDecoder](
 
     case GET -> Root / "delete" / ServiceIdVar(serviceId) as user if user.role != Doctor =>
       services.delete(serviceId) *> NoContent()
+
+    case ar @ POST -> Root / "create-service-type" as user if user.role != Doctor =>
+      ar.req.decodeR[ServiceTypeName] { serviceTypeName =>
+        services.createServiceType(serviceTypeName) *> NoContent()
+      }
+
+    case GET -> Root / "service-types" as _ =>
+      services.getServiceTypes.flatMap(Ok(_))
+
+    case GET -> Root / "delete-service-type" / ServiceTypeIdVar(serviceTypeId) as user
+         if user.role != Doctor =>
+      services.deleteServiceType(serviceTypeId) *> NoContent()
   }
 
   lazy val routes: HttpRoutes[F] = Router(
