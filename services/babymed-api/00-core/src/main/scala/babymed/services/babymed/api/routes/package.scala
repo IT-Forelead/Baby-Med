@@ -24,7 +24,7 @@ package object routes {
     QueryParamDecoder[String].map(str => ServiceTypeId(UUID.fromString(str)))
 
   object FullNameParam extends QueryParamDecoderMatcher[Fullname]("full_name")
-  object ServiceTypeIdParam extends QueryParamDecoderMatcher[ServiceTypeId]("type_Id")
+  object ServiceTypeIdParam extends QueryParamDecoderMatcher[ServiceTypeId]("type_id")
   object UserIdVar extends MyPathVar(str => Try(UserId(UUID.fromString(str))))
   object RegionIdVar extends MyPathVar(str => Try(RegionId(UUID.fromString(str))))
   object ServiceIdVar extends MyPathVar(str => Try(ServiceId(UUID.fromString(str))))
