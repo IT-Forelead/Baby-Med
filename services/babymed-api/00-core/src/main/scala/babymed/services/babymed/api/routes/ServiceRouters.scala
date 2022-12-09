@@ -32,8 +32,8 @@ final case class ServiceRouters[F[_]: Async: JsonDecoder](
         services.create(createService) *> NoContent()
       }
 
-    case GET -> Root / "services-by-type-id" / ServiceTypeIdVar(serviceTypeId) as _ =>
-      services.getServicesByTypeId(serviceTypeId).flatMap(Ok(_))
+    case GET -> Root / "services" :? ServiceTypeIdParam(id) as _ =>
+      services.getServicesByTypeId(id).flatMap(Ok(_))
 
     case GET -> Root / "services" as _ =>
       services.get.flatMap(Ok(_))
@@ -46,7 +46,7 @@ final case class ServiceRouters[F[_]: Async: JsonDecoder](
     case GET -> Root / "delete" / ServiceIdVar(serviceId) as user if user.role != Doctor =>
       services.delete(serviceId) *> NoContent()
 
-    case ar @ POST -> Root / "create-service-type" as user if user.role != Doctor =>
+    case ar @ POST -> Root / "create" / "service-type" as user if user.role != Doctor =>
       ar.req.decodeR[ServiceTypeName] { serviceTypeName =>
         services.createServiceType(serviceTypeName) *> NoContent()
       }

@@ -5,6 +5,7 @@ import java.util.UUID
 import scala.util.Try
 
 import eu.timepit.refined.types.string.NonEmptyString
+import org.http4s.QueryParamDecoder
 import org.http4s.dsl.impl._
 
 import babymed.services.users.domain.types.Fullname
@@ -17,7 +18,13 @@ import babymed.services.visits.domain.types.ServiceTypeId
 import babymed.util.MyPathVar
 
 package object routes {
-  object name extends OptionalQueryParamDecoderMatcher[String]("fullname")
+  implicit val fullNameDecoder: QueryParamDecoder[Fullname] =
+    QueryParamDecoder[String].map(str => Fullname(NonEmptyString.unsafeFrom("%" + str + "%")))
+  implicit val serviceTypeIdDecoder: QueryParamDecoder[ServiceTypeId] =
+    QueryParamDecoder[String].map(str => ServiceTypeId(UUID.fromString(str)))
+
+  object FullNameParam extends QueryParamDecoderMatcher[Fullname]("full_name")
+  object ServiceTypeIdParam extends QueryParamDecoderMatcher[ServiceTypeId]("type_id")
   object UserIdVar extends MyPathVar(str => Try(UserId(UUID.fromString(str))))
   object RegionIdVar extends MyPathVar(str => Try(RegionId(UUID.fromString(str))))
   object ServiceIdVar extends MyPathVar(str => Try(ServiceId(UUID.fromString(str))))

@@ -134,7 +134,7 @@ object ServiceRoutersSpec extends HttpSuite with ServiceGenerators with UserGene
   test("Get Services by TypeId") {
     val serviceTypeId = serviceTypeIdGen.get
     authedReq() { token =>
-      GET(Uri.unsafeFromString(s"/service/services-by-type-id/$serviceTypeId"))
+      GET(Uri.unsafeFromString(s"/service/services?type_id=$serviceTypeId"))
         .bearer(NonEmptyString.unsafeFrom(token.value))
     } {
       case request -> security =>
@@ -206,7 +206,7 @@ object ServiceRoutersSpec extends HttpSuite with ServiceGenerators with UserGene
 
   test("Create Service Type with incorrect role") {
     authedReq(Doctor) { token =>
-      POST(serviceTypeNameGen.get, uri"/service/create-service-type").bearer(
+      POST(serviceTypeNameGen.get, uri"/service/create/service-type").bearer(
         NonEmptyString.unsafeFrom(token.value)
       )
     } {
@@ -217,7 +217,7 @@ object ServiceRoutersSpec extends HttpSuite with ServiceGenerators with UserGene
 
   test("Create Service Type with correct role") {
     authedReq() { token =>
-      POST(serviceTypeNameGen.get, uri"/service/create-service-type").bearer(
+      POST(serviceTypeNameGen.get, uri"/service/create/service-type").bearer(
         NonEmptyString.unsafeFrom(token.value)
       )
     } {

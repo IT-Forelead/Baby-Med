@@ -69,6 +69,7 @@ object PatientsRepository {
       query.fragment.query(int8).queryUnique(query.argument)
     }
 
+    // The reason the name is sent twice is to search by first name and last name
     override def getPatientsByName(name: Fullname): F[List[PatientWithName]] =
       PatientsSql.getPatientsByName.queryList(name, name)
 
