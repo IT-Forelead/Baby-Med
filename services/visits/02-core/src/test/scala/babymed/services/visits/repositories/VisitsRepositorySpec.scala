@@ -63,12 +63,21 @@ object VisitsRepositorySpec extends DBSuite with PatientVisitGenerators {
             assert(visits.length == 3)
           }
     }
+    object Case6 extends TestCase[Res] {
+      override def check(implicit dao: Resource[IO, Session[IO]]): IO[Expectations] =
+        repo
+          .get(PatientVisitFilters(serviceTypeId = data.serviceType.id1.some))
+          .map { visits =>
+            assert(visits.exists(_.service.serviceTypeId == data.serviceType.id1))
+          }
+    }
     List(
       Case1,
       Case2,
       Case3,
       Case4,
       Case5,
+      Case6,
     ).traverse(_.check).map(_.reduce(_ and _))
   }
 
