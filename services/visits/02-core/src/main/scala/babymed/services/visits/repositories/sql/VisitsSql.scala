@@ -68,6 +68,7 @@ object VisitsSql {
       filters.endDate.map(sql"visits.created_at <= $timestamp"),
       filters.patientId.map(sql"visits.patient_id = $patientId"),
       filters.serviceId.map(sql"visits.service_id = $serviceId"),
+      filters.serviceTypeId.map(sql"services.service_type_id = $serviceTypeId"),
       filters.paymentStatus.map(sql"visits.payment_status = $paymentStatus"),
     )
 
@@ -87,7 +88,10 @@ object VisitsSql {
 
   def total(filters: PatientVisitFilters): AppliedFragment = {
     val baseQuery: Fragment[Void] =
-      sql"""SELECT count(*) FROM visits WHERE deleted = false"""
+      sql"""SELECT count(*) FROM visits
+        INNER JOIN services ON visits.service_id = services.id
+        INNER JOIN service_types ON services.service_type_id = service_types.id
+        WHERE visits.deleted = false"""
     baseQuery(Void).andOpt(searchFilter(filters): _*)
   }
 

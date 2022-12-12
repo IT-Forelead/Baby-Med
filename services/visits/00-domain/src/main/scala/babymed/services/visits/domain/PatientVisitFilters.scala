@@ -11,6 +11,7 @@ import io.circe.refined._
 import babymed.domain.PaymentStatus
 import babymed.services.users.domain.types.PatientId
 import babymed.services.visits.domain.types.ServiceId
+import babymed.services.visits.domain.types.ServiceTypeId
 
 @derive(encoder, decoder)
 case class PatientVisitFilters(
@@ -18,6 +19,7 @@ case class PatientVisitFilters(
     endDate: Option[LocalDateTime] = None,
     patientId: Option[PatientId] = None,
     serviceId: Option[ServiceId] = None,
+    serviceTypeId: Option[ServiceTypeId] = None,
     paymentStatus: Option[PaymentStatus] = None,
     page: Option[NonNegInt] = None,
     limit: Option[NonNegInt] = None,
