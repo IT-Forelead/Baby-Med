@@ -5,7 +5,6 @@ import org.scalacheck.Gen
 import babymed.services.users.domain.types.UserId
 import babymed.services.users.generators.UserGenerators
 import babymed.services.visits.domain._
-import babymed.services.visits.domain.types.DoctorShareId
 import babymed.services.visits.domain.types.ServiceId
 
 trait CheckupExpenseGenerators extends TypeGen with UserGenerators with ServiceGenerators {
@@ -16,14 +15,6 @@ trait CheckupExpenseGenerators extends TypeGen with UserGenerators with ServiceG
       doctorShareId <- doctorShareIdGen
       price <- priceGen
     } yield CheckupExpense(id, createdAt, doctorShareId, price)
-
-  def createCheckupExpenseGen(
-      maybeDoctorShareId: Option[DoctorShareId] = None
-    ): Gen[CreateCheckupExpense] =
-    for {
-      doctorShareId <- doctorShareIdGen
-      price <- priceGen
-    } yield CreateCheckupExpense(maybeDoctorShareId.getOrElse(doctorShareId), price)
 
   lazy val doctorShareGen: Gen[DoctorShare] =
     for {

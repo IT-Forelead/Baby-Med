@@ -22,16 +22,8 @@ import babymed.services.users.domain.types.SubRoleId
 import babymed.services.users.domain.types.UserId
 import babymed.services.users.generators._
 import babymed.services.users.repositories.sql._
-import babymed.services.visits.domain.CreateOperationExpense
-import babymed.services.visits.domain.CreatePatientVisit
-import babymed.services.visits.domain.CreateService
-import babymed.services.visits.domain.OperationExpense
-import babymed.services.visits.domain.OperationExpenseItem
-import babymed.services.visits.domain.types.OperationExpenseId
-import babymed.services.visits.domain.types.PatientVisitId
-import babymed.services.visits.domain.types.ServiceId
-import babymed.services.visits.domain.types.ServiceTypeId
-import babymed.services.visits.domain.types.ServiceTypeName
+import babymed.services.visits.domain._
+import babymed.services.visits.domain.types._
 import babymed.services.visits.generators._
 import babymed.services.visits.repositories.sql._
 import babymed.support.skunk.syntax.all.skunkSyntaxCommandOps
@@ -43,7 +35,8 @@ object data
     extends PatientVisitGenerators
        with UserGenerators
        with PatientGenerators
-       with OperationExpenseGenerators {
+       with OperationExpenseGenerators
+       with CheckupExpenseGenerators {
   implicit private def gen2instance[T](gen: Gen[T]): T = gen.sample.get
 
   object regions {
@@ -155,9 +148,49 @@ object data
       List(data1, data2, data3)
   }
 
+  object doctorShare {
+    val id1: DoctorShareId = doctorShareIdGen.get
+    val id2: DoctorShareId = doctorShareIdGen.get
+    val id3: DoctorShareId = doctorShareIdGen.get
+    val data1: CreateDoctorShare =
+      createDoctorShareGen(data.service.id1.some, data.user.id1.some).get
+    val data2: CreateDoctorShare =
+      createDoctorShareGen(data.service.id2.some, data.user.id2.some).get
+    val data3: CreateDoctorShare =
+      createDoctorShareGen(data.service.id3.some, data.user.id3.some).get
+    val values: Map[DoctorShareId, CreateDoctorShare] =
+      Map(id1 -> data1, id2 -> data2, id3 -> data3)
+  }
+
+  object checkupExpense {
+    val data1: CheckupExpense =
+      CheckupExpense(
+        id = checkupExpenseIdGen.get,
+        createdAt = LocalDateTime.now(),
+        doctorShareId = data.doctorShare.id1,
+        price = priceGen.get,
+      )
+    val data2: CheckupExpense =
+      CheckupExpense(
+        id = checkupExpenseIdGen.get,
+        createdAt = LocalDateTime.now(),
+        doctorShareId = data.doctorShare.id2,
+        price = priceGen.get,
+      )
+    val data3: CheckupExpense =
+      CheckupExpense(
+        id = checkupExpenseIdGen.get,
+        createdAt = LocalDateTime.now(),
+        doctorShareId = data.doctorShare.id3,
+        price = priceGen.get,
+      )
+    val values: List[CheckupExpense] =
+      List(data1, data2, data3)
+  }
+
   def setup(implicit session: Resource[IO, Session[IO]]): IO[Unit] =
-    setupPatients *> setupServiceTypes *> setupServices *> setupVisits *>
-      setupUsers *> setupOperationExpenses *> setupOperationExpenseItems
+    setupPatients *> setupServiceTypes *> setupServices *> setupVisits *> setupUsers *>
+      setupOperationExpenses *> setupOperationExpenseItems *> setupDoctorShares *> setupCheckupExpenses
 
   private def setupPatients(implicit session: Resource[IO, Session[IO]]): IO[Unit] =
     patient.values.toList.traverse_ {
@@ -191,6 +224,17 @@ object data
     visits.values.toList.traverse_ {
       case id -> data =>
         VisitsSql.insert.queryUnique(id ~ LocalDateTime.now() ~ data)
+    }
+
+  private def setupDoctorShares(implicit session: Resource[IO, Session[IO]]): IO[Unit] =
+    doctorShare.values.toList.traverse_ {
+      case id -> data =>
+        CheckupExpensesSql.insertDoctorShare.queryUnique(id ~ data)
+    }
+
+  private def setupCheckupExpenses(implicit session: Resource[IO, Session[IO]]): IO[Unit] =
+    checkupExpense.values.traverse_ { data =>
+      CheckupExpensesSql.insert.queryUnique(data)
     }
 
   private def setupOperationExpenses(implicit session: Resource[IO, Session[IO]]): IO[Unit] =
