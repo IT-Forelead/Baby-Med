@@ -18,9 +18,10 @@ case class ServiceEnvironment[F[_]: MonadThrow](
   lazy val operationExpenses = new OperationExpenses[F](repositories.operationExpenses)
   lazy val services = new Services[F](repositories.services)
   lazy val visits = new Visits[F](repositories.visits)
+  lazy val checkupExpenses = new CheckupExpenses[F](repositories.checkupExpenses)
   lazy val toServer: ServerEnvironment[F] =
     ServerEnvironment(
-      services = ServerEnvironment.Services(operationExpenses, services, visits)
+      services = ServerEnvironment.Services(operationExpenses, services, visits, checkupExpenses)
     )
 }
 
