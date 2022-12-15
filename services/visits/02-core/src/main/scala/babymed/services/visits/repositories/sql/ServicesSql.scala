@@ -59,7 +59,7 @@ object ServicesSql {
   val selectServicesSql: Query[Void, ServiceWithTypeName] =
     sql"""SELECT services.*, service_types.name FROM services
         INNER JOIN service_types ON services.service_type_id = service_types.id
-        WHERE services.deleted = false"""
+        WHERE services.deleted = false ORDER BY service_types.name ASC"""
       .query(decServiceWithTypeName)
 
   val deleteServiceTypeSql: Command[ServiceTypeId] =
