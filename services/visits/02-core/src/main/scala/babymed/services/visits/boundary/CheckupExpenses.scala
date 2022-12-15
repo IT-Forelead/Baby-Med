@@ -5,6 +5,7 @@ import cats.implicits._
 
 import babymed.domain.ResponseData
 import babymed.services.visits.domain._
+import babymed.services.visits.domain.types.DoctorShareId
 import babymed.services.visits.domain.types.ServiceId
 import babymed.services.visits.proto
 import babymed.services.visits.repositories.CheckupExpensesRepository
@@ -25,4 +26,6 @@ class CheckupExpenses[F[_]: Monad](
     checkupExpensesRepository.getTotal(filters)
   override def getDoctorShares: F[List[DoctorShareInfo]] =
     checkupExpensesRepository.getDoctorShares
+  override def deleteDoctorShare(id: DoctorShareId): F[Unit] =
+    checkupExpensesRepository.deleteDoctorShare(id)
 }

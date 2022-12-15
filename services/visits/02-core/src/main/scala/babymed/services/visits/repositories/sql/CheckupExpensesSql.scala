@@ -122,4 +122,7 @@ object CheckupExpensesSql {
         INNER JOIN services ON doctor_shares.service_id = services.id
         WHERE doctor_shares.service_id = $serviceId AND doctor_shares.deleted = false"""
       .query(decDoctorShareWithService)
+
+  val deleteDoctorShareSql: Command[DoctorShareId] =
+    sql"""UPDATE doctor_shares SET deleted = true WHERE id = $doctorShareId""".command
 }

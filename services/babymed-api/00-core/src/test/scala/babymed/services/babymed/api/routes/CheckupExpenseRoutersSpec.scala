@@ -10,6 +10,7 @@ import org.http4s.Method.GET
 import org.http4s.Method.POST
 import org.http4s.Request
 import org.http4s.Status
+import org.http4s.Uri
 import org.http4s.client.dsl.io._
 import org.http4s.implicits.http4sLiteralsSyntax
 import org.scalacheck.Gen
@@ -35,6 +36,7 @@ import babymed.services.visits.domain.CheckupExpenseInfo
 import babymed.services.visits.domain.CreateDoctorShare
 import babymed.services.visits.domain.DoctorShare
 import babymed.services.visits.domain.DoctorShareInfo
+import babymed.services.visits.domain.types.DoctorShareId
 import babymed.services.visits.domain.types.ServiceId
 import babymed.services.visits.generators.CheckupExpenseGenerators
 import babymed.services.visits.proto.CheckupExpenses
@@ -86,6 +88,8 @@ object CheckupExpenseRoutersSpec
       Sync[F].delay(total)
     override def getDoctorShares: F[List[DoctorShareInfo]] =
       Sync[F].delay(List(doctorShareInfo))
+    override def deleteDoctorShare(id: DoctorShareId): F[Unit] =
+      Sync[F].unit
   }
 
   def authedReq(
@@ -171,6 +175,32 @@ object CheckupExpenseRoutersSpec
           CheckupExpenseRouters[F](security, checkupExpenses).routes,
           request,
         )(List(doctorShareInfo), Status.Ok)
+    }
+  }
+
+  test("Delete Doctor Share with incorrect role") {
+    authedReq(Doctor) { token =>
+      val doctorShareId: DoctorShareId = doctorShareIdGen.get
+      GET(Uri.unsafeFromString(s"/checkup-expense/delete-doctor-share/$doctorShareId")).bearer(
+        NonEmptyString.unsafeFrom(token.value)
+      )
+    } {
+      case request -> security =>
+        expectNotFound(CheckupExpenseRouters[F](security, checkupExpenses).routes, request)
+    }
+  }
+
+  test("Delete Doctor Share with correct role") {
+    authedReq() { token =>
+      val doctorShareId: DoctorShareId = doctorShareIdGen.get
+      GET(Uri.unsafeFromString(s"/checkup-expense/delete-doctor-share/$doctorShareId"))
+        .bearer(NonEmptyString.unsafeFrom(token.value))
+    } {
+      case request -> security =>
+        expectHttpStatus(
+          CheckupExpenseRouters[F](security, checkupExpenses).routes,
+          request,
+        )(Status.NoContent)
     }
   }
 }

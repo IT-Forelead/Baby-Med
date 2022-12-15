@@ -21,10 +21,11 @@ object CheckupExpensesSpec extends TestSuite with CheckupExpenseGenerators {
       Sync[F].delay(Gen.long.get)
     override def getDoctorShares: F[List[DoctorShareInfo]] =
       Sync[F].delay(List(doctorShareInfoGen.get))
+    override def deleteDoctorShare(id: types.DoctorShareId): F[Unit] =
+      Sync[F].unit
   }
 
   val checkupExpenses: CheckupExpenses[F] = new CheckupExpenses[F](checkupExpenseRepo)
-  val createService: CreateService = createServiceGen().get
 
   loggedTest("Create Checkup Expense") { logger =>
     checkupExpenses
@@ -73,6 +74,17 @@ object CheckupExpensesSpec extends TestSuite with CheckupExpenseGenerators {
   loggedTest("Get All Doctor Shares") { logger =>
     checkupExpenses
       .getDoctorShares
+      .as(success)
+      .handleErrorWith { error =>
+        logger
+          .error("Error occurred!", cause = error)
+          .as(failure("Test failed!"))
+      }
+  }
+
+  loggedTest("Delete Doctor Share") { logger =>
+    checkupExpenses
+      .deleteDoctorShare(doctorShareIdGen.get)
       .as(success)
       .handleErrorWith { error =>
         logger

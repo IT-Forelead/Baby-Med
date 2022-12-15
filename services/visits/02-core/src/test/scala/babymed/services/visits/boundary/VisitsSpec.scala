@@ -14,6 +14,7 @@ import babymed.services.visits.domain.DoctorShareInfo
 import babymed.services.visits.domain.PatientVisit
 import babymed.services.visits.domain.PatientVisitFilters
 import babymed.services.visits.domain.PatientVisitInfo
+import babymed.services.visits.domain.types.DoctorShareId
 import babymed.services.visits.domain.types.PatientVisitId
 import babymed.services.visits.domain.types.ServiceId
 import babymed.services.visits.generators.PatientVisitGenerators
@@ -39,6 +40,7 @@ object VisitsSpec extends TestSuite with PatientVisitGenerators {
     override def get(filters: CheckupExpenseFilters): F[List[CheckupExpenseInfo]] = ???
     override def getTotal(filters: CheckupExpenseFilters): F[Long] = ???
     override def getDoctorShares: VisitsSpec.F[List[DoctorShareInfo]] = ???
+    override def deleteDoctorShare(id: DoctorShareId): F[Unit] = ???
   }
 
   val visits: Visits[F] = new Visits[F](visitRepo, checkupRepo)

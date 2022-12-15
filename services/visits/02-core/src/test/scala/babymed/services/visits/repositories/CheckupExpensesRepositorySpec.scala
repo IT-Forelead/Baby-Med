@@ -10,6 +10,7 @@ import skunk.Session
 import weaver.Expectations
 
 import babymed.services.visits.domain.CheckupExpenseFilters
+import babymed.services.visits.domain.CreateDoctorShare
 import babymed.services.visits.generators.CheckupExpenseGenerators
 import babymed.support.database.DBSuite
 
@@ -94,6 +95,24 @@ object CheckupExpensesRepositorySpec extends DBSuite with CheckupExpenseGenerato
       }
       .handleError {
         fail("Test failed.")
+      }
+  }
+
+  test("Delete Doctor Share") { implicit postgres =>
+    val repo = CheckupExpensesRepository.make[F]
+    val createDoctorShareData: CreateDoctorShare =
+      createDoctorShareGen(
+        maybeServiceId = data.service.id1.some,
+        maybeUserId = data.user.id2.some,
+      ).get
+    (for {
+      doctorShare <- repo.createDoctorShare(createDoctorShareData)
+      _ <- repo.deleteDoctorShare(doctorShare.id)
+      doctorShares <- repo.getDoctorShares
+    } yield assert(!doctorShares.contains(createDoctorShareData)))
+      .handleError { error =>
+        println("ERROR::::::::::::::::::: " + error)
+        failure("Test failed.")
       }
   }
 }

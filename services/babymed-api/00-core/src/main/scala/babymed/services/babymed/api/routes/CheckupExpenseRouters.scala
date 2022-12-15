@@ -46,6 +46,10 @@ final case class CheckupExpenseRouters[F[_]: Async: JsonDecoder](
     case GET -> Root / "doctor-shares" as _ =>
       checkupExpenses.getDoctorShares.flatMap(Ok(_))
 
+    case GET -> Root / "delete-doctor-share" / DoctorShareIdVar(id) as user
+         if user.role != Doctor =>
+      checkupExpenses.deleteDoctorShare(id) *> NoContent()
+
   }
 
   lazy val routes: HttpRoutes[F] = Router(

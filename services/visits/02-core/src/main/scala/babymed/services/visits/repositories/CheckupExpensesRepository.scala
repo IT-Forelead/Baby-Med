@@ -17,8 +17,7 @@ import babymed.services.visits.domain.types.DoctorShareId
 import babymed.services.visits.domain.types.ServiceId
 import babymed.services.visits.domain.types.UZS
 import babymed.services.visits.repositories.sql.CheckupExpensesSql
-import babymed.support.skunk.syntax.all.skunkSyntaxFragmentOps
-import babymed.support.skunk.syntax.all.skunkSyntaxQueryOps
+import babymed.support.skunk.syntax.all._
 
 trait CheckupExpensesRepository[F[_]] {
   def create(serviceId: ServiceId): F[CheckupExpense]
@@ -26,6 +25,7 @@ trait CheckupExpensesRepository[F[_]] {
   def get(filters: CheckupExpenseFilters): F[List[CheckupExpenseInfo]]
   def getTotal(filters: CheckupExpenseFilters): F[Long]
   def getDoctorShares: F[List[DoctorShareInfo]]
+  def deleteDoctorShare(id: DoctorShareId): F[Unit]
 }
 
 object CheckupExpensesRepository {
@@ -79,6 +79,9 @@ object CheckupExpensesRepository {
     }
 
     override def getDoctorShares: F[List[DoctorShareInfo]] =
-      CheckupExpensesSql.selectDoctorSharesSql.queryList(Void)
+      selectDoctorSharesSql.all
+
+    override def deleteDoctorShare(id: DoctorShareId): F[Unit] =
+      deleteDoctorShareSql.execute(id)
   }
 }
