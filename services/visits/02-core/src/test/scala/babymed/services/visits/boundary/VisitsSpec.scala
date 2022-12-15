@@ -21,8 +21,8 @@ object VisitsSpec extends TestSuite with PatientVisitGenerators {
       Sync[F].delay(List(patientVisitInfoGen.get))
     override def getTotal(filters: PatientVisitFilters): F[Long] =
       Sync[F].delay(Gen.long.get)
-    override def updatePaymentStatus(id: PatientVisitId): F[Unit] =
-      Sync[F].unit
+    override def updatePaymentStatus(id: PatientVisitId): F[PatientVisit] =
+      Sync[F].delay(patientVisitGen.get)
   }
 
   val visits: Visits[F] = new Visits[F](visitRepo)

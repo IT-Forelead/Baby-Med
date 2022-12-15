@@ -23,7 +23,7 @@ trait VisitsRepository[F[_]] {
   def create(createPatientVisit: CreatePatientVisit): F[PatientVisit]
   def get(filters: PatientVisitFilters): F[List[PatientVisitInfo]]
   def getTotal(filters: PatientVisitFilters): F[Long]
-  def updatePaymentStatus(id: PatientVisitId): F[Unit]
+  def updatePaymentStatus(id: PatientVisitId): F[PatientVisit]
 }
 
 object VisitsRepository {
@@ -51,7 +51,7 @@ object VisitsRepository {
       query.fragment.query(int8).queryUnique(query.argument)
     }
 
-    override def updatePaymentStatus(id: PatientVisitId): F[Unit] =
-      updatePaymentStatusSql.execute(id)
+    override def updatePaymentStatus(id: PatientVisitId): F[PatientVisit] =
+      updatePaymentStatusSql.queryUnique(id)
   }
 }

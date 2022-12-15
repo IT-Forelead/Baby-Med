@@ -95,7 +95,6 @@ object VisitsRepositorySpec extends DBSuite with PatientVisitGenerators {
 
   test("Update Payment Status") { implicit postgres =>
     val repo = VisitsRepository.make[IO]
-
     for {
       _ <- repo.updatePaymentStatus(data.visits.id1)
       visits <- repo.get(PatientVisitFilters(paymentStatus = FullyPaid.some))

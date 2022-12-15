@@ -22,6 +22,6 @@ class Visits[F[_]: Monad](visitsRepository: VisitsRepository[F]) extends proto.V
     } yield ResponseData(visits, total)
   override def getTotal(filters: PatientVisitFilters): F[Long] =
     visitsRepository.getTotal(filters)
-  override def updatePaymentStatus(id: PatientVisitId): F[Unit] =
+  override def updatePaymentStatus(id: PatientVisitId): F[PatientVisit] =
     visitsRepository.updatePaymentStatus(id)
 }

@@ -14,7 +14,7 @@ trait Visits[F[_]] {
   def create(createPatientVisit: CreatePatientVisit): F[PatientVisit]
   def get(filters: PatientVisitFilters): F[ResponseData[PatientVisitInfo]]
   def getTotal(filters: PatientVisitFilters): F[Long]
-  def updatePaymentStatus(id: PatientVisitId): F[Unit]
+  def updatePaymentStatus(id: PatientVisitId): F[PatientVisit]
 }
 
 object Visits {}
