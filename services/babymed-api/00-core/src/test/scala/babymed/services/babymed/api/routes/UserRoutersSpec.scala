@@ -20,6 +20,7 @@ import weaver.Expectations
 import babymed.domain.ResponseData
 import babymed.domain.Role
 import babymed.domain.Role.Admin
+import babymed.domain.Role.Doctor
 import babymed.domain.Role.SuperManager
 import babymed.domain.Role.TechAdmin
 import babymed.refinements.Phone
@@ -90,7 +91,7 @@ object UserRoutersSpec extends HttpSuite with UserGenerators {
   }
 
   test("Create user with incorrect role") {
-    authedReq(TechAdmin) { token =>
+    authedReq(Doctor) { token =>
       POST(createUser, uri"/user").bearer(NonEmptyString.unsafeFrom(token.value))
     } {
       case request -> security =>
@@ -108,7 +109,7 @@ object UserRoutersSpec extends HttpSuite with UserGenerators {
   }
 
   test("Get users with incorrect role") {
-    authedReq() { token =>
+    authedReq(Doctor) { token =>
       POST(UserFilters.Empty, uri"/user/report").bearer(
         NonEmptyString.unsafeFrom(token.value)
       )

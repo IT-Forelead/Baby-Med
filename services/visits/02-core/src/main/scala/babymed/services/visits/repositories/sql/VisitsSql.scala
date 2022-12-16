@@ -69,7 +69,9 @@ object VisitsSql {
       filters.patientId.map(sql"visits.patient_id = $patientId"),
       filters.serviceId.map(sql"visits.service_id = $serviceId"),
       filters.serviceTypeId.map(sql"services.service_type_id = $serviceTypeId"),
-      filters.paymentStatus.map(sql"visits.payment_status = $paymentStatus"),
+      filters
+        .paymentStatus
+        .map(sql"visits.payment_status = $paymentStatus ORDER BY visits.created_at DESC"),
     )
 
   def select(filters: PatientVisitFilters): AppliedFragment = {

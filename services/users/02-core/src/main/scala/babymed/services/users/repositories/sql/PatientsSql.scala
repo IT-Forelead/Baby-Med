@@ -64,7 +64,7 @@ object PatientsSql {
       filters.cityId.map(sql"patients.city_id = $cityId"),
       filters.address.map(sql"patients.address ILIKE $address"),
       filters.birthday.map(sql"patients.birthday = $date"),
-      filters.phone.map(sql"patients.phone ILIKE $phone"),
+      filters.phone.map(sql"patients.phone ILIKE $phone ORDER BY created_at DESC"),
     )
 
   def select(filters: PatientFilters): AppliedFragment = {

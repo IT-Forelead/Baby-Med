@@ -8,7 +8,8 @@ import org.http4s.dsl.Http4sDsl
 import org.http4s.server.Router
 import org.typelevel.log4cats.Logger
 
-import babymed.domain.Role.Doctor
+import babymed.domain.Role.SuperManager
+import babymed.domain.Role.TechAdmin
 import babymed.services.auth.impl.Security
 import babymed.services.users.domain.User
 import babymed.services.visits.domain.CreateService
@@ -27,7 +28,8 @@ final case class ServiceRouters[F[_]: Async: JsonDecoder](
 
   private[this] val privateRoutes: AuthedRoutes[User, F] = AuthedRoutes.of {
 
-    case ar @ POST -> Root / "create" as user if user.role != Doctor =>
+    case ar @ POST -> Root / "create" as user
+         if List(SuperManager, TechAdmin).contains(user.role) =>
       ar.req.decodeR[CreateService] { createService =>
         services.create(createService) *> NoContent()
       }
@@ -38,15 +40,17 @@ final case class ServiceRouters[F[_]: Async: JsonDecoder](
     case GET -> Root / "services" as _ =>
       services.get.flatMap(Ok(_))
 
-    case ar @ POST -> Root / "edit" as user if user.role != Doctor =>
+    case ar @ POST -> Root / "edit" as user if List(SuperManager, TechAdmin).contains(user.role) =>
       ar.req.decodeR[EditService] { editService =>
         services.edit(editService) *> NoContent()
       }
 
-    case GET -> Root / "delete" / ServiceIdVar(serviceId) as user if user.role != Doctor =>
+    case GET -> Root / "delete" / ServiceIdVar(serviceId) as user
+         if List(SuperManager, TechAdmin).contains(user.role) =>
       services.delete(serviceId) *> NoContent()
 
-    case ar @ POST -> Root / "create" / "service-type" as user if user.role != Doctor =>
+    case ar @ POST -> Root / "create" / "service-type" as user
+         if List(SuperManager, TechAdmin).contains(user.role) =>
       ar.req.decodeR[ServiceTypeName] { serviceTypeName =>
         services.createServiceType(serviceTypeName) *> NoContent()
       }
@@ -55,7 +59,7 @@ final case class ServiceRouters[F[_]: Async: JsonDecoder](
       services.getServiceTypes.flatMap(Ok(_))
 
     case GET -> Root / "delete-service-type" / ServiceTypeIdVar(serviceTypeId) as user
-         if user.role != Doctor =>
+         if List(SuperManager, TechAdmin).contains(user.role) =>
       services.deleteServiceType(serviceTypeId) *> NoContent()
   }
 

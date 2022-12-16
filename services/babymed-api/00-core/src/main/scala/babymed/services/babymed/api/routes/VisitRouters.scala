@@ -9,7 +9,10 @@ import org.http4s.dsl.Http4sDsl
 import org.http4s.server.Router
 import org.typelevel.log4cats.Logger
 
-import babymed.domain.Role.Doctor
+import babymed.domain.Role.Admin
+import babymed.domain.Role.Cashier
+import babymed.domain.Role.SuperManager
+import babymed.domain.Role.TechAdmin
 import babymed.services.auth.impl.Security
 import babymed.services.users.domain.User
 import babymed.services.visits.domain.CreatePatientVisit
@@ -28,7 +31,8 @@ final case class VisitRouters[F[_]: Async: JsonDecoder](
 
   private[this] val privateRoutes: AuthedRoutes[User, F] = AuthedRoutes.of {
 
-    case ar @ POST -> Root / "create" as user if user.role != Doctor =>
+    case ar @ POST -> Root / "create" as user
+         if List(SuperManager, Admin, TechAdmin).contains(user.role) =>
       ar.req.decodeR[CreatePatientVisit] { createVisit =>
         visits.create(createVisit) *> NoContent()
       }
@@ -48,7 +52,7 @@ final case class VisitRouters[F[_]: Async: JsonDecoder](
       }
 
     case GET -> Root / "update-payment-status" / PatientVisitIdVar(visitId) as user
-         if user.role != Doctor =>
+         if List(SuperManager, Cashier, TechAdmin).contains(user.role) =>
       visits.updatePaymentStatus(visitId) >> NoContent()
 
   }

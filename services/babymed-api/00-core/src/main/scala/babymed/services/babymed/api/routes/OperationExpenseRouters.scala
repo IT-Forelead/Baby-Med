@@ -9,7 +9,9 @@ import org.http4s.dsl.Http4sDsl
 import org.http4s.server.Router
 import org.typelevel.log4cats.Logger
 
-import babymed.domain.Role.Doctor
+import babymed.domain.Role.Cashier
+import babymed.domain.Role.SuperManager
+import babymed.domain.Role.TechAdmin
 import babymed.services.auth.impl.Security
 import babymed.services.users.domain.User
 import babymed.services.visits.domain.CreateOperationExpense
@@ -28,24 +30,28 @@ final case class OperationExpenseRouters[F[_]: Async: JsonDecoder](
 
   private[this] val privateRoutes: AuthedRoutes[User, F] = AuthedRoutes.of {
 
-    case ar @ POST -> Root / "create" as user if user.role != Doctor =>
+    case ar @ POST -> Root / "create" as user
+         if List(SuperManager, Cashier, TechAdmin).contains(user.role) =>
       ar.req.decodeR[CreateOperationExpense] { operationExpense =>
         operationExpenses.create(operationExpense) *> NoContent()
       }
 
-    case ar @ POST -> Root / "report" as _ =>
+    case ar @ POST -> Root / "report" as user
+         if List(SuperManager, Cashier, TechAdmin).contains(user.role) =>
       ar.req.decodeR[OperationExpenseFilters] { operationExpenseFilters =>
         operationExpenses
           .get(operationExpenseFilters)
           .flatMap(Ok(_))
       }
 
-    case ar @ POST -> Root / "report" / "summary" as _ =>
+    case ar @ POST -> Root / "report" / "summary" as user
+         if List(SuperManager, Cashier, TechAdmin).contains(user.role) =>
       ar.req.decodeR[OperationExpenseFilters] { operationExpenseFilters =>
         operationExpenses.getTotal(operationExpenseFilters).flatMap(Ok(_))
       }
 
-    case GET -> Root / "items" / OperationExpenseIdVar(id) as _ =>
+    case GET -> Root / "items" / OperationExpenseIdVar(id) as user
+         if List(SuperManager, Cashier, TechAdmin).contains(user.role) =>
       operationExpenses.getItemsById(id).flatMap(Ok(_))
 
   }
