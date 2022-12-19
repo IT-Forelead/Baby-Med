@@ -57,7 +57,7 @@ object UsersSql {
       filters.firstName.map(sql"users.firstname ILIKE $firstName"),
       filters.lastName.map(sql"users.lastname ILIKE $lastName"),
       filters.role.map(sql"users.role = $role"),
-      filters.phone.map(sql"users.phone ILIKE $phone"),
+      filters.phone.map(sql"users.phone ILIKE $phone ORDER BY role ASC"),
     )
 
   def select(filters: UserFilters): AppliedFragment = {

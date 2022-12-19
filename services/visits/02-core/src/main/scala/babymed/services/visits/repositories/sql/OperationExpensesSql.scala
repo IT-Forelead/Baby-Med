@@ -81,7 +81,9 @@ object OperationExpensesSql {
   private def searchFilter(filters: OperationExpenseFilters): List[Option[AppliedFragment]] =
     List(
       filters.startDate.map(sql"operation_expenses.created_at >= $timestamp"),
-      filters.endDate.map(sql"operation_expenses.created_at <= $timestamp"),
+      filters
+        .endDate
+        .map(sql"operation_expenses.created_at <= $timestamp ORDER BY visits.created_at DESC"),
     )
 
   def select(filters: OperationExpenseFilters): AppliedFragment = {

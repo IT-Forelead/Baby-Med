@@ -9,7 +9,9 @@ import org.http4s.dsl.Http4sDsl
 import org.http4s.server.Router
 import org.typelevel.log4cats.Logger
 
+import babymed.domain.Role.Cashier
 import babymed.domain.Role.SuperManager
+import babymed.domain.Role.TechAdmin
 import babymed.services.auth.impl.Security
 import babymed.services.users.domain.CreateUser
 import babymed.services.users.domain.EditUser
@@ -28,32 +30,37 @@ final case class UserRouters[F[_]: Async: JsonDecoder](
 
   private[this] val privateRoutes: AuthedRoutes[User, F] = AuthedRoutes.of {
 
-    case ar @ POST -> Root as user if user.role == SuperManager =>
+    case ar @ POST -> Root as user if List(SuperManager, TechAdmin).contains(user.role) =>
       ar.req.decodeR[CreateUser] { createUser =>
         users.validationAndCreate(createUser) *> NoContent()
       }
 
-    case ar @ POST -> Root / "report" as user if user.role == SuperManager =>
+    case ar @ POST -> Root / "report" as user
+         if List(SuperManager, Cashier, TechAdmin).contains(user.role) =>
       ar.req.decodeR[UserFilters] { userFilters =>
         users
           .get(userFilters)
           .flatMap(Ok(_))
       }
 
-    case ar @ POST -> Root / "report" / "summary" as _ =>
+    case ar @ POST -> Root / "report" / "summary" as user
+         if List(SuperManager, Cashier, TechAdmin).contains(user.role) =>
       ar.req.decodeR[UserFilters] { userFilters =>
         users.getTotal(userFilters).flatMap(Ok(_))
       }
 
-    case ar @ POST -> Root / "update" as user if user.role == SuperManager =>
+    case ar @ POST -> Root / "update" as user
+         if List(SuperManager, TechAdmin).contains(user.role) =>
       ar.req.decodeR[EditUser] { editUser =>
         users.validationAndEdit(editUser) *> NoContent()
       }
 
-    case GET -> Root / "delete" / UserIdVar(userId) as user if user.role == SuperManager =>
+    case GET -> Root / "delete" / UserIdVar(userId) as user
+         if List(SuperManager, TechAdmin).contains(user.role) =>
       users.delete(userId) >> NoContent()
 
-    case GET -> Root / "sub-roles" as _ =>
+    case GET -> Root / "sub-roles" as user
+         if List(SuperManager, Cashier, TechAdmin).contains(user.role) =>
       users.getSubRoles.flatMap(Ok(_))
   }
 

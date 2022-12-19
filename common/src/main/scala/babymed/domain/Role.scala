@@ -13,6 +13,7 @@ object Role extends StringCirceEnum[Role] with StringEnum[Role] {
   case object TechAdmin extends Role("tech_admin")
   case object Admin extends Role("admin")
   case object Doctor extends Role("doctor")
+  case object Cashier extends Role("cashier")
 
   override def values: immutable.IndexedSeq[Role] = findValues
   def find(value: String): Option[Role] = values.find(_.value == value)
