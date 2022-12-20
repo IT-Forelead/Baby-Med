@@ -58,7 +58,7 @@ object PatientsRepositorySpec extends DBSuite with PatientGenerators {
         repo
           .get(PatientFilters(regionId = data.regions.id2.some))
           .map { patients =>
-            assert.same(patients.map(_.patient.id), data.patient.values.keys.toList)
+            assert.same(patients.map(_.patient.id), data.patient.values.keys.toList.reverse)
           }
     }
     object Case3 extends TestCase[Res] {
@@ -66,7 +66,7 @@ object PatientsRepositorySpec extends DBSuite with PatientGenerators {
         repo
           .get(PatientFilters(cityId = data.cities.id2.some))
           .map { patients =>
-            assert.same(patients.map(_.patient.id), data.patient.values.keys.toList)
+            assert.same(patients.map(_.patient.id), data.patient.values.keys.toList.reverse)
           }
     }
     object Case4 extends TestCase[Res] {
