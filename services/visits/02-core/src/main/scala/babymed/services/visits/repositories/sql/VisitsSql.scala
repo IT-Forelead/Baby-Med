@@ -83,7 +83,8 @@ object VisitsSql {
         INNER JOIN cities  on patients.city_id = cities.id
         WHERE visits.deleted = false"""
 
-    baseQuery(Void).andOpt(searchFilter(filters): _*) |+| sql" ORDER BY visits.created_at DESC".apply(Void)
+    baseQuery(Void).andOpt(searchFilter(filters): _*) |+| sql" ORDER BY visits.created_at DESC"
+      .apply(Void)
   }
 
   def total(filters: PatientVisitFilters): AppliedFragment = {

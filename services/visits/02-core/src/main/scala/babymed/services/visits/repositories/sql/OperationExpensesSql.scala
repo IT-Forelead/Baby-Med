@@ -93,7 +93,9 @@ object OperationExpensesSql {
         INNER JOIN services ON visits.service_id = services.id
         WHERE operation_expenses.deleted = false"""
 
-    baseQuery(Void).andOpt(searchFilter(filters): _*) |+| sql" ORDER BY operation_expenses.created_at DESC".apply(Void)
+    baseQuery(Void).andOpt(
+      searchFilter(filters): _*
+    ) |+| sql" ORDER BY operation_expenses.created_at DESC".apply(Void)
   }
 
   def total(filters: OperationExpenseFilters): AppliedFragment = {
