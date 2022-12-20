@@ -64,7 +64,7 @@ object PatientsSql {
       filters.cityId.map(sql"patients.city_id = $cityId"),
       filters.address.map(sql"patients.address ILIKE $address"),
       filters.birthday.map(sql"patients.birthday = $date"),
-      filters.phone.map(sql"patients.phone ILIKE $phone ORDER BY created_at DESC"),
+      filters.phone.map(sql"patients.phone ILIKE $phone"),
     )
 
   def select(filters: PatientFilters): AppliedFragment = {
@@ -75,7 +75,7 @@ object PatientsSql {
         INNER JOIN cities ON patients.city_id = cities.id
         WHERE patients.deleted = false"""
 
-    baseQuery(Void).andOpt(searchFilter(filters): _*)
+    baseQuery(Void).andOpt(searchFilter(filters): _*) |+| sql" ORDER BY patients.created_at DESC".apply(Void)
   }
 
   def total(filters: PatientFilters): AppliedFragment = {

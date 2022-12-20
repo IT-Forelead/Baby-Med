@@ -69,9 +69,7 @@ object VisitsSql {
       filters.patientId.map(sql"visits.patient_id = $patientId"),
       filters.serviceId.map(sql"visits.service_id = $serviceId"),
       filters.serviceTypeId.map(sql"services.service_type_id = $serviceTypeId"),
-      filters
-        .paymentStatus
-        .map(sql"visits.payment_status = $paymentStatus ORDER BY visits.created_at DESC"),
+      filters.paymentStatus.map(sql"visits.payment_status = $paymentStatus"),
     )
 
   def select(filters: PatientVisitFilters): AppliedFragment = {
@@ -85,7 +83,7 @@ object VisitsSql {
         INNER JOIN cities  on patients.city_id = cities.id
         WHERE visits.deleted = false"""
 
-    baseQuery(Void).andOpt(searchFilter(filters): _*)
+    baseQuery(Void).andOpt(searchFilter(filters): _*) |+| sql" ORDER BY visits.created_at DESC".apply(Void)
   }
 
   def total(filters: PatientVisitFilters): AppliedFragment = {
