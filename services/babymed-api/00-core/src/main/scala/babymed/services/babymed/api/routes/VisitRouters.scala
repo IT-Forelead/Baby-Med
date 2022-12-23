@@ -9,10 +9,8 @@ import org.http4s.dsl.Http4sDsl
 import org.http4s.server.Router
 import org.typelevel.log4cats.Logger
 
-import babymed.domain.Role.Admin
-import babymed.domain.Role.Cashier
-import babymed.domain.Role.SuperManager
-import babymed.domain.Role.TechAdmin
+import babymed.domain.Role._
+import babymed.exception.UpdatePaymentStatusError
 import babymed.services.auth.impl.Security
 import babymed.services.users.domain.User
 import babymed.services.visits.domain.CreatePatientVisit
@@ -53,7 +51,14 @@ final case class VisitRouters[F[_]: Async: JsonDecoder](
 
     case GET -> Root / "update-payment-status" / PatientVisitIdVar(visitId) as user
          if List(SuperManager, Cashier, TechAdmin).contains(user.role) =>
-      visits.updatePaymentStatus(visitId) >> NoContent()
+      visits
+        .updatePaymentStatus(visitId)
+        .flatMap(_ => NoContent())
+        .recoverWith {
+          case error: UpdatePaymentStatusError =>
+            BadRequest("Something went wrong. Please try again!" + error)
+          case _ => NoContent()
+        }
 
   }
 

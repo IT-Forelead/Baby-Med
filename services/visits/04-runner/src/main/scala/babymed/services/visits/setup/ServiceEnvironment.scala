@@ -1,17 +1,15 @@
 package babymed.services.visits.setup
 
 import cats.MonadThrow
-import cats.effect.Async
-import cats.effect.Resource
+import cats.effect.{Async, Resource, Sync}
 import cats.effect.std.Console
 import org.typelevel.log4cats.Logger
 import skunk.Session
-
 import babymed.services.visits.ServerEnvironment
 import babymed.services.visits.boundary._
 import babymed.support.database.Migrations
 
-case class ServiceEnvironment[F[_]: MonadThrow](
+case class ServiceEnvironment[F[_]: MonadThrow: Sync](
     config: Config,
     repositories: Repositories[F],
   ) {
