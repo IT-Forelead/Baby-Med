@@ -6,24 +6,24 @@ import cats.effect.Resource
 import cats.implicits._
 import skunk.Session
 import skunk.codec.all.int8
-import skunk.implicits.toIdOps
 
 import babymed.domain.ID
 import babymed.effects.Calendar
 import babymed.effects.GenUUID
 import babymed.services.visits.domain.CreatePatientVisit
-import babymed.services.visits.domain.PatientVisit
+import babymed.services.visits.domain.InsertPatientVisit
 import babymed.services.visits.domain.PatientVisitFilters
 import babymed.services.visits.domain.PatientVisitInfo
+import babymed.services.visits.domain.types.ChequeId
 import babymed.services.visits.domain.types.PatientVisitId
 import babymed.services.visits.repositories.sql.VisitsSql
 import babymed.support.skunk.syntax.all._
 
 trait VisitsRepository[F[_]] {
-  def create(createPatientVisit: CreatePatientVisit): F[PatientVisit]
+  def create(createPatientVisits: List[CreatePatientVisit]): F[Unit]
   def get(filters: PatientVisitFilters): F[List[PatientVisitInfo]]
   def getTotal(filters: PatientVisitFilters): F[Long]
-  def updatePaymentStatus(id: PatientVisitId): F[Unit]
+  def updatePaymentStatus(chequeId: ChequeId): F[Unit]
 }
 
 object VisitsRepository {
@@ -34,12 +34,23 @@ object VisitsRepository {
     ): VisitsRepository[F] = new VisitsRepository[F] {
     import sql.VisitsSql._
 
-    override def create(createPatientVisit: CreatePatientVisit): F[PatientVisit] =
+    override def create(createPatientVisits: List[CreatePatientVisit]): F[Unit] =
       for {
-        id <- ID.make[F, PatientVisitId]
+        chequeId <- ID.make[F, ChequeId]
         now <- Calendar[F].currentDateTime
-        visit <- insert.queryUnique(id ~ now ~ createPatientVisit)
-      } yield visit
+        visits <- createPatientVisits.traverse(cpv =>
+          ID.make[F, PatientVisitId]
+            .map(pVId =>
+              InsertPatientVisit(
+                pVId,
+                now,
+                cpv,
+                chequeId,
+              )
+            )
+        )
+        _ <- VisitsSql.insertItems(visits).execute(visits)
+      } yield {}
 
     override def get(filters: PatientVisitFilters): F[List[PatientVisitInfo]] = {
       val query = VisitsSql.select(filters).paginateOpt(filters.limit, filters.page)
@@ -51,7 +62,7 @@ object VisitsRepository {
       query.fragment.query(int8).queryUnique(query.argument)
     }
 
-    override def updatePaymentStatus(id: PatientVisitId): F[Unit] =
-      updatePaymentStatusSql.execute(id)
+    override def updatePaymentStatus(chequeId: ChequeId): F[Unit] =
+      updatePaymentStatusSql.execute(chequeId)
   }
 }

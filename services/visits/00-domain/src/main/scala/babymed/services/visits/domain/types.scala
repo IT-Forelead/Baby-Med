@@ -26,6 +26,8 @@ object types {
   @newtype case class ServiceTypeId(value: UUID)
   @derive(decoder, encoder, eqv, show, uuid)
   @newtype case class OperationExpenseId(value: UUID)
+  @derive(decoder, encoder, eqv, show, uuid)
+  @newtype case class ChequeId(value: UUID)
   @derive(decoder, encoder, eqv)
   @newtype case class ServiceName(value: NonEmptyString)
   @derive(decoder, encoder, eqv)

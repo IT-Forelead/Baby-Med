@@ -1,27 +1,26 @@
 package babymed.services.visits.boundary
 
 import cats.effect.kernel.Sync
+import cats.implicits.toFunctorOps
 import org.scalacheck.Gen
-
 import babymed.services.visits.domain.CreatePatientVisit
 import babymed.services.visits.domain.CreateService
-import babymed.services.visits.domain.PatientVisit
 import babymed.services.visits.domain.PatientVisitFilters
 import babymed.services.visits.domain.PatientVisitInfo
-import babymed.services.visits.domain.types.PatientVisitId
+import babymed.services.visits.domain.types.ChequeId
 import babymed.services.visits.generators.PatientVisitGenerators
 import babymed.services.visits.repositories.VisitsRepository
 import babymed.test.TestSuite
 
 object VisitsSpec extends TestSuite with PatientVisitGenerators {
   val visitRepo: VisitsRepository[F] = new VisitsRepository[F] {
-    override def create(createPatientVisit: CreatePatientVisit): F[PatientVisit] =
-      Sync[F].delay(patientVisitGen.get)
+    override def create(createPatientVisits: List[CreatePatientVisit]): F[Unit] =
+      Sync[F].unit
     override def get(filters: PatientVisitFilters): F[List[PatientVisitInfo]] =
       Sync[F].delay(List(patientVisitInfoGen.get))
     override def getTotal(filters: PatientVisitFilters): F[Long] =
       Sync[F].delay(Gen.long.get)
-    override def updatePaymentStatus(id: PatientVisitId): F[Unit] =
+    override def updatePaymentStatus(chequeId: ChequeId): F[Unit] =
       Sync[F].unit
   }
 
@@ -30,7 +29,7 @@ object VisitsSpec extends TestSuite with PatientVisitGenerators {
 
   loggedTest("Create Patient Visit") { logger =>
     visits
-      .create(createPatientVisitGen().get)
+      .create(List(createPatientVisitGen().get))
       .as(success)
       .handleErrorWith { error =>
         logger
@@ -62,14 +61,21 @@ object VisitsSpec extends TestSuite with PatientVisitGenerators {
   }
 
   loggedTest("Update Payment Status") { logger =>
-    visits
-      .create(createPatientVisitGen().get)
-      .map(visit => visits.updatePaymentStatus(visit.id))
-      .as(success)
-      .handleErrorWith { error =>
-        logger
-          .error("Error occurred!", cause = error)
-          .as(failure("Test failed!"))
-      }
+    val createPatientVisit = createPatientVisitGen().get
+    (for {
+      _ <- visits.create(List(createPatientVisit))
+      getVisit <- visits
+        .get(PatientVisitFilters())
+        .map(_.data.find(_.patientVisit.patientId == createPatientVisit.patientId).get)
+    } yield getVisit).flatMap(patientVisitInfo =>
+      visits
+        .updatePaymentStatus(patientVisitInfo.patientVisit.chequeId)
+        .as(success)
+        .handleErrorWith { error =>
+          logger
+            .error("Error occurred!", cause = error)
+            .as(failure("Test failed!"))
+        }
+    )
   }
 }

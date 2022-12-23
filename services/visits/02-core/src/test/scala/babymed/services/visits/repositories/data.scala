@@ -25,8 +25,10 @@ import babymed.services.users.repositories.sql._
 import babymed.services.visits.domain.CreateOperationExpense
 import babymed.services.visits.domain.CreatePatientVisit
 import babymed.services.visits.domain.CreateService
+import babymed.services.visits.domain.InsertPatientVisit
 import babymed.services.visits.domain.OperationExpense
 import babymed.services.visits.domain.OperationExpenseItem
+import babymed.services.visits.domain.types.ChequeId
 import babymed.services.visits.domain.types.OperationExpenseId
 import babymed.services.visits.domain.types.PatientVisitId
 import babymed.services.visits.domain.types.ServiceId
@@ -105,14 +107,37 @@ object data
     val id1: PatientVisitId = patientVisitIdGen.get
     val id2: PatientVisitId = patientVisitIdGen.get
     val id3: PatientVisitId = patientVisitIdGen.get
-    val data1: CreatePatientVisit =
-      createPatientVisitGen(data.patient.id1.some, data.service.id1.some).get
-    val data2: CreatePatientVisit =
-      createPatientVisitGen(data.patient.id2.some, data.service.id2.some).get
-    val data3: CreatePatientVisit =
-      createPatientVisitGen(data.patient.id3.some, data.service.id3.some).get
-    val values: Map[PatientVisitId, CreatePatientVisit] =
-      Map(id1 -> data1, id2 -> data2, id3 -> data3)
+    val chequeId1: ChequeId = chequeIdGen.get
+    val chequeId2: ChequeId = chequeIdGen.get
+    val chequeId3: ChequeId = chequeIdGen.get
+    val data1: InsertPatientVisit =
+      InsertPatientVisit(
+        id1,
+        localDateTimeGen.get,
+        data.user.id1,
+        data.patient.id1,
+        data.service.id1,
+        chequeId1,
+      )
+    val data2: InsertPatientVisit =
+      InsertPatientVisit(
+        id2,
+        localDateTimeGen.get,
+        data.user.id2,
+        data.patient.id2,
+        data.service.id2,
+        chequeId2,
+      )
+    val data3: InsertPatientVisit =
+      InsertPatientVisit(
+        id3,
+        localDateTimeGen.get,
+        data.user.id3,
+        data.patient.id3,
+        data.service.id3,
+        chequeId3,
+      )
+    val values: List[InsertPatientVisit] = List(data1, data2, data3)
   }
 
   object operationExpenses {
@@ -188,9 +213,8 @@ object data
     }
 
   private def setupVisits(implicit session: Resource[IO, Session[IO]]): IO[Unit] =
-    visits.values.toList.traverse_ {
-      case id -> data =>
-        VisitsSql.insert.queryUnique(id ~ LocalDateTime.now() ~ data)
+    visits.values.traverse_ { insertPatientVisit =>
+      VisitsSql.insertItems(List(insertPatientVisit)).execute(List(insertPatientVisit))
     }
 
   private def setupOperationExpenses(implicit session: Resource[IO, Session[IO]]): IO[Unit] =

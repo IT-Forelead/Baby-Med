@@ -11,6 +11,7 @@ import babymed.domain.PaymentStatus
 import babymed.domain.Role
 import babymed.effects.IsUUID
 import babymed.services.users.domain.types._
+import babymed.services.visits.domain.types.ChequeId
 import babymed.services.visits.domain.types.OperationExpenseId
 import babymed.services.visits.domain.types.PartnerDoctorFullName
 import babymed.services.visits.domain.types.PatientVisitId
@@ -32,6 +33,7 @@ package object sql {
   val regionId: Codec[RegionId] = identity[RegionId]
   val cityId: Codec[CityId] = identity[CityId]
   val operationExpenseId: Codec[OperationExpenseId] = identity[OperationExpenseId]
+  val chequeId: Codec[ChequeId] = identity[ChequeId]
   val subRoleId: Codec[SubRoleId] = identity[SubRoleId]
   val subRoleName: Codec[SubRoleName] = nes.imap[SubRoleName](SubRoleName.apply)(_.value)
   val serviceName: Codec[ServiceName] = nes.imap[ServiceName](ServiceName.apply)(_.value)

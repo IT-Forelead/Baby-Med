@@ -10,6 +10,8 @@ import io.circe.refined._
 
 import babymed.domain.PaymentStatus
 import babymed.services.users.domain.types.PatientId
+import babymed.services.users.domain.types.UserId
+import babymed.services.visits.domain.types.ChequeId
 import babymed.services.visits.domain.types.ServiceId
 import babymed.services.visits.domain.types.ServiceTypeId
 
@@ -17,9 +19,11 @@ import babymed.services.visits.domain.types.ServiceTypeId
 case class PatientVisitFilters(
     startDate: Option[LocalDateTime] = None,
     endDate: Option[LocalDateTime] = None,
+    userId: Option[UserId] = None,
     patientId: Option[PatientId] = None,
     serviceId: Option[ServiceId] = None,
     serviceTypeId: Option[ServiceTypeId] = None,
+    chequeId: Option[ChequeId] = None,
     paymentStatus: Option[PaymentStatus] = None,
     page: Option[NonNegInt] = None,
     limit: Option[NonNegInt] = None,
