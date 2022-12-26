@@ -1,8 +1,8 @@
 package babymed.services.visits.boundary
 
 import cats.effect.kernel.Sync
-import cats.implicits.toFunctorOps
 import org.scalacheck.Gen
+
 import babymed.services.visits.domain.CreatePatientVisit
 import babymed.services.visits.domain.CreateService
 import babymed.services.visits.domain.PatientVisitFilters
@@ -61,21 +61,13 @@ object VisitsSpec extends TestSuite with PatientVisitGenerators {
   }
 
   loggedTest("Update Payment Status") { logger =>
-    val createPatientVisit = createPatientVisitGen().get
-    (for {
-      _ <- visits.create(List(createPatientVisit))
-      getVisit <- visits
-        .get(PatientVisitFilters())
-        .map(_.data.find(_.patientVisit.patientId == createPatientVisit.patientId).get)
-    } yield getVisit).flatMap(patientVisitInfo =>
-      visits
-        .updatePaymentStatus(patientVisitInfo.patientVisit.chequeId)
-        .as(success)
-        .handleErrorWith { error =>
-          logger
-            .error("Error occurred!", cause = error)
-            .as(failure("Test failed!"))
-        }
-    )
+    visits
+      .updatePaymentStatus(chequeIdGen.get)
+      .as(success)
+      .handleErrorWith { error =>
+        logger
+          .error("Error occurred!", cause = error)
+          .as(failure("Test failed!"))
+      }
   }
 }

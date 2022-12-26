@@ -23,7 +23,6 @@ import babymed.services.users.domain.types.UserId
 import babymed.services.users.generators._
 import babymed.services.users.repositories.sql._
 import babymed.services.visits.domain.CreateOperationExpense
-import babymed.services.visits.domain.CreatePatientVisit
 import babymed.services.visits.domain.CreateService
 import babymed.services.visits.domain.InsertPatientVisit
 import babymed.services.visits.domain.OperationExpense
@@ -113,7 +112,7 @@ object data
     val data1: InsertPatientVisit =
       InsertPatientVisit(
         id1,
-        localDateTimeGen.get,
+        LocalDateTime.now(),
         data.user.id1,
         data.patient.id1,
         data.service.id1,
@@ -122,7 +121,7 @@ object data
     val data2: InsertPatientVisit =
       InsertPatientVisit(
         id2,
-        localDateTimeGen.get,
+        LocalDateTime.now(),
         data.user.id2,
         data.patient.id2,
         data.service.id2,
@@ -131,7 +130,7 @@ object data
     val data3: InsertPatientVisit =
       InsertPatientVisit(
         id3,
-        localDateTimeGen.get,
+        LocalDateTime.now(),
         data.user.id3,
         data.patient.id3,
         data.service.id3,
@@ -181,8 +180,8 @@ object data
   }
 
   def setup(implicit session: Resource[IO, Session[IO]]): IO[Unit] =
-    setupPatients *> setupServiceTypes *> setupServices *> setupVisits *>
-      setupUsers *> setupOperationExpenses *> setupOperationExpenseItems
+    setupUsers *> setupPatients *> setupServiceTypes *> setupServices *>
+      setupVisits *> setupOperationExpenses *> setupOperationExpenseItems
 
   private def setupPatients(implicit session: Resource[IO, Session[IO]]): IO[Unit] =
     patient.values.toList.traverse_ {
@@ -213,9 +212,7 @@ object data
     }
 
   private def setupVisits(implicit session: Resource[IO, Session[IO]]): IO[Unit] =
-    visits.values.traverse_ { insertPatientVisit =>
-      VisitsSql.insertItems(List(insertPatientVisit)).execute(List(insertPatientVisit))
-    }
+    VisitsSql.insertItems(visits.values).execute(visits.values)
 
   private def setupOperationExpenses(implicit session: Resource[IO, Session[IO]]): IO[Unit] =
     operationExpenses.values.toList.traverse_ {

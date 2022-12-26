@@ -3,7 +3,6 @@ package babymed.services.visits.domain
 import derevo.circe.magnolia.decoder
 import derevo.circe.magnolia.encoder
 import derevo.derive
-import io.circe.refined._
 
 import babymed.services.users.domain.City
 import babymed.services.users.domain.Patient

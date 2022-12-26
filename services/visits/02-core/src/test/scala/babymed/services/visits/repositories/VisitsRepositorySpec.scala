@@ -71,14 +71,25 @@ object VisitsRepositorySpec extends DBSuite with PatientVisitGenerators {
             assert(visits.exists(_.service.serviceTypeId == data.serviceType.id1))
           }
     }
-    List(
-      Case1,
-      Case2,
-      Case3,
-      Case4,
-      Case5,
-      Case6,
-    ).traverse(_.check).map(_.reduce(_ and _))
+    object Case7 extends TestCase[Res] {
+      override def check(implicit dao: Resource[IO, Session[IO]]): IO[Expectations] =
+        repo
+          .get(PatientVisitFilters(userId = data.user.id1.some))
+          .map { visits =>
+            assert(visits.exists(_.patientVisit.userId == data.user.id1))
+          }
+    }
+    object Case8 extends TestCase[Res] {
+      override def check(implicit dao: Resource[IO, Session[IO]]): IO[Expectations] =
+        repo
+          .get(PatientVisitFilters(chequeId = data.visits.chequeId1.some))
+          .map { visits =>
+            assert(visits.exists(_.patientVisit.chequeId == data.visits.chequeId1))
+          }
+    }
+    List(Case1, Case2, Case3, Case4, Case5, Case6, Case7, Case8)
+      .traverse(_.check)
+      .map(_.reduce(_ and _))
   }
 
   test("Get Patient Visits Total") { implicit postgres =>
@@ -97,7 +108,7 @@ object VisitsRepositorySpec extends DBSuite with PatientVisitGenerators {
     val repo = VisitsRepository.make[IO]
 
     for {
-      _ <- repo.updatePaymentStatus(data.visits.id1)
+      _ <- repo.updatePaymentStatus(data.visits.chequeId1)
       visits <- repo.get(PatientVisitFilters(paymentStatus = FullyPaid.some))
     } yield assert(visits.exists(_.patientVisit.id == data.visits.id1))
   }

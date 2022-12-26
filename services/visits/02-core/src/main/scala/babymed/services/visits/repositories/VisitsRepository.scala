@@ -1,7 +1,6 @@
 package babymed.services.visits.repositories
 
 import cats.effect.Concurrent
-import cats.effect.MonadCancel
 import cats.effect.Resource
 import cats.implicits._
 import skunk.Session
@@ -29,8 +28,7 @@ trait VisitsRepository[F[_]] {
 object VisitsRepository {
   def make[F[_]: GenUUID: Calendar: Concurrent](
       implicit
-      session: Resource[F, Session[F]],
-      F: MonadCancel[F, Throwable],
+      session: Resource[F, Session[F]]
     ): VisitsRepository[F] = new VisitsRepository[F] {
     import sql.VisitsSql._
 
@@ -44,7 +42,9 @@ object VisitsRepository {
               InsertPatientVisit(
                 pVId,
                 now,
-                cpv,
+                cpv.userId,
+                cpv.patientId,
+                cpv.serviceId,
                 chequeId,
               )
             )

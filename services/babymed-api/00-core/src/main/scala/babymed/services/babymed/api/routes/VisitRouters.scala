@@ -51,9 +51,9 @@ final case class VisitRouters[F[_]: Async: JsonDecoder](
         visits.getTotal(patientVisitFilters).flatMap(Ok(_))
       }
 
-    case GET -> Root / "update-payment-status" / PatientVisitIdVar(visitId) as user
+    case GET -> Root / "update-payment-status" / ChequeIdVar(chequeId) as user
          if List(SuperManager, Cashier, TechAdmin).contains(user.role) =>
-      visits.updatePaymentStatus(visitId) >> NoContent()
+      visits.updatePaymentStatus(chequeId) >> NoContent()
 
   }
 

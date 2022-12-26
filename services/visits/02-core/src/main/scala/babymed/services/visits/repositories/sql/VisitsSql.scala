@@ -59,7 +59,7 @@ object VisitsSql {
       }
   def insertItems(item: List[InsertPatientVisit]): Command[item.type] = {
     val enc = encoder.values.list(item)
-    sql"""INSERT INTO visits VALUES ($enc)""".command
+    sql"""INSERT INTO visits VALUES $enc""".command
   }
 
   private def searchFilter(filters: PatientVisitFilters): List[Option[AppliedFragment]] =
