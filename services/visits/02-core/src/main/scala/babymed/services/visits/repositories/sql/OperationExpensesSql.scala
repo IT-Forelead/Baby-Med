@@ -81,9 +81,7 @@ object OperationExpensesSql {
   private def searchFilter(filters: OperationExpenseFilters): List[Option[AppliedFragment]] =
     List(
       filters.startDate.map(sql"operation_expenses.created_at >= $timestamp"),
-      filters
-        .endDate
-        .map(sql"operation_expenses.created_at <= $timestamp ORDER BY visits.created_at DESC"),
+      filters.endDate.map(sql"operation_expenses.created_at <= $timestamp"),
     )
 
   def select(filters: OperationExpenseFilters): AppliedFragment = {
@@ -95,7 +93,9 @@ object OperationExpensesSql {
         INNER JOIN services ON visits.service_id = services.id
         WHERE operation_expenses.deleted = false"""
 
-    baseQuery(Void).andOpt(searchFilter(filters): _*)
+    baseQuery(Void).andOpt(
+      searchFilter(filters): _*
+    ) |+| sql" ORDER BY operation_expenses.created_at DESC".apply(Void)
   }
 
   def total(filters: OperationExpenseFilters): AppliedFragment = {

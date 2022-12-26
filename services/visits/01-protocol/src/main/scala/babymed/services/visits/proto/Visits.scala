@@ -13,7 +13,7 @@ trait Visits[F[_]] {
   def create(createPatientVisit: List[CreatePatientVisit]): F[Unit]
   def get(filters: PatientVisitFilters): F[ResponseData[PatientVisitInfo]]
   def getTotal(filters: PatientVisitFilters): F[Long]
-  def updatePaymentStatus(chequeId: ChequeId): F[Unit]
+  def updatePaymentStatus(chequeId: ChequeId): F[PatientVisit]
 }
 
 object Visits {}

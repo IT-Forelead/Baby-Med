@@ -9,9 +9,13 @@ import babymed.services.visits.domain.PatientVisitFilters
 import babymed.services.visits.domain.PatientVisitInfo
 import babymed.services.visits.domain.types.ChequeId
 import babymed.services.visits.proto
+import babymed.services.visits.repositories.CheckupExpensesRepository
 import babymed.services.visits.repositories.VisitsRepository
 
-class Visits[F[_]: Monad](visitsRepository: VisitsRepository[F]) extends proto.Visits[F] {
+class Visits[F[_]: Monad](
+    visitsRepository: VisitsRepository[F],
+    checkupExpensesRepository: CheckupExpensesRepository[F],
+  ) extends proto.Visits[F] {
   override def create(createPatientVisit: List[CreatePatientVisit]): F[Unit] =
     visitsRepository.create(createPatientVisit)
   override def get(filters: PatientVisitFilters): F[ResponseData[PatientVisitInfo]] =
@@ -21,6 +25,9 @@ class Visits[F[_]: Monad](visitsRepository: VisitsRepository[F]) extends proto.V
     } yield ResponseData(visits, total)
   override def getTotal(filters: PatientVisitFilters): F[Long] =
     visitsRepository.getTotal(filters)
-  override def updatePaymentStatus(chequeId: ChequeId): F[Unit] =
-    visitsRepository.updatePaymentStatus(chequeId)
+  override def updatePaymentStatus(chequeId: ChequeId): F[PatientVisit] =
+    for {
+      update <- visitsRepository.updatePaymentStatus(chequeId)
+      _ <- checkupExpensesRepository.create(update.serviceId)
+    } yield update
 }

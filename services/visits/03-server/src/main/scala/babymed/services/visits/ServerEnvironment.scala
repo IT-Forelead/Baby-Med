@@ -11,5 +11,6 @@ object ServerEnvironment {
       operationExpenses: OperationExpenses[F],
       services: proto.Services[F],
       visits: Visits[F],
+      checkupExpenses: CheckupExpenses[F],
     )
 }

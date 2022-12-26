@@ -99,6 +99,7 @@ object VisitsSql {
     baseQuery(Void).andOpt(searchFilter(filters): _*)
   }
 
-  val updatePaymentStatusSql: Command[ChequeId] =
-    sql"""UPDATE visits SET payment_status = 'fully_paid' WHERE cheque_id = $chequeId""".command
+  val updatePaymentStatusSql: Query[ChequeId, PatientVisit] =
+    sql"""UPDATE visits SET payment_status = 'fully_paid' WHERE cheque_id = $chequeId  RETURNING *"""
+      .query(decoder)
 }

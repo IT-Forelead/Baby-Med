@@ -8,8 +8,7 @@ import java.util.UUID
 import com.comcast.ip4s.IpAddress
 import org.scalacheck.Gen
 
-import babymed.refinements.EmailAddress
-import babymed.refinements.Phone
+import babymed.refinements._
 import babymed.syntax.refined.commonSyntaxAutoRefineV
 
 trait CommonGenerators {
@@ -62,4 +61,6 @@ trait CommonGenerators {
     Gen.alphaLowerStr.map(domain => new URL(s"http://$domain.com"))
 
   val phoneGen: Gen[Phone] = numberGen(12).map("+" + _)
+
+  val percentGen: Gen[Percent] = Gen.choose(0, 100).map(identity(_))
 }

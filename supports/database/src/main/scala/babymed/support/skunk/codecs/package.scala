@@ -2,12 +2,12 @@ package babymed.support.skunk
 
 import eu.timepit.refined.types.string.NonEmptyString
 import skunk.Codec
+import skunk.codec.all.int4
 import skunk.codec.all.uuid
 import skunk.codec.all.varchar
 
 import babymed.effects.IsUUID
-import babymed.refinements.EmailAddress
-import babymed.refinements.Phone
+import babymed.refinements._
 import babymed.syntax.refined.commonSyntaxAutoRefineV
 
 package object codecs {
@@ -15,5 +15,6 @@ package object codecs {
 
   val nes: Codec[NonEmptyString] = varchar.imap[NonEmptyString](identity(_))(_.value)
   val phone: Codec[Phone] = varchar.imap[Phone](identity(_))(_.value)
+  val percent: Codec[Percent] = int4.imap[Percent](identity(_))(_.value)
   val email: Codec[EmailAddress] = varchar.imap[EmailAddress](identity(_))(_.value)
 }
