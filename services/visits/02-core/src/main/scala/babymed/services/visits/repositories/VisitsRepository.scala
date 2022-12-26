@@ -19,7 +19,7 @@ import babymed.services.visits.repositories.sql.VisitsSql
 import babymed.support.skunk.syntax.all._
 
 trait VisitsRepository[F[_]] {
-  def create(createPatientVisits: List[CreatePatientVisit]): F[Unit]
+  def create(createPatientVisits: CreatePatientVisit): F[Unit]
   def get(filters: PatientVisitFilters): F[List[PatientVisitInfo]]
   def getTotal(filters: PatientVisitFilters): F[Long]
   def updatePaymentStatus(chequeId: ChequeId): F[Unit]
@@ -32,19 +32,19 @@ object VisitsRepository {
     ): VisitsRepository[F] = new VisitsRepository[F] {
     import sql.VisitsSql._
 
-    override def create(createPatientVisits: List[CreatePatientVisit]): F[Unit] =
+    override def create(createPatientVisits: CreatePatientVisit): F[Unit] =
       for {
         chequeId <- ID.make[F, ChequeId]
         now <- Calendar[F].currentDateTime
-        visits <- createPatientVisits.traverse(cpv =>
+        visits <- createPatientVisits.serviceIds.traverse(serviceId =>
           ID.make[F, PatientVisitId]
             .map(pVId =>
               InsertPatientVisit(
                 pVId,
                 now,
-                cpv.userId,
-                cpv.patientId,
-                cpv.serviceId,
+                createPatientVisits.userId,
+                createPatientVisits.patientId,
+                serviceId,
                 chequeId,
               )
             )

@@ -12,7 +12,7 @@ import babymed.services.visits.proto
 import babymed.services.visits.repositories.VisitsRepository
 
 class Visits[F[_]: Monad](visitsRepository: VisitsRepository[F]) extends proto.Visits[F] {
-  override def create(createPatientVisit: List[CreatePatientVisit]): F[Unit] =
+  override def create(createPatientVisit: CreatePatientVisit): F[Unit] =
     visitsRepository.create(createPatientVisit)
   override def get(filters: PatientVisitFilters): F[ResponseData[PatientVisitInfo]] =
     for {

@@ -35,7 +35,7 @@ trait PatientVisitGenerators extends TypeGen with ServiceGenerators with Patient
     } yield CreatePatientVisit(
       maybeUserId.getOrElse(userId),
       maybePatientId.getOrElse(patientId),
-      maybeServiceId.getOrElse(serviceId),
+      List(maybeServiceId.getOrElse(serviceId)),
     )
 
   lazy val insertPatientVisitGen: Gen[InsertPatientVisit] =
