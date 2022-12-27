@@ -12,5 +12,5 @@ import babymed.services.visits.domain.types.ServiceId
 case class CreatePatientVisit(
     userId: UserId,
     patientId: PatientId,
-    serviceId: ServiceId,
+    serviceIds: List[ServiceId],
   )

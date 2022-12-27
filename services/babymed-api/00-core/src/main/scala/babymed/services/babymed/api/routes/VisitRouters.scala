@@ -33,7 +33,7 @@ final case class VisitRouters[F[_]: Async: JsonDecoder](
 
     case ar @ POST -> Root / "create" as user
          if List(SuperManager, Admin, TechAdmin).contains(user.role) =>
-      ar.req.decodeR[List[CreatePatientVisit]] { createVisit =>
+      ar.req.decodeR[CreatePatientVisit] { createVisit =>
         visits.create(createVisit) *> NoContent()
       }
 

@@ -10,7 +10,7 @@ import babymed.support.services.syntax.marshaller.codec
 
 @service(Custom)
 trait Visits[F[_]] {
-  def create(createPatientVisit: List[CreatePatientVisit]): F[Unit]
+  def create(createPatientVisit: CreatePatientVisit): F[Unit]
   def get(filters: PatientVisitFilters): F[ResponseData[PatientVisitInfo]]
   def getTotal(filters: PatientVisitFilters): F[Long]
   def updatePaymentStatus(chequeId: ChequeId): F[PatientVisit]

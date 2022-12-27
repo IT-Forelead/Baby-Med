@@ -25,7 +25,7 @@ import babymed.test.TestSuite
 
 object VisitsSpec extends TestSuite with PatientVisitGenerators {
   val visitRepo: VisitsRepository[F] = new VisitsRepository[F] {
-    override def create(createPatientVisits: List[CreatePatientVisit]): F[Unit] =
+    override def create(createPatientVisits: CreatePatientVisit): F[Unit] =
       Sync[F].unit
     override def get(filters: PatientVisitFilters): F[List[PatientVisitInfo]] =
       Sync[F].delay(List(patientVisitInfoGen.get))
@@ -49,7 +49,7 @@ object VisitsSpec extends TestSuite with PatientVisitGenerators {
 
   loggedTest("Create Patient Visit") { logger =>
     visits
-      .create(List(createPatientVisitGen().get))
+      .create(createPatientVisitGen().get)
       .as(success)
       .handleErrorWith { error =>
         logger

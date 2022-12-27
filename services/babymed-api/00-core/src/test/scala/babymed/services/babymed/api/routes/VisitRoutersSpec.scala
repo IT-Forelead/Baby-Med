@@ -70,7 +70,7 @@ object VisitRoutersSpec extends HttpSuite with PatientVisitGenerators with UserG
   }
 
   val visits: Visits[F] = new Visits[F] {
-    override def create(createPatientVisit: List[CreatePatientVisit]): F[Unit] =
+    override def create(createPatientVisit: CreatePatientVisit): F[Unit] =
       Sync[F].unit
     override def get(filters: PatientVisitFilters): F[ResponseData[PatientVisitInfo]] =
       Sync[F].delay(ResponseData(List(patientVisitInfo), total))
@@ -115,7 +115,7 @@ object VisitRoutersSpec extends HttpSuite with PatientVisitGenerators with UserG
 
   test("Create patient visit with correct role") {
     authedReq() { token =>
-      POST(List(createPatientVisitGen().get), uri"/visit/create").bearer(
+      POST(createPatientVisitGen().get, uri"/visit/create").bearer(
         NonEmptyString.unsafeFrom(token.value)
       )
     } {
