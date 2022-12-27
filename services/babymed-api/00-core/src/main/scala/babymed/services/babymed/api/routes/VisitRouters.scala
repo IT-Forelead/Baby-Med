@@ -8,15 +8,13 @@ import org.http4s.circe.JsonDecoder
 import org.http4s.dsl.Http4sDsl
 import org.http4s.server.Router
 import org.typelevel.log4cats.Logger
-
 import babymed.domain.Role.Admin
 import babymed.domain.Role.Cashier
 import babymed.domain.Role.SuperManager
 import babymed.domain.Role.TechAdmin
 import babymed.services.auth.impl.Security
 import babymed.services.users.domain.User
-import babymed.services.visits.domain.CreatePatientVisit
-import babymed.services.visits.domain.PatientVisitFilters
+import babymed.services.visits.domain.{CreatePatientVisit, CreatePatientVisitForm, PatientVisitFilters}
 import babymed.services.visits.proto.Visits
 import babymed.support.services.syntax.all.deriveEntityEncoder
 import babymed.support.services.syntax.all.http4SyntaxReqOps
@@ -33,8 +31,14 @@ final case class VisitRouters[F[_]: Async: JsonDecoder](
 
     case ar @ POST -> Root / "create" as user
          if List(SuperManager, Admin, TechAdmin).contains(user.role) =>
-      ar.req.decodeR[CreatePatientVisit] { createVisit =>
-        visits.create(createVisit) *> NoContent()
+      ar.req.decodeR[CreatePatientVisitForm] { createVisit =>
+        visits.create(
+          CreatePatientVisit(
+            userId = user.id,
+            patientId = createVisit.patientId,
+            serviceIds = createVisit.serviceIds
+          )
+        ) *> NoContent()
       }
 
     case ar @ POST -> Root / "report" as _ =>
