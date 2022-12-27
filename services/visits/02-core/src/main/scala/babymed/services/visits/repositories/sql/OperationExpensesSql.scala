@@ -6,18 +6,15 @@ import skunk.implicits.toIdOps
 import skunk.implicits.toStringOps
 
 import babymed.services.users.domain.SubRole
-import babymed.services.users.domain.User
 import babymed.services.visits.domain._
 import babymed.services.visits.domain.types.OperationExpenseId
-import babymed.support.skunk.codecs.phone
+import babymed.services.visits.repositories.sql.CheckupExpensesSql.decUser
 import babymed.support.skunk.syntax.all.skunkSyntaxFragmentOps
 
 object OperationExpensesSql {
   private val Columns =
     operationExpenseId ~ timestamp ~ patientVisitId ~ price ~ price ~ price ~ partnerDoctorFullName.opt ~ price.opt ~ bool
   private val ItemsColumns = operationExpenseId ~ userId ~ subRoleId ~ price ~ bool
-  private val UserColumns =
-    userId ~ timestamp ~ firstName ~ lastName ~ phone ~ role ~ subRoleId.opt ~ passwordHash ~ bool
 
   val encoder: Encoder[OperationExpense] =
     Columns.contramap(oe =>
@@ -46,11 +43,6 @@ object OperationExpensesSql {
   val decItem: Decoder[OperationExpenseItem] = ItemsColumns.map {
     case operationExpenseId ~ userId ~ subRoleId ~ price ~ _ =>
       OperationExpenseItem(operationExpenseId, userId, subRoleId, price)
-  }
-
-  val decUser: Decoder[User] = UserColumns.map {
-    case id ~ createdAt ~ firstName ~ lastName ~ phone ~ role ~ subRoleId ~ _ ~ _ =>
-      User(id, createdAt, firstName, lastName, phone, role, subRoleId)
   }
 
   val decSubRole: Decoder[SubRole] = (subRoleId ~ subRoleName ~ bool).map {

@@ -5,16 +5,22 @@ import org.scalacheck.Gen
 import babymed.services.users.domain.types.UserId
 import babymed.services.users.generators.UserGenerators
 import babymed.services.visits.domain._
+import babymed.services.visits.domain.types.PatientVisitId
 import babymed.services.visits.domain.types.ServiceId
 
-trait CheckupExpenseGenerators extends TypeGen with UserGenerators with ServiceGenerators {
+trait CheckupExpenseGenerators
+    extends TypeGen
+       with UserGenerators
+       with ServiceGenerators
+       with PatientVisitGenerators {
   lazy val checkupExpenseGen: Gen[CheckupExpense] =
     for {
       id <- checkupExpenseIdGen
       createdAt <- localDateTimeGen
       doctorShareId <- doctorShareIdGen
+      patientVisitId <- patientVisitIdGen
       price <- priceGen
-    } yield CheckupExpense(id, createdAt, doctorShareId, price)
+    } yield CheckupExpense(id, createdAt, doctorShareId, patientVisitId, price)
 
   lazy val doctorShareGen: Gen[DoctorShare] =
     for {
@@ -38,13 +44,26 @@ trait CheckupExpenseGenerators extends TypeGen with UserGenerators with ServiceG
       percent,
     )
 
+  def createCheckupExpenseGen(
+      maybeServiceId: Option[ServiceId] = None,
+      maybePatientVisitId: Option[PatientVisitId] = None,
+    ): Gen[CreateCheckupExpense] =
+    for {
+      serviceId <- serviceIdGen
+      patientVisitId <- patientVisitIdGen
+    } yield CreateCheckupExpense(
+      maybeServiceId.getOrElse(serviceId),
+      maybePatientVisitId.getOrElse(patientVisitId),
+    )
+
   lazy val checkupExpenseInfoGen: Gen[CheckupExpenseInfo] =
     for {
       checkupExpense <- checkupExpenseGen
       doctorShare <- doctorShareGen
       service <- serviceWithTypeNameGen
       user <- userGen
-    } yield CheckupExpenseInfo(checkupExpense, doctorShare, service, user)
+      patientVisit <- patientVisitGen
+    } yield CheckupExpenseInfo(checkupExpense, doctorShare, service, user, patientVisit)
 
   lazy val doctorShareInfoGen: Gen[DoctorShareInfo] =
     for {

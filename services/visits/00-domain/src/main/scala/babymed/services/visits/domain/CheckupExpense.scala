@@ -9,11 +9,13 @@ import squants.Money
 
 import babymed.services.visits.domain.types.CheckupExpenseId
 import babymed.services.visits.domain.types.DoctorShareId
+import babymed.services.visits.domain.types.PatientVisitId
 
 @derive(decoder, encoder)
 case class CheckupExpense(
     id: CheckupExpenseId,
     createdAt: LocalDateTime,
     doctorShareId: DoctorShareId,
+    patientVisitId: PatientVisitId,
     price: Money,
   )

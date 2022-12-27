@@ -6,15 +6,14 @@ import cats.implicits._
 import babymed.domain.ResponseData
 import babymed.services.visits.domain._
 import babymed.services.visits.domain.types.DoctorShareId
-import babymed.services.visits.domain.types.ServiceId
 import babymed.services.visits.proto
 import babymed.services.visits.repositories.CheckupExpensesRepository
 
 class CheckupExpenses[F[_]: Monad](
     checkupExpensesRepository: CheckupExpensesRepository[F]
   ) extends proto.CheckupExpenses[F] {
-  override def create(serviceId: ServiceId): F[CheckupExpense] =
-    checkupExpensesRepository.create(serviceId)
+  override def create(createCheckupExpenses: List[CreateCheckupExpense]): F[List[CheckupExpense]] =
+    checkupExpensesRepository.create(createCheckupExpenses)
   override def createDoctorShare(createDoctorShare: CreateDoctorShare): F[DoctorShare] =
     checkupExpensesRepository.createDoctorShare(createDoctorShare)
   override def get(filters: CheckupExpenseFilters): F[ResponseData[CheckupExpenseInfo]] =

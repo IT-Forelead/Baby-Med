@@ -53,7 +53,9 @@ final case class VisitRouters[F[_]: Async: JsonDecoder](
 
     case GET -> Root / "update-payment-status" / ChequeIdVar(chequeId) as user
          if List(SuperManager, Cashier, TechAdmin).contains(user.role) =>
-      visits.updatePaymentStatus(chequeId) >> NoContent()
+      visits.updatePaymentStatus(chequeId).flatMap(_ => NoContent()).handleErrorWith { _ =>
+        NoContent()
+      }
 
   }
 

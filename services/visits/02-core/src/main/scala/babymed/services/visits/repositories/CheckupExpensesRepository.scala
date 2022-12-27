@@ -14,13 +14,13 @@ import babymed.effects.GenUUID
 import babymed.services.visits.domain._
 import babymed.services.visits.domain.types.CheckupExpenseId
 import babymed.services.visits.domain.types.DoctorShareId
-import babymed.services.visits.domain.types.ServiceId
+import babymed.services.visits.domain.types.PatientVisitId
 import babymed.services.visits.domain.types.UZS
 import babymed.services.visits.repositories.sql.CheckupExpensesSql
 import babymed.support.skunk.syntax.all._
 
 trait CheckupExpensesRepository[F[_]] {
-  def create(serviceId: ServiceId): F[CheckupExpense]
+  def create(createCheckupExpenses: List[CreateCheckupExpense]): F[List[CheckupExpense]]
   def createDoctorShare(createDoctorShare: CreateDoctorShare): F[DoctorShare]
   def get(filters: CheckupExpenseFilters): F[List[CheckupExpenseInfo]]
   def getTotal(filters: CheckupExpenseFilters): F[Long]
@@ -31,12 +31,12 @@ trait CheckupExpensesRepository[F[_]] {
 object CheckupExpensesRepository {
   def make[F[_]: GenUUID: Calendar: Concurrent](
       implicit
-      session: Resource[F, Session[F]],
-      F: MonadCancel[F, Throwable],
+      session: Resource[F, Session[F]]
     ): CheckupExpensesRepository[F] = new CheckupExpensesRepository[F] {
     import sql.CheckupExpensesSql._
 
-    private def createCheckupExpense(
+    def createCheckupExpense(
+        patientVisitId: PatientVisitId,
         doctorShareId: DoctorShareId,
         price: Money,
       ): F[CheckupExpense] =
@@ -48,20 +48,26 @@ object CheckupExpensesRepository {
             id = id,
             createdAt = now,
             doctorShareId = doctorShareId,
+            patientVisitId = patientVisitId,
             price = price,
           )
         )
       } yield checkupExpense
 
-    override def create(serviceId: ServiceId): F[CheckupExpense] =
-      OptionT(selectDoctorShareByServiceId.queryOption(serviceId))
-        .foldF(DoctorShareNotFound(serviceId).raiseError[F, CheckupExpense])(doctorShare =>
-          createCheckupExpense(
-            doctorShareId = doctorShare.doctorShare.id,
-            price =
-              UZS(doctorShare.service.price.value * doctorShare.doctorShare.percent.value / 100),
+    override def create(
+        createCheckupExpenses: List[CreateCheckupExpense]
+      ): F[List[CheckupExpense]] =
+      createCheckupExpenses.traverse(chExp =>
+        OptionT(selectDoctorShareByServiceId.queryOption(chExp.serviceId))
+          .foldF(DoctorShareNotFound(chExp.serviceId).raiseError[F, CheckupExpense])(doctorShare =>
+            createCheckupExpense(
+              patientVisitId = chExp.visitId,
+              doctorShareId = doctorShare.doctorShare.id,
+              price =
+                UZS(doctorShare.service.price.value * doctorShare.doctorShare.percent.value / 100),
+            )
           )
-        )
+      )
 
     override def createDoctorShare(createDoctorShare: CreateDoctorShare): F[DoctorShare] =
       ID.make[F, DoctorShareId].flatMap { id =>

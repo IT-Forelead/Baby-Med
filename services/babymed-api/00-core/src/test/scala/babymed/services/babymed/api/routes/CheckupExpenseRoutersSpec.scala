@@ -33,11 +33,11 @@ import babymed.services.users.proto.Users
 import babymed.services.visits.domain.CheckupExpense
 import babymed.services.visits.domain.CheckupExpenseFilters
 import babymed.services.visits.domain.CheckupExpenseInfo
+import babymed.services.visits.domain.CreateCheckupExpense
 import babymed.services.visits.domain.CreateDoctorShare
 import babymed.services.visits.domain.DoctorShare
 import babymed.services.visits.domain.DoctorShareInfo
 import babymed.services.visits.domain.types.DoctorShareId
-import babymed.services.visits.domain.types.ServiceId
 import babymed.services.visits.generators.CheckupExpenseGenerators
 import babymed.services.visits.proto.CheckupExpenses
 import babymed.support.redis.RedisClientMock
@@ -61,6 +61,7 @@ object CheckupExpenseRoutersSpec
   lazy val checkupExpenseInfo: CheckupExpenseInfo = checkupExpenseInfoGen.get
   lazy val doctorShareInfo: DoctorShareInfo = doctorShareInfoGen.get
   lazy val doctorShare: DoctorShare = doctorShareGen.get
+  lazy val checkupExpense: CheckupExpense = checkupExpenseGen.get
   lazy val total: Long = Gen.long.get
 
   def users(role: Role): Users[F] = new Users[F] {
@@ -77,7 +78,6 @@ object CheckupExpenseRoutersSpec
   }
 
   val checkupExpenses: CheckupExpenses[F] = new CheckupExpenses[F] {
-    override def create(serviceId: ServiceId): F[CheckupExpense] = ???
     override def createDoctorShare(createData: CreateDoctorShare): F[DoctorShare] =
       Sync[F].delay(doctorShare)
     override def get(
@@ -90,6 +90,12 @@ object CheckupExpenseRoutersSpec
       Sync[F].delay(List(doctorShareInfo))
     override def deleteDoctorShare(id: DoctorShareId): F[Unit] =
       Sync[F].unit
+    override def create(
+        createCheckupExpenses: List[
+          CreateCheckupExpense
+        ]
+      ): CheckupExpenseRoutersSpec.F[List[CheckupExpense]] =
+      Sync[F].delay(List(checkupExpense))
   }
 
   def authedReq(

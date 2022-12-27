@@ -186,11 +186,17 @@ object data
   }
 
   object checkupExpense {
+    val createData1: CreateCheckupExpense = CreateCheckupExpense(data.service.id1, data.visits.id1)
+    val createData2: CreateCheckupExpense = CreateCheckupExpense(data.service.id2, data.visits.id2)
+    val createData3: CreateCheckupExpense = CreateCheckupExpense(data.service.id3, data.visits.id3)
+    val createCheckupExpense: List[CreateCheckupExpense] =
+      List(createData1, createData2, createData3)
     val data1: CheckupExpense =
       CheckupExpense(
         id = checkupExpenseIdGen.get,
         createdAt = LocalDateTime.now(),
         doctorShareId = data.doctorShare.id1,
+        patientVisitId = data.visits.id1,
         price = priceGen.get,
       )
     val data2: CheckupExpense =
@@ -198,6 +204,7 @@ object data
         id = checkupExpenseIdGen.get,
         createdAt = LocalDateTime.now(),
         doctorShareId = data.doctorShare.id2,
+        patientVisitId = data.visits.id2,
         price = priceGen.get,
       )
     val data3: CheckupExpense =
@@ -205,6 +212,7 @@ object data
         id = checkupExpenseIdGen.get,
         createdAt = LocalDateTime.now(),
         doctorShareId = data.doctorShare.id3,
+        patientVisitId = data.visits.id3,
         price = priceGen.get,
       )
     val values: List[CheckupExpense] =

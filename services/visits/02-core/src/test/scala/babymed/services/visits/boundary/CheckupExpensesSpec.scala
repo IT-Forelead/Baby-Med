@@ -4,15 +4,16 @@ import cats.effect.kernel.Sync
 import org.scalacheck.Gen
 
 import babymed.services.visits.domain._
-import babymed.services.visits.domain.types.ServiceId
 import babymed.services.visits.generators.CheckupExpenseGenerators
 import babymed.services.visits.repositories.CheckupExpensesRepository
 import babymed.test.TestSuite
 
 object CheckupExpensesSpec extends TestSuite with CheckupExpenseGenerators {
   val checkupExpenseRepo: CheckupExpensesRepository[F] = new CheckupExpensesRepository[F] {
-    override def create(serviceId: ServiceId): F[CheckupExpense] =
-      Sync[F].delay(checkupExpenseGen.get)
+    override def create(
+        createCheckupExpenses: List[CreateCheckupExpense]
+      ): F[List[CheckupExpense]] =
+      Sync[F].delay(List(checkupExpenseGen.get))
     override def createDoctorShare(createData: CreateDoctorShare): F[DoctorShare] =
       Sync[F].delay(doctorShareGen.get)
     override def get(filters: CheckupExpenseFilters): F[List[CheckupExpenseInfo]] =
@@ -29,7 +30,7 @@ object CheckupExpensesSpec extends TestSuite with CheckupExpenseGenerators {
 
   loggedTest("Create Checkup Expense") { logger =>
     checkupExpenses
-      .create(serviceIdGen.get)
+      .create(List(createCheckupExpenseGen().get))
       .as(success)
       .handleErrorWith { error =>
         logger

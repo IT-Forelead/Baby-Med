@@ -14,18 +14,20 @@ import babymed.support.skunk.codecs.phone
 import babymed.support.skunk.syntax.all.skunkSyntaxFragmentOps
 
 object CheckupExpensesSql {
-  private val Columns = checkupExpenseId ~ timestamp ~ doctorShareId ~ price ~ bool
+  private val Columns = checkupExpenseId ~ timestamp ~ doctorShareId ~ patientVisitId ~ price ~ bool
   private val DoctorShareColumns = doctorShareId ~ serviceId ~ userId ~ percent ~ bool
   private val ServiceColumns = serviceId ~ serviceTypeId ~ serviceName ~ price ~ bool
   private val UserColumns =
     userId ~ timestamp ~ firstName ~ lastName ~ phone ~ role ~ subRoleId.opt ~ passwordHash ~ bool
 
   val encoder: Encoder[CheckupExpense] =
-    Columns.contramap(ce => ce.id ~ ce.createdAt ~ ce.doctorShareId ~ ce.price ~ false)
+    Columns.contramap(ce =>
+      ce.id ~ ce.createdAt ~ ce.doctorShareId ~ ce.patientVisitId ~ ce.price ~ false
+    )
 
   val decoder: Decoder[CheckupExpense] = Columns.map {
-    case id ~ createdAt ~ doctorShareId ~ price ~ _ =>
-      CheckupExpense(id, createdAt, doctorShareId, price)
+    case id ~ createdAt ~ doctorShareId ~ patientVisitId ~ price ~ _ =>
+      CheckupExpense(id, createdAt, doctorShareId, patientVisitId, price)
   }
 
   val encDoctorShare: Encoder[DoctorShareId ~ CreateDoctorShare] =
@@ -68,9 +70,9 @@ object CheckupExpensesSql {
     }
 
   val decCheckupExpenseInfo: Decoder[CheckupExpenseInfo] =
-    (decoder ~ decDoctorShare ~ decServiceWithTypeName ~ decUser).map {
-      case checkupExpense ~ doctorShare ~ service ~ user =>
-        CheckupExpenseInfo(checkupExpense, doctorShare, service, user)
+    (decoder ~ decDoctorShare ~ decServiceWithTypeName ~ decUser ~ VisitsSql.decoder).map {
+      case checkupExpense ~ doctorShare ~ service ~ user ~ visit =>
+        CheckupExpenseInfo(checkupExpense, doctorShare, service, user, visit)
     }
 
   val insert: Query[CheckupExpense, CheckupExpense] =
@@ -83,15 +85,17 @@ object CheckupExpensesSql {
     List(
       filters.startDate.map(sql"checkup_expenses.created_at >= $timestamp"),
       filters.endDate.map(sql"checkup_expenses.created_at <= $timestamp"),
+      filters.patientVisitId.map(sql"checkup_expenses.visit_id <= $patientVisitId"),
       filters.serviceId.map(sql"doctor_shares.service_id = $serviceId"),
       filters.userId.map(sql"doctor_shares.user_id = $userId"),
     )
 
   def select(filters: CheckupExpenseFilters): AppliedFragment = {
     val baseQuery: Fragment[Void] =
-      sql"""SELECT checkup_expenses.*, doctor_shares.*, services.*, service_types.name, users.*
+      sql"""SELECT checkup_expenses.*, doctor_shares.*, services.*, service_types.name, users.*, visits.*
         FROM checkup_expenses
         INNER JOIN doctor_shares ON checkup_expenses.doctor_share_id = doctor_shares.id
+        INNER JOIN visits ON checkup_expenses.visit_id = visits.id
         INNER JOIN services ON doctor_shares.service_id = services.id
         INNER JOIN service_types ON services.service_type_id = service_types.id
         INNER JOIN users ON doctor_shares.user_id = users.id
@@ -103,6 +107,7 @@ object CheckupExpensesSql {
   def total(filters: CheckupExpenseFilters): AppliedFragment = {
     val baseQuery: Fragment[Void] =
       sql"""SELECT count(*) FROM checkup_expenses
+        INNER JOIN visits ON checkup_expenses.visit_id = visits.id
         INNER JOIN doctor_shares ON checkup_expenses.doctor_share_id = doctor_shares.id
         WHERE checkup_expenses.deleted = false"""
     baseQuery(Void).andOpt(searchFilter(filters): _*)

@@ -2,6 +2,7 @@ package babymed.services.visits.proto
 
 import babymed.domain.ResponseData
 import babymed.services.visits.domain.CreatePatientVisit
+import babymed.services.visits.domain.PatientVisit
 import babymed.services.visits.domain.PatientVisitFilters
 import babymed.services.visits.domain.PatientVisitInfo
 import babymed.services.visits.domain.types.ChequeId
@@ -13,7 +14,7 @@ trait Visits[F[_]] {
   def create(createPatientVisit: CreatePatientVisit): F[Unit]
   def get(filters: PatientVisitFilters): F[ResponseData[PatientVisitInfo]]
   def getTotal(filters: PatientVisitFilters): F[Long]
-  def updatePaymentStatus(chequeId: ChequeId): F[PatientVisit]
+  def updatePaymentStatus(chequeId: ChequeId): F[List[PatientVisit]]
 }
 
 object Visits {}

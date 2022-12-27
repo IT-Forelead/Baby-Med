@@ -100,6 +100,6 @@ object VisitsSql {
   }
 
   val updatePaymentStatusSql: Query[ChequeId, PatientVisit] =
-    sql"""UPDATE visits SET payment_status = 'fully_paid' WHERE cheque_id = $chequeId  RETURNING *"""
+    sql"""UPDATE visits SET payment_status = 'fully_paid' WHERE cheque_id = $chequeId RETURNING *"""
       .query(decoder)
 }

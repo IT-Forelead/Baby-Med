@@ -52,11 +52,20 @@ object CheckupExpensesRepositorySpec extends DBSuite with CheckupExpenseGenerato
             assert.same(checkupExpense.map(_.user.id), List(data.user.id1))
           }
     }
+    object Case5 extends TestCase[Res] {
+      override def check(implicit dao: Resource[IO, Session[IO]]): IO[Expectations] =
+        repo
+          .get(CheckupExpenseFilters(patientVisitId = data.visits.id1.some))
+          .map { checkupExpense =>
+            assert.same(checkupExpense.map(_.visit.id), List(data.visits.id1))
+          }
+    }
     List(
       Case1,
       Case2,
       Case3,
       Case4,
+      Case5,
     ).traverse(_.check).map(_.reduce(_ and _))
   }
 
@@ -89,12 +98,17 @@ object CheckupExpensesRepositorySpec extends DBSuite with CheckupExpenseGenerato
   test("Create Checkup Expense") { implicit postgres =>
     CheckupExpensesRepository
       .make[F]
-      .create(data.doctorShare.data2.serviceId)
-      .map { checkupExpense =>
-        assert(checkupExpense.doctorShareId == data.doctorShare.id2)
+      .create(data.checkupExpense.createCheckupExpense)
+      .map { checkupExpenses =>
+        val doctorShareIds = checkupExpenses.map(_.doctorShareId)
+        assert.same(
+          doctorShareIds,
+          List(data.doctorShare.id1, data.doctorShare.id2, data.doctorShare.id3),
+        )
       }
-      .handleError {
-        fail("Test failed.")
+      .handleError { error =>
+        println("ERROR::::::::::::::::::: " + error)
+        failure("Test failed.")
       }
   }
 

@@ -12,4 +12,5 @@ case class CheckupExpenseInfo(
     doctorShare: DoctorShare,
     service: ServiceWithTypeName,
     user: User,
+    visit: PatientVisit,
   )

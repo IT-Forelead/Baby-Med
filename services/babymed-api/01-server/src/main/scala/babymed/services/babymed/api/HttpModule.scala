@@ -32,6 +32,6 @@ object HttpModule {
       logger: Logger[F]
     ): Resource[F, F[ExitCode]] =
     HttpServer.make[F](env.config.http, allRoutes[F](env)).map { _ =>
-      logger.info(s"Mexico service http server is started").as(ExitCode.Success)
+      logger.info(s"HTTP Server is started").as(ExitCode.Success)
     }
 }

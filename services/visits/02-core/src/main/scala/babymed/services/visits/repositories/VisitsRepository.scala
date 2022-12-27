@@ -11,6 +11,7 @@ import babymed.effects.Calendar
 import babymed.effects.GenUUID
 import babymed.services.visits.domain.CreatePatientVisit
 import babymed.services.visits.domain.InsertPatientVisit
+import babymed.services.visits.domain.PatientVisit
 import babymed.services.visits.domain.PatientVisitFilters
 import babymed.services.visits.domain.PatientVisitInfo
 import babymed.services.visits.domain.types.ChequeId
@@ -22,7 +23,7 @@ trait VisitsRepository[F[_]] {
   def create(createPatientVisits: CreatePatientVisit): F[Unit]
   def get(filters: PatientVisitFilters): F[List[PatientVisitInfo]]
   def getTotal(filters: PatientVisitFilters): F[Long]
-  def updatePaymentStatus(chequeId: ChequeId): F[PatientVisit]
+  def updatePaymentStatus(chequeId: ChequeId): F[List[PatientVisit]]
 }
 
 object VisitsRepository {
@@ -36,19 +37,21 @@ object VisitsRepository {
       for {
         chequeId <- ID.make[F, ChequeId]
         now <- Calendar[F].currentDateTime
-        visits <- createPatientVisits.serviceIds.traverse(serviceId =>
-          ID.make[F, PatientVisitId]
-            .map(pVId =>
-              InsertPatientVisit(
-                pVId,
-                now,
-                createPatientVisits.userId,
-                createPatientVisits.patientId,
-                serviceId,
-                chequeId,
+        visits <- createPatientVisits
+          .serviceIds
+          .traverse(serviceId =>
+            ID.make[F, PatientVisitId]
+              .map(pVId =>
+                InsertPatientVisit(
+                  pVId,
+                  now,
+                  createPatientVisits.userId,
+                  createPatientVisits.patientId,
+                  serviceId,
+                  chequeId,
+                )
               )
-            )
-        )
+          )
         _ <- VisitsSql.insertItems(visits).execute(visits)
       } yield {}
 
@@ -62,7 +65,7 @@ object VisitsRepository {
       query.fragment.query(int8).queryUnique(query.argument)
     }
 
-    override def updatePaymentStatus(chequeId: ChequeId): F[PatientVisit] =
-      updatePaymentStatusSql.queryUnique(chequeId)
+    override def updatePaymentStatus(chequeId: ChequeId): F[List[PatientVisit]] =
+      updatePaymentStatusSql.queryList(chequeId)
   }
 }

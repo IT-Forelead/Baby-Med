@@ -4,7 +4,9 @@ import cats.Monad
 import cats.implicits._
 
 import babymed.domain.ResponseData
+import babymed.services.visits.domain.CreateCheckupExpense
 import babymed.services.visits.domain.CreatePatientVisit
+import babymed.services.visits.domain.PatientVisit
 import babymed.services.visits.domain.PatientVisitFilters
 import babymed.services.visits.domain.PatientVisitInfo
 import babymed.services.visits.domain.types.ChequeId
@@ -25,9 +27,12 @@ class Visits[F[_]: Monad](
     } yield ResponseData(visits, total)
   override def getTotal(filters: PatientVisitFilters): F[Long] =
     visitsRepository.getTotal(filters)
-  override def updatePaymentStatus(chequeId: ChequeId): F[PatientVisit] =
+  override def updatePaymentStatus(chequeId: ChequeId): F[List[PatientVisit]] =
     for {
       update <- visitsRepository.updatePaymentStatus(chequeId)
-      _ <- checkupExpensesRepository.create(update.serviceId)
+      createCheckupExpense = update.map(visit =>
+        CreateCheckupExpense(serviceId = visit.serviceId, visitId = visit.id)
+      )
+      _ <- checkupExpensesRepository.create(createCheckupExpense)
     } yield update
 }

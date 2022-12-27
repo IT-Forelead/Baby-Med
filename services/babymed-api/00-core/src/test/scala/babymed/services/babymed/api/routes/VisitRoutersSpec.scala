@@ -76,8 +76,8 @@ object VisitRoutersSpec extends HttpSuite with PatientVisitGenerators with UserG
       Sync[F].delay(ResponseData(List(patientVisitInfo), total))
     override def getTotal(filters: PatientVisitFilters): F[Long] =
       Sync[F].delay(total)
-    override def updatePaymentStatus(chequeId: ChequeId): F[PatientVisit] =
-      Sync[F].delay(patientVisit)
+    override def updatePaymentStatus(chequeId: ChequeId): F[List[PatientVisit]] =
+      Sync[F].delay(List(patientVisit))
   }
 
   def authedReq(
@@ -140,8 +140,8 @@ object VisitRoutersSpec extends HttpSuite with PatientVisitGenerators with UserG
 
   test("Update patient status with incorrect role") {
     authedReq(Doctor) { token =>
-      val patientVisitId = patientVisit.id
-      GET(Uri.unsafeFromString(s"/visit/update-payment-status/$patientVisitId")).bearer(
+      val chequeId = patientVisit.chequeId
+      GET(Uri.unsafeFromString(s"/visit/update-payment-status/$chequeId")).bearer(
         NonEmptyString.unsafeFrom(token.value)
       )
     } {
@@ -152,8 +152,8 @@ object VisitRoutersSpec extends HttpSuite with PatientVisitGenerators with UserG
 
   test("Update patient status with correct role") {
     authedReq() { token =>
-      val patientVisitId = patientVisit.id
-      GET(Uri.unsafeFromString(s"/visit/update-payment-status/$patientVisitId")).bearer(
+      val chequeId = patientVisit.chequeId
+      GET(Uri.unsafeFromString(s"/visit/update-payment-status/$chequeId")).bearer(
         NonEmptyString.unsafeFrom(token.value)
       )
     } {
