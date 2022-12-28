@@ -85,7 +85,7 @@ object CheckupExpensesSql {
     List(
       filters.startDate.map(sql"checkup_expenses.created_at >= $timestamp"),
       filters.endDate.map(sql"checkup_expenses.created_at <= $timestamp"),
-      filters.patientVisitId.map(sql"checkup_expenses.visit_id <= $patientVisitId"),
+      filters.patientVisitId.map(sql"checkup_expenses.visit_id = $patientVisitId"),
       filters.serviceId.map(sql"doctor_shares.service_id = $serviceId"),
       filters.userId.map(sql"doctor_shares.user_id = $userId"),
     )

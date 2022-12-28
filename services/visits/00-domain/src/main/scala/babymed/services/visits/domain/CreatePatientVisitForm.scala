@@ -1,9 +1,11 @@
 package babymed.services.visits.domain
 
-import babymed.services.users.domain.types.{PatientId, UserId}
-import babymed.services.visits.domain.types.ServiceId
-import derevo.circe.magnolia.{decoder, encoder}
+import derevo.circe.magnolia.decoder
+import derevo.circe.magnolia.encoder
 import derevo.derive
+
+import babymed.services.users.domain.types.PatientId
+import babymed.services.visits.domain.types.ServiceId
 
 @derive(decoder, encoder)
 case class CreatePatientVisitForm(

@@ -57,6 +57,7 @@ object VisitsSql {
         case visit ~ firstname ~ lastname ~ patient ~ serviceWithTypeName ~ region ~ city =>
           PatientVisitInfo(visit, firstname, lastname, patient, serviceWithTypeName, region, city)
       }
+
   def insertItems(item: List[InsertPatientVisit]): Command[item.type] = {
     val enc = encoder.values.list(item)
     sql"""INSERT INTO visits VALUES $enc""".command
@@ -88,15 +89,6 @@ object VisitsSql {
 
     baseQuery(Void).andOpt(searchFilter(filters): _*) |+| sql" ORDER BY visits.created_at DESC"
       .apply(Void)
-  }
-
-  def total(filters: PatientVisitFilters): AppliedFragment = {
-    val baseQuery: Fragment[Void] =
-      sql"""SELECT count(*) FROM visits
-        INNER JOIN services ON visits.service_id = services.id
-        INNER JOIN service_types ON services.service_type_id = service_types.id
-        WHERE visits.deleted = false"""
-    baseQuery(Void).andOpt(searchFilter(filters): _*)
   }
 
   val updatePaymentStatusSql: Query[ChequeId, PatientVisit] =

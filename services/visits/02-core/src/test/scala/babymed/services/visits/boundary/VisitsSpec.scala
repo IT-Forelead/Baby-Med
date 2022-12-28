@@ -1,7 +1,6 @@
 package babymed.services.visits.boundary
 
 import cats.effect.kernel.Sync
-import org.scalacheck.Gen
 
 import babymed.services.visits.domain.CheckupExpense
 import babymed.services.visits.domain.CheckupExpenseFilters
@@ -14,7 +13,7 @@ import babymed.services.visits.domain.DoctorShare
 import babymed.services.visits.domain.DoctorShareInfo
 import babymed.services.visits.domain.PatientVisit
 import babymed.services.visits.domain.PatientVisitFilters
-import babymed.services.visits.domain.PatientVisitInfo
+import babymed.services.visits.domain.PatientVisitReport
 import babymed.services.visits.domain.types.ChequeId
 import babymed.services.visits.domain.types.DoctorShareId
 import babymed.services.visits.generators.CheckupExpenseGenerators
@@ -27,10 +26,8 @@ object VisitsSpec extends TestSuite with PatientVisitGenerators with CheckupExpe
   val visitRepo: VisitsRepository[F] = new VisitsRepository[F] {
     override def create(createPatientVisits: CreatePatientVisit): F[Unit] =
       Sync[F].unit
-    override def get(filters: PatientVisitFilters): F[List[PatientVisitInfo]] =
-      Sync[F].delay(List(patientVisitInfoGen.get))
-    override def getTotal(filters: PatientVisitFilters): F[Long] =
-      Sync[F].delay(Gen.long.get)
+    override def get(filters: PatientVisitFilters): F[List[PatientVisitReport]] =
+      Sync[F].delay(List(patientVisitReportGen.get))
     override def updatePaymentStatus(chequeId: ChequeId): F[List[PatientVisit]] =
       Sync[F].delay(List(patientVisit))
   }
@@ -65,17 +62,6 @@ object VisitsSpec extends TestSuite with PatientVisitGenerators with CheckupExpe
   loggedTest("Get All Patient Visits") { logger =>
     visits
       .get(PatientVisitFilters.Empty)
-      .as(success)
-      .handleErrorWith { error =>
-        logger
-          .error("Error occurred!", cause = error)
-          .as(failure("Test failed!"))
-      }
-  }
-
-  loggedTest("Get Patient Visits Total") { logger =>
-    visits
-      .getTotal(PatientVisitFilters.Empty)
       .as(success)
       .handleErrorWith { error =>
         logger

@@ -26,7 +26,7 @@ object VisitsRepositorySpec extends DBSuite with PatientVisitGenerators {
         repo
           .get(PatientVisitFilters(patientId = data.patient.id1.some))
           .map { visits =>
-            assert(visits.map(_.patientVisit.patientId).contains(data.patient.id1))
+            assert(visits.flatMap(_.patientVisits.map(_.patientId)).contains(data.patient.id1))
           }
     }
     object Case2 extends TestCase[Res] {
@@ -42,18 +42,15 @@ object VisitsRepositorySpec extends DBSuite with PatientVisitGenerators {
         repo
           .get(PatientVisitFilters(serviceId = data.service.id1.some))
           .map { visits =>
-            assert(visits.map(_.patientVisit.serviceId).contains(data.service.id1))
+            assert(visits.flatMap(_.patientVisits.map(_.serviceId)).contains(data.service.id1))
           }
     }
     object Case4 extends TestCase[Res] {
       override def check(implicit dao: Resource[IO, Session[IO]]): IO[Expectations] =
-        repo
-          .get(PatientVisitFilters(paymentStatus = NotPaid.some))
-          .map { visits =>
-            assert(
-              visits.forall(_.patientVisit.paymentStatus == NotPaid)
-            )
-          }
+        for {
+          visitsReport <- repo.get(PatientVisitFilters(paymentStatus = NotPaid.some))
+          paymentStatuses = visitsReport.flatMap(_.patientVisits.map(_.paymentStatus))
+        } yield assert(paymentStatuses.forall(_ == NotPaid))
     }
     object Case5 extends TestCase[Res] {
       override def check(implicit dao: Resource[IO, Session[IO]]): IO[Expectations] =
@@ -67,24 +64,33 @@ object VisitsRepositorySpec extends DBSuite with PatientVisitGenerators {
       override def check(implicit dao: Resource[IO, Session[IO]]): IO[Expectations] =
         repo
           .get(PatientVisitFilters(serviceTypeId = data.serviceType.id1.some))
-          .map { visits =>
-            assert(visits.exists(_.service.serviceTypeId == data.serviceType.id1))
+          .map { visitsReport =>
+            assert.same(
+              visitsReport.flatMap(_.services.map(_.serviceTypeId)),
+              List(data.serviceType.id1),
+            )
           }
     }
     object Case7 extends TestCase[Res] {
       override def check(implicit dao: Resource[IO, Session[IO]]): IO[Expectations] =
         repo
           .get(PatientVisitFilters(userId = data.user.id1.some))
-          .map { visits =>
-            assert(visits.exists(_.patientVisit.userId == data.user.id1))
+          .map { visitsReport =>
+            assert.same(
+              visitsReport.flatMap(_.patientVisits.map(_.userId)),
+              List(data.user.id1),
+            )
           }
     }
     object Case8 extends TestCase[Res] {
       override def check(implicit dao: Resource[IO, Session[IO]]): IO[Expectations] =
         repo
           .get(PatientVisitFilters(chequeId = data.visits.chequeId1.some))
-          .map { visits =>
-            assert(visits.exists(_.patientVisit.chequeId == data.visits.chequeId1))
+          .map { visitsReport =>
+            assert.same(
+              visitsReport.flatMap(_.patientVisits.map(_.chequeId)),
+              List(data.visits.chequeId1),
+            )
           }
     }
     List(Case1, Case2, Case3, Case4, Case5, Case6, Case7, Case8)
@@ -92,23 +98,12 @@ object VisitsRepositorySpec extends DBSuite with PatientVisitGenerators {
       .map(_.reduce(_ and _))
   }
 
-  test("Get Patient Visits Total") { implicit postgres =>
-    VisitsRepository
-      .make[F]
-      .getTotal(PatientVisitFilters.Empty)
-      .map { total =>
-        assert(total == 3)
-      }
-      .handleError {
-        fail("Test failed.")
-      }
-  }
-
   test("Update Payment Status") { implicit postgres =>
     val repo = VisitsRepository.make[IO]
     for {
       _ <- repo.updatePaymentStatus(data.visits.chequeId1)
-      visits <- repo.get(PatientVisitFilters(paymentStatus = FullyPaid.some))
-    } yield assert(visits.exists(_.patientVisit.id == data.visits.id1))
+      visitsReport <- repo.get(PatientVisitFilters(paymentStatus = FullyPaid.some))
+      visits = visitsReport.flatMap(_.patientVisits)
+    } yield assert.same(visits.map(_.id), List(data.visits.id1))
   }
 }

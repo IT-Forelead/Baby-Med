@@ -8,13 +8,16 @@ import org.http4s.circe.JsonDecoder
 import org.http4s.dsl.Http4sDsl
 import org.http4s.server.Router
 import org.typelevel.log4cats.Logger
+
 import babymed.domain.Role.Admin
 import babymed.domain.Role.Cashier
 import babymed.domain.Role.SuperManager
 import babymed.domain.Role.TechAdmin
 import babymed.services.auth.impl.Security
 import babymed.services.users.domain.User
-import babymed.services.visits.domain.{CreatePatientVisit, CreatePatientVisitForm, PatientVisitFilters}
+import babymed.services.visits.domain.CreatePatientVisit
+import babymed.services.visits.domain.CreatePatientVisitForm
+import babymed.services.visits.domain.PatientVisitFilters
 import babymed.services.visits.proto.Visits
 import babymed.support.services.syntax.all.deriveEntityEncoder
 import babymed.support.services.syntax.all.http4SyntaxReqOps
@@ -36,7 +39,7 @@ final case class VisitRouters[F[_]: Async: JsonDecoder](
           CreatePatientVisit(
             userId = user.id,
             patientId = createVisit.patientId,
-            serviceIds = createVisit.serviceIds
+            serviceIds = createVisit.serviceIds,
           )
         ) *> NoContent()
       }
@@ -48,11 +51,6 @@ final case class VisitRouters[F[_]: Async: JsonDecoder](
             patientVisitFilters
           )
           .flatMap(Ok(_))
-      }
-
-    case ar @ POST -> Root / "report" / "summary" as _ =>
-      ar.req.decodeR[PatientVisitFilters] { patientVisitFilters =>
-        visits.getTotal(patientVisitFilters).flatMap(Ok(_))
       }
 
     case GET -> Root / "update-payment-status" / ChequeIdVar(chequeId) as user
