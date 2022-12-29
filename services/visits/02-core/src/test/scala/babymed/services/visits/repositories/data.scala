@@ -22,16 +22,8 @@ import babymed.services.users.domain.types.SubRoleId
 import babymed.services.users.domain.types.UserId
 import babymed.services.users.generators._
 import babymed.services.users.repositories.sql._
-import babymed.services.visits.domain.CreateOperationExpense
-import babymed.services.visits.domain.CreatePatientVisit
-import babymed.services.visits.domain.CreateService
-import babymed.services.visits.domain.OperationExpense
-import babymed.services.visits.domain.OperationExpenseItem
-import babymed.services.visits.domain.types.OperationExpenseId
-import babymed.services.visits.domain.types.PatientVisitId
-import babymed.services.visits.domain.types.ServiceId
-import babymed.services.visits.domain.types.ServiceTypeId
-import babymed.services.visits.domain.types.ServiceTypeName
+import babymed.services.visits.domain._
+import babymed.services.visits.domain.types._
 import babymed.services.visits.generators._
 import babymed.services.visits.repositories.sql._
 import babymed.support.skunk.syntax.all.skunkSyntaxCommandOps
@@ -43,7 +35,8 @@ object data
     extends PatientVisitGenerators
        with UserGenerators
        with PatientGenerators
-       with OperationExpenseGenerators {
+       with OperationExpenseGenerators
+       with CheckupExpenseGenerators {
   implicit private def gen2instance[T](gen: Gen[T]): T = gen.sample.get
 
   object regions {
@@ -105,14 +98,37 @@ object data
     val id1: PatientVisitId = patientVisitIdGen.get
     val id2: PatientVisitId = patientVisitIdGen.get
     val id3: PatientVisitId = patientVisitIdGen.get
-    val data1: CreatePatientVisit =
-      createPatientVisitGen(data.patient.id1.some, data.service.id1.some).get
-    val data2: CreatePatientVisit =
-      createPatientVisitGen(data.patient.id2.some, data.service.id2.some).get
-    val data3: CreatePatientVisit =
-      createPatientVisitGen(data.patient.id3.some, data.service.id3.some).get
-    val values: Map[PatientVisitId, CreatePatientVisit] =
-      Map(id1 -> data1, id2 -> data2, id3 -> data3)
+    val chequeId1: ChequeId = chequeIdGen.get
+    val chequeId2: ChequeId = chequeIdGen.get
+    val chequeId3: ChequeId = chequeIdGen.get
+    val data1: InsertPatientVisit =
+      InsertPatientVisit(
+        id1,
+        LocalDateTime.now(),
+        data.user.id1,
+        data.patient.id1,
+        data.service.id1,
+        chequeId1,
+      )
+    val data2: InsertPatientVisit =
+      InsertPatientVisit(
+        id2,
+        LocalDateTime.now(),
+        data.user.id2,
+        data.patient.id2,
+        data.service.id2,
+        chequeId2,
+      )
+    val data3: InsertPatientVisit =
+      InsertPatientVisit(
+        id3,
+        LocalDateTime.now(),
+        data.user.id3,
+        data.patient.id3,
+        data.service.id3,
+        chequeId3,
+      )
+    val values: List[InsertPatientVisit] = List(data1, data2, data3)
   }
 
   object operationExpenses {
@@ -155,9 +171,58 @@ object data
       List(data1, data2, data3)
   }
 
+  object doctorShare {
+    val id1: DoctorShareId = doctorShareIdGen.get
+    val id2: DoctorShareId = doctorShareIdGen.get
+    val id3: DoctorShareId = doctorShareIdGen.get
+    val data1: CreateDoctorShare =
+      createDoctorShareGen(data.service.id1.some, data.user.id1.some).get
+    val data2: CreateDoctorShare =
+      createDoctorShareGen(data.service.id2.some, data.user.id2.some).get
+    val data3: CreateDoctorShare =
+      createDoctorShareGen(data.service.id3.some, data.user.id3.some).get
+    val values: Map[DoctorShareId, CreateDoctorShare] =
+      Map(id1 -> data1, id2 -> data2, id3 -> data3)
+  }
+
+  object checkupExpense {
+    val createData1: CreateCheckupExpense = CreateCheckupExpense(data.service.id1, data.visits.id1)
+    val createData2: CreateCheckupExpense = CreateCheckupExpense(data.service.id2, data.visits.id2)
+    val createData3: CreateCheckupExpense = CreateCheckupExpense(data.service.id3, data.visits.id3)
+    val createCheckupExpense: List[CreateCheckupExpense] =
+      List(createData1, createData2, createData3)
+    val data1: CheckupExpense =
+      CheckupExpense(
+        id = checkupExpenseIdGen.get,
+        createdAt = LocalDateTime.now(),
+        doctorShareId = data.doctorShare.id1,
+        patientVisitId = data.visits.id1,
+        price = priceGen.get,
+      )
+    val data2: CheckupExpense =
+      CheckupExpense(
+        id = checkupExpenseIdGen.get,
+        createdAt = LocalDateTime.now(),
+        doctorShareId = data.doctorShare.id2,
+        patientVisitId = data.visits.id2,
+        price = priceGen.get,
+      )
+    val data3: CheckupExpense =
+      CheckupExpense(
+        id = checkupExpenseIdGen.get,
+        createdAt = LocalDateTime.now(),
+        doctorShareId = data.doctorShare.id3,
+        patientVisitId = data.visits.id3,
+        price = priceGen.get,
+      )
+    val values: List[CheckupExpense] =
+      List(data1, data2, data3)
+  }
+
   def setup(implicit session: Resource[IO, Session[IO]]): IO[Unit] =
-    setupPatients *> setupServiceTypes *> setupServices *> setupVisits *>
-      setupUsers *> setupOperationExpenses *> setupOperationExpenseItems
+    setupUsers *> setupPatients *> setupServiceTypes *> setupServices *>
+      setupVisits *>
+      setupOperationExpenses *> setupOperationExpenseItems *> setupDoctorShares *> setupCheckupExpenses
 
   private def setupPatients(implicit session: Resource[IO, Session[IO]]): IO[Unit] =
     patient.values.toList.traverse_ {
@@ -188,9 +253,17 @@ object data
     }
 
   private def setupVisits(implicit session: Resource[IO, Session[IO]]): IO[Unit] =
-    visits.values.toList.traverse_ {
+    VisitsSql.insertItems(visits.values).execute(visits.values)
+
+  private def setupDoctorShares(implicit session: Resource[IO, Session[IO]]): IO[Unit] =
+    doctorShare.values.toList.traverse_ {
       case id -> data =>
-        VisitsSql.insert.queryUnique(id ~ LocalDateTime.now() ~ data)
+        CheckupExpensesSql.insertDoctorShare.queryUnique(id ~ data)
+    }
+
+  private def setupCheckupExpenses(implicit session: Resource[IO, Session[IO]]): IO[Unit] =
+    checkupExpense.values.traverse_ { data =>
+      CheckupExpensesSql.insert.queryUnique(data)
     }
 
   private def setupOperationExpenses(implicit session: Resource[IO, Session[IO]]): IO[Unit] =

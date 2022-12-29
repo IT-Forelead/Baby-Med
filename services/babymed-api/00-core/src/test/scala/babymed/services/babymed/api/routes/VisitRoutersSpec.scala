@@ -33,8 +33,8 @@ import babymed.services.users.proto.Users
 import babymed.services.visits.domain.CreatePatientVisit
 import babymed.services.visits.domain.PatientVisit
 import babymed.services.visits.domain.PatientVisitFilters
-import babymed.services.visits.domain.PatientVisitInfo
-import babymed.services.visits.domain.types
+import babymed.services.visits.domain.PatientVisitReport
+import babymed.services.visits.domain.types.ChequeId
 import babymed.services.visits.generators.PatientVisitGenerators
 import babymed.services.visits.proto.Visits
 import babymed.support.redis.RedisClientMock
@@ -53,7 +53,7 @@ object VisitRoutersSpec extends HttpSuite with PatientVisitGenerators with UserG
   lazy val credentials: Credentials =
     Credentials(phoneGen.get, NonEmptyString.unsafeFrom(nonEmptyStringGen(8).get))
   lazy val patientVisit: PatientVisit = patientVisitGen.get
-  lazy val patientVisitInfo: PatientVisitInfo = patientVisitInfoGen.get
+  lazy val patientVisitReport: PatientVisitReport = patientVisitReportGen.get
   lazy val total: Long = Gen.long.get
 
   def users(role: Role): Users[F] = new Users[F] {
@@ -70,14 +70,12 @@ object VisitRoutersSpec extends HttpSuite with PatientVisitGenerators with UserG
   }
 
   val visits: Visits[F] = new Visits[F] {
-    override def create(createPatientVisit: CreatePatientVisit): F[PatientVisit] =
-      Sync[F].delay(patientVisit)
-    override def get(filters: PatientVisitFilters): F[ResponseData[PatientVisitInfo]] =
-      Sync[F].delay(ResponseData(List(patientVisitInfo), total))
-    override def getTotal(filters: PatientVisitFilters): F[Long] =
-      Sync[F].delay(total)
-    override def updatePaymentStatus(id: types.PatientVisitId): F[Unit] =
+    override def create(createPatientVisit: CreatePatientVisit): F[Unit] =
       Sync[F].unit
+    override def get(filters: PatientVisitFilters): F[ResponseData[PatientVisitReport]] =
+      Sync[F].delay(ResponseData(List(patientVisitReport), total))
+    override def updatePaymentStatus(chequeId: ChequeId): F[List[PatientVisit]] =
+      Sync[F].delay(List(patientVisit))
   }
 
   def authedReq(
@@ -132,7 +130,7 @@ object VisitRoutersSpec extends HttpSuite with PatientVisitGenerators with UserG
     } {
       case request -> security =>
         expectHttpBodyAndStatus(VisitRouters[F](security, visits).routes, request)(
-          ResponseData(List(patientVisitInfo), total),
+          ResponseData(List(patientVisitReport), total),
           Status.Ok,
         )
     }
@@ -140,8 +138,8 @@ object VisitRoutersSpec extends HttpSuite with PatientVisitGenerators with UserG
 
   test("Update patient status with incorrect role") {
     authedReq(Doctor) { token =>
-      val patientVisitId = patientVisit.id
-      GET(Uri.unsafeFromString(s"/visit/update-payment-status/$patientVisitId")).bearer(
+      val chequeId = patientVisit.chequeId
+      GET(Uri.unsafeFromString(s"/visit/update-payment-status/$chequeId")).bearer(
         NonEmptyString.unsafeFrom(token.value)
       )
     } {
@@ -152,8 +150,8 @@ object VisitRoutersSpec extends HttpSuite with PatientVisitGenerators with UserG
 
   test("Update patient status with correct role") {
     authedReq() { token =>
-      val patientVisitId = patientVisit.id
-      GET(Uri.unsafeFromString(s"/visit/update-payment-status/$patientVisitId")).bearer(
+      val chequeId = patientVisit.chequeId
+      GET(Uri.unsafeFromString(s"/visit/update-payment-status/$chequeId")).bearer(
         NonEmptyString.unsafeFrom(token.value)
       )
     } {

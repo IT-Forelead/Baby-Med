@@ -16,6 +16,7 @@ import babymed.domain.Role.TechAdmin
 import babymed.services.auth.impl.Security
 import babymed.services.users.domain.User
 import babymed.services.visits.domain.CreatePatientVisit
+import babymed.services.visits.domain.CreatePatientVisitForm
 import babymed.services.visits.domain.PatientVisitFilters
 import babymed.services.visits.proto.Visits
 import babymed.support.services.syntax.all.deriveEntityEncoder
@@ -33,8 +34,14 @@ final case class VisitRouters[F[_]: Async: JsonDecoder](
 
     case ar @ POST -> Root / "create" as user
          if List(SuperManager, Admin, TechAdmin).contains(user.role) =>
-      ar.req.decodeR[CreatePatientVisit] { createVisit =>
-        visits.create(createVisit) *> NoContent()
+      ar.req.decodeR[CreatePatientVisitForm] { createVisit =>
+        visits.create(
+          CreatePatientVisit(
+            userId = user.id,
+            patientId = createVisit.patientId,
+            serviceIds = createVisit.serviceIds,
+          )
+        ) *> NoContent()
       }
 
     case ar @ POST -> Root / "report" as _ =>
@@ -46,14 +53,11 @@ final case class VisitRouters[F[_]: Async: JsonDecoder](
           .flatMap(Ok(_))
       }
 
-    case ar @ POST -> Root / "report" / "summary" as _ =>
-      ar.req.decodeR[PatientVisitFilters] { patientVisitFilters =>
-        visits.getTotal(patientVisitFilters).flatMap(Ok(_))
-      }
-
-    case GET -> Root / "update-payment-status" / PatientVisitIdVar(visitId) as user
+    case GET -> Root / "update-payment-status" / ChequeIdVar(chequeId) as user
          if List(SuperManager, Cashier, TechAdmin).contains(user.role) =>
-      visits.updatePaymentStatus(visitId) >> NoContent()
+      visits.updatePaymentStatus(chequeId).flatMap(_ => NoContent()).handleErrorWith { _ =>
+        NoContent()
+      }
 
   }
 

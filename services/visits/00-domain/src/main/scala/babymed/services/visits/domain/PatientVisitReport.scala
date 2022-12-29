@@ -11,12 +11,12 @@ import babymed.services.users.domain.types.FirstName
 import babymed.services.users.domain.types.LastName
 
 @derive(encoder, decoder)
-case class PatientVisitInfo(
-    patientVisit: PatientVisit,
+case class PatientVisitReport(
+    patientVisits: List[PatientVisit],
     userFirstName: FirstName,
     userLastName: LastName,
     patient: Patient,
-    service: ServiceWithTypeName,
+    services: List[ServiceWithTypeName],
     region: Region,
     city: City,
   )

@@ -1,7 +1,5 @@
 package babymed.services.visits.repositories.sql
 
-import java.time.LocalDateTime
-
 import skunk._
 import skunk.codec.all._
 import skunk.implicits._
@@ -10,26 +8,26 @@ import babymed.services.users.domain.City
 import babymed.services.users.domain.Patient
 import babymed.services.users.domain.Region
 import babymed.services.visits.domain._
-import babymed.services.visits.domain.types.PatientVisitId
+import babymed.services.visits.domain.types.ChequeId
 import babymed.support.skunk.codecs.phone
 import babymed.support.skunk.syntax.all.skunkSyntaxFragmentOps
 
 object VisitsSql {
-  private val Columns = patientVisitId ~ timestamp ~ patientId ~ serviceId ~ paymentStatus ~ bool
+  private val Columns =
+    patientVisitId ~ timestamp ~ userId ~ patientId ~ serviceId ~ chequeId ~ paymentStatus ~ bool
   private val ColumnsWithoutPaymentStatus =
-    patientVisitId ~ timestamp ~ patientId ~ serviceId
+    patientVisitId ~ timestamp ~ userId ~ patientId ~ serviceId ~ chequeId
   private val PatientColumns =
     patientId ~ timestamp ~ firstName ~ lastName ~ regionId ~ cityId ~ address.opt ~ date ~ phone ~ bool
 
-  val encoder: Encoder[PatientVisitId ~ LocalDateTime ~ CreatePatientVisit] =
-    ColumnsWithoutPaymentStatus.contramap {
-      case id ~ createAt ~ cpv =>
-        id ~ createAt ~ cpv.patientId ~ cpv.serviceId
+  val encoder: Encoder[InsertPatientVisit] =
+    ColumnsWithoutPaymentStatus.contramap { ipv =>
+      ipv.id ~ ipv.createdAt ~ ipv.userId ~ ipv.patientId ~ ipv.serviceId ~ ipv.chequeId
     }
 
   val decoder: Decoder[PatientVisit] = Columns.map {
-    case id ~ createdAt ~ patientId ~ serviceId ~ paymentStatus ~ _ =>
-      PatientVisit(id, createdAt, patientId, serviceId, paymentStatus)
+    case id ~ createdAt ~ userId ~ patientId ~ serviceId ~ chequeId ~ paymentStatus ~ _ =>
+      PatientVisit(id, createdAt, userId, patientId, serviceId, chequeId, paymentStatus)
   }
 
   val decPatient: Decoder[Patient] = PatientColumns.map {
@@ -54,30 +52,34 @@ object VisitsSql {
     }
 
   val decPaymentVisitInfo: Decoder[PatientVisitInfo] =
-    (decoder ~ decPatient ~ decServiceWithTypeName ~ decRegion ~ decCity).map {
-      case visit ~ patient ~ serviceWithTypeName ~ region ~ city =>
-        PatientVisitInfo(visit, patient, serviceWithTypeName, region, city)
-    }
+    (decoder ~ firstName ~ lastName ~ decPatient ~ decServiceWithTypeName ~ decRegion ~ decCity)
+      .map {
+        case visit ~ firstname ~ lastname ~ patient ~ serviceWithTypeName ~ region ~ city =>
+          PatientVisitInfo(visit, firstname, lastname, patient, serviceWithTypeName, region, city)
+      }
 
-  val insert: Query[PatientVisitId ~ LocalDateTime ~ CreatePatientVisit, PatientVisit] =
-    sql"""INSERT INTO visits VALUES ($encoder) RETURNING *""".query(decoder)
+  def insertItems(item: List[InsertPatientVisit]): Command[item.type] = {
+    val enc = encoder.values.list(item)
+    sql"""INSERT INTO visits VALUES $enc""".command
+  }
 
   private def searchFilter(filters: PatientVisitFilters): List[Option[AppliedFragment]] =
     List(
       filters.startDate.map(sql"visits.created_at >= $timestamp"),
       filters.endDate.map(sql"visits.created_at <= $timestamp"),
+      filters.userId.map(sql"visits.user_id = $userId"),
       filters.patientId.map(sql"visits.patient_id = $patientId"),
       filters.serviceId.map(sql"visits.service_id = $serviceId"),
       filters.serviceTypeId.map(sql"services.service_type_id = $serviceTypeId"),
-      filters
-        .paymentStatus
-        .map(sql"visits.payment_status = $paymentStatus ORDER BY visits.created_at DESC"),
+      filters.chequeId.map(sql"visits.cheque_id = $chequeId"),
+      filters.paymentStatus.map(sql"visits.payment_status = $paymentStatus"),
     )
 
   def select(filters: PatientVisitFilters): AppliedFragment = {
     val baseQuery: Fragment[Void] =
-      sql"""SELECT visits.*, patients.*, services.*, service_types.name, regions.*, cities.*
+      sql"""SELECT visits.*, users.firstname, users.lastname, patients.*, services.*, service_types.name, regions.*, cities.*
         FROM visits
+        INNER JOIN users ON visits.user_id = users.id
         INNER JOIN patients ON visits.patient_id = patients.id
         INNER JOIN services ON visits.service_id = services.id
         INNER JOIN service_types ON services.service_type_id = service_types.id
@@ -85,18 +87,11 @@ object VisitsSql {
         INNER JOIN cities  on patients.city_id = cities.id
         WHERE visits.deleted = false"""
 
-    baseQuery(Void).andOpt(searchFilter(filters): _*)
+    baseQuery(Void).andOpt(searchFilter(filters): _*) |+| sql" ORDER BY visits.created_at DESC"
+      .apply(Void)
   }
 
-  def total(filters: PatientVisitFilters): AppliedFragment = {
-    val baseQuery: Fragment[Void] =
-      sql"""SELECT count(*) FROM visits
-        INNER JOIN services ON visits.service_id = services.id
-        INNER JOIN service_types ON services.service_type_id = service_types.id
-        WHERE visits.deleted = false"""
-    baseQuery(Void).andOpt(searchFilter(filters): _*)
-  }
-
-  val updatePaymentStatusSql: Command[PatientVisitId] =
-    sql"""UPDATE visits SET payment_status = 'fully_paid' WHERE id = $patientVisitId""".command
+  val updatePaymentStatusSql: Query[ChequeId, PatientVisit] =
+    sql"""UPDATE visits SET payment_status = 'fully_paid' WHERE cheque_id = $chequeId RETURNING *"""
+      .query(decoder)
 }

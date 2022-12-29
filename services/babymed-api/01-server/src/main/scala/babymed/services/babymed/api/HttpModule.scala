@@ -23,6 +23,7 @@ object HttpModule {
       new ServiceRouters[F](env.security, env.services.services).routes,
       new VisitRouters[F](env.security, env.services.visits).routes,
       new OperationExpenseRouters[F](env.security, env.services.operationExpenses).routes,
+      new CheckupExpenseRouters[F](env.security, env.services.checkupExpenses).routes,
     )
 
   def make[F[_]: Async](
@@ -31,6 +32,6 @@ object HttpModule {
       logger: Logger[F]
     ): Resource[F, F[ExitCode]] =
     HttpServer.make[F](env.config.http, allRoutes[F](env)).map { _ =>
-      logger.info(s"Mexico service http server is started").as(ExitCode.Success)
+      logger.info(s"HTTP Server is started").as(ExitCode.Success)
     }
 }

@@ -22,5 +22,6 @@ object GrpcModule {
       proto.OperationExpenses.bindService[F](env.services.operationExpenses),
       proto.Services.bindService[F](env.services.services),
       proto.Visits.bindService[F](env.services.visits),
+      proto.CheckupExpenses.bindService[F](env.services.checkupExpenses),
     ).sequence.map(GrpcModule.apply)
 }
