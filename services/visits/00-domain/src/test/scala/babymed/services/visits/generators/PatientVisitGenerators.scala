@@ -6,7 +6,6 @@ import babymed.services.users.domain.types.PatientId
 import babymed.services.users.domain.types.UserId
 import babymed.services.users.generators.PatientGenerators
 import babymed.services.visits.domain.CreatePatientVisit
-import babymed.services.visits.domain.InsertPatientVisit
 import babymed.services.visits.domain.PatientVisit
 import babymed.services.visits.domain.PatientVisitInfo
 import babymed.services.visits.domain.PatientVisitReport

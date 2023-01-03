@@ -12,7 +12,7 @@ import babymed.services.users.domain.types.LastName
 
 @derive(encoder, decoder)
 case class PatientVisitReport(
-    patientVisits: List[PatientVisit],
+    patientVisit: PatientVisit,
     userFirstName: FirstName,
     userLastName: LastName,
     patient: Patient,
