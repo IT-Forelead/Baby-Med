@@ -79,8 +79,6 @@ object VisitsSql {
       filters.endDate.map(sql"visits.created_at <= $timestamp"),
       filters.userId.map(sql"visits.user_id = $userId"),
       filters.patientId.map(sql"visits.patient_id = $patientId"),
-      filters.serviceId.map(sql"visits.service_id = $serviceId"),
-      filters.serviceTypeId.map(sql"services.service_type_id = $serviceTypeId"),
       filters.paymentStatus.map(sql"visits.payment_status = $paymentStatus"),
     )
 
