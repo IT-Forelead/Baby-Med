@@ -4,7 +4,7 @@ import sbt._
 object Dependencies {
   object Versions {
     lazy val cats = "2.8.0"
-    lazy val `cats-effect` = "3.3.14"
+    lazy val catsEffect = "3.3.14"
     lazy val circe = "0.14.1"
     lazy val fs2 = "3.3.0"
     lazy val http4s = "0.23.10"
@@ -16,7 +16,7 @@ object Dependencies {
     lazy val tsec = "0.4.0"
     lazy val squants = "1.8.3"
     lazy val redis4cats = "1.1.1"
-    lazy val `cats-retry` = "3.1.0"
+    lazy val catsRetry = "3.1.0"
     lazy val newtype = "0.4.4"
     lazy val derevo = "0.13.0"
     lazy val sttp = "3.7.2"
