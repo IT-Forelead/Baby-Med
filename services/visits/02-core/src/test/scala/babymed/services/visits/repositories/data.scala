@@ -98,37 +98,31 @@ object data
     val id1: PatientVisitId = patientVisitIdGen.get
     val id2: PatientVisitId = patientVisitIdGen.get
     val id3: PatientVisitId = patientVisitIdGen.get
-    val chequeId1: ChequeId = chequeIdGen.get
-    val chequeId2: ChequeId = chequeIdGen.get
-    val chequeId3: ChequeId = chequeIdGen.get
-    val data1: InsertPatientVisit =
-      InsertPatientVisit(
+    val data1: PatientVisit =
+      PatientVisit(
         id1,
         LocalDateTime.now(),
         data.user.id1,
         data.patient.id1,
-        data.service.id1,
-        chequeId1,
+        paymentStatusGen.get,
       )
-    val data2: InsertPatientVisit =
-      InsertPatientVisit(
+    val data2: PatientVisit =
+      PatientVisit(
         id2,
         LocalDateTime.now(),
         data.user.id2,
         data.patient.id2,
-        data.service.id2,
-        chequeId2,
+        paymentStatusGen.get,
       )
-    val data3: InsertPatientVisit =
-      InsertPatientVisit(
+    val data3: PatientVisit =
+      PatientVisit(
         id3,
         LocalDateTime.now(),
         data.user.id3,
         data.patient.id3,
-        data.service.id3,
-        chequeId3,
+        paymentStatusGen.get,
       )
-    val values: List[InsertPatientVisit] = List(data1, data2, data3)
+    val values: List[PatientVisit] = List(data1, data2, data3)
   }
 
   object operationExpenses {
@@ -253,7 +247,9 @@ object data
     }
 
   private def setupVisits(implicit session: Resource[IO, Session[IO]]): IO[Unit] =
-    VisitsSql.insertItems(visits.values).execute(visits.values)
+    visits.values.traverse_ { data =>
+      VisitsSql.insert.queryUnique(data)
+    }
 
   private def setupDoctorShares(implicit session: Resource[IO, Session[IO]]): IO[Unit] =
     doctorShare.values.toList.traverse_ {
