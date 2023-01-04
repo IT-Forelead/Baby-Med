@@ -13,8 +13,8 @@ lazy val `baby-med` = project
   )
 
 addCommandAlias(
-  "styleCheck",
-  "all scalafmtSbtCheck; scalafmtCheckAll; Test / compile; scalafixAll --check",
+  "styleCheck", // TODO formatAndCheck - "all scalafmtSbtCheck; scalafmtCheckAll; test; scalafixAll --check"
+  "all scalafmtSbtCheck; scalafmtCheckAll; Test / compile; scalafixAll --check"
 )
 
 lazy val common = project
