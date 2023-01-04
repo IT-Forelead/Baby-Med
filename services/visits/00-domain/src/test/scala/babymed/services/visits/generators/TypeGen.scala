@@ -15,7 +15,7 @@ trait TypeGen extends Generators {
   val operationExpenseIdGen: Gen[OperationExpenseId] = idGen(OperationExpenseId.apply)
   val checkupExpenseIdGen: Gen[CheckupExpenseId] = idGen(CheckupExpenseId.apply)
   val doctorShareIdGen: Gen[DoctorShareId] = idGen(DoctorShareId.apply)
-  val paymentStatusGen: Gen[PaymentStatus] = Gen.oneOf(PaymentStatus.values)
+    val paymentStatusGen: Gen[PaymentStatus] = Gen.oneOf(PaymentStatus.values)
   val serviceNameGen: Gen[ServiceName] = nonEmptyString.map(ServiceName(_))
   val serviceTypeNameGen: Gen[ServiceTypeName] = nonEmptyString.map(ServiceTypeName(_))
   val partnerDoctorFullNameGen: Gen[PartnerDoctorFullName] =

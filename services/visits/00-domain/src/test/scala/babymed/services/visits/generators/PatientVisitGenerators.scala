@@ -9,6 +9,7 @@ import babymed.services.visits.domain.CreatePatientVisit
 import babymed.services.visits.domain.PatientVisit
 import babymed.services.visits.domain.PatientVisitInfo
 import babymed.services.visits.domain.PatientVisitReport
+import babymed.services.visits.domain.VisitItem
 import babymed.services.visits.domain.types.ServiceId
 
 trait PatientVisitGenerators extends TypeGen with ServiceGenerators with PatientGenerators {
@@ -21,10 +22,16 @@ trait PatientVisitGenerators extends TypeGen with ServiceGenerators with Patient
       payment_status <- paymentStatusGen
     } yield PatientVisit(id, createdAt, userId, patientId, payment_status)
 
+  lazy val visitItemGen: Gen[VisitItem] =
+    for {
+      visitId <- patientVisitIdGen
+      serviceId <- serviceIdGen
+    } yield VisitItem(visitId, serviceId)
+
   def createPatientVisitGen(
       maybeUserId: Option[UserId] = None,
       maybePatientId: Option[PatientId] = None,
-      maybeServiceId: Option[ServiceId] = None,
+      maybeServiceId: Option[List[ServiceId]] = None,
     ): Gen[CreatePatientVisit] =
     for {
       userId <- userIdGen
@@ -33,7 +40,7 @@ trait PatientVisitGenerators extends TypeGen with ServiceGenerators with Patient
     } yield CreatePatientVisit(
       maybeUserId.getOrElse(userId),
       maybePatientId.getOrElse(patientId),
-      List(maybeServiceId.getOrElse(serviceId)),
+      maybeServiceId.getOrElse(List(serviceId)),
     )
 
   lazy val patientVisitInfoGen: Gen[PatientVisitInfo] =

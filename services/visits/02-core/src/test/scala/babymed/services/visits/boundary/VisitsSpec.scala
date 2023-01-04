@@ -1,6 +1,7 @@
 package babymed.services.visits.boundary
 
 import cats.effect.kernel.Sync
+import org.scalacheck.Gen
 
 import babymed.services.visits.domain.CheckupExpense
 import babymed.services.visits.domain.CheckupExpenseFilters
@@ -14,7 +15,8 @@ import babymed.services.visits.domain.DoctorShareInfo
 import babymed.services.visits.domain.PatientVisit
 import babymed.services.visits.domain.PatientVisitFilters
 import babymed.services.visits.domain.PatientVisitReport
-import babymed.services.visits.domain.types.ChequeId
+import babymed.services.visits.domain.VisitItem
+import babymed.services.visits.domain.types
 import babymed.services.visits.domain.types.DoctorShareId
 import babymed.services.visits.generators.CheckupExpenseGenerators
 import babymed.services.visits.generators.PatientVisitGenerators
@@ -24,12 +26,23 @@ import babymed.test.TestSuite
 
 object VisitsSpec extends TestSuite with PatientVisitGenerators with CheckupExpenseGenerators {
   val visitRepo: VisitsRepository[F] = new VisitsRepository[F] {
-    override def create(createPatientVisits: CreatePatientVisit): F[Unit] =
-      Sync[F].unit
     override def get(filters: PatientVisitFilters): F[List[PatientVisitReport]] =
       Sync[F].delay(List(patientVisitReportGen.get))
-    override def updatePaymentStatus(chequeId: ChequeId): F[List[PatientVisit]] =
-      Sync[F].delay(List(patientVisit))
+    override def create(
+        createPatientVisit: CreatePatientVisit
+      ): F[PatientVisit] =
+      Sync[F].delay(patientVisitGen.get)
+    override def getTotal(
+        filters: PatientVisitFilters
+      ): F[Long] = Sync[F].delay(Gen.long.get)
+    override def updatePaymentStatus(
+        id: types.PatientVisitId
+      ): F[PatientVisit] =
+      Sync[F].delay(patientVisitGen.get)
+    override def getItemsByVisitId(
+        visitId: types.PatientVisitId
+      ): F[List[VisitItem]] =
+      Sync[F].delay(List(visitItemGen.get))
   }
   lazy val patientVisit: PatientVisit = patientVisitGen.get
 
@@ -72,7 +85,7 @@ object VisitsSpec extends TestSuite with PatientVisitGenerators with CheckupExpe
 
   loggedTest("Update Payment Status") { logger =>
     visits
-      .updatePaymentStatus(chequeIdGen.get)
+      .updatePaymentStatus(patientVisitIdGen.get)
       .as(success)
       .handleErrorWith { error =>
         logger

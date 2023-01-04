@@ -55,9 +55,9 @@ object CheckupExpensesRepositorySpec extends DBSuite with CheckupExpenseGenerato
     object Case5 extends TestCase[Res] {
       override def check(implicit dao: Resource[IO, Session[IO]]): IO[Expectations] =
         repo
-          .get(CheckupExpenseFilters(patientVisitId = data.visits.id1.some))
+          .get(CheckupExpenseFilters(patientVisitId = data.visit.id1.some))
           .map { checkupExpense =>
-            assert.same(checkupExpense.map(_.visit.id), List(data.visits.id1))
+            assert.same(checkupExpense.map(_.visit.id), List(data.visit.id1))
           }
     }
     List(
