@@ -34,7 +34,7 @@ import babymed.services.visits.domain.CreatePatientVisit
 import babymed.services.visits.domain.PatientVisit
 import babymed.services.visits.domain.PatientVisitFilters
 import babymed.services.visits.domain.PatientVisitReport
-import babymed.services.visits.domain.types.ChequeId
+import babymed.services.visits.domain.types.PatientVisitId
 import babymed.services.visits.generators.PatientVisitGenerators
 import babymed.services.visits.proto.Visits
 import babymed.support.redis.RedisClientMock
@@ -70,12 +70,12 @@ object VisitRoutersSpec extends HttpSuite with PatientVisitGenerators with UserG
   }
 
   val visits: Visits[F] = new Visits[F] {
-    override def create(createPatientVisit: CreatePatientVisit): F[Unit] =
-      Sync[F].unit
+    override def create(createPatientVisit: CreatePatientVisit): F[PatientVisit] =
+      Sync[F].delay(patientVisit)
     override def get(filters: PatientVisitFilters): F[ResponseData[PatientVisitReport]] =
       Sync[F].delay(ResponseData(List(patientVisitReport), total))
-    override def updatePaymentStatus(chequeId: ChequeId): F[List[PatientVisit]] =
-      Sync[F].delay(List(patientVisit))
+    override def updatePaymentStatus(id: PatientVisitId): F[PatientVisit] =
+      Sync[F].delay(patientVisit)
   }
 
   def authedReq(
@@ -136,10 +136,9 @@ object VisitRoutersSpec extends HttpSuite with PatientVisitGenerators with UserG
     }
   }
 
-  test("Update patient status with incorrect role") {
+  test("Update payment status with incorrect role") {
     authedReq(Doctor) { token =>
-      val chequeId = patientVisit.chequeId
-      GET(Uri.unsafeFromString(s"/visit/update-payment-status/$chequeId")).bearer(
+      GET(Uri.unsafeFromString(s"/visit/update-payment-status/${patientVisit.id}")).bearer(
         NonEmptyString.unsafeFrom(token.value)
       )
     } {
@@ -148,10 +147,9 @@ object VisitRoutersSpec extends HttpSuite with PatientVisitGenerators with UserG
     }
   }
 
-  test("Update patient status with correct role") {
+  test("Update payment status with correct role") {
     authedReq() { token =>
-      val chequeId = patientVisit.chequeId
-      GET(Uri.unsafeFromString(s"/visit/update-payment-status/$chequeId")).bearer(
+      GET(Uri.unsafeFromString(s"/visit/update-payment-status/${patientVisit.id}")).bearer(
         NonEmptyString.unsafeFrom(token.value)
       )
     } {

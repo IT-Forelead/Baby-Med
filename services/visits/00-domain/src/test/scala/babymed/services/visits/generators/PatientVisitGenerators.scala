@@ -18,10 +18,8 @@ trait PatientVisitGenerators extends TypeGen with ServiceGenerators with Patient
       createdAt <- localDateTimeGen
       userId <- userIdGen
       patientId <- patientIdGen
-      serviceId <- serviceIdGen
-      chequeId <- chequeIdGen
       payment_status <- paymentStatusGen
-    } yield PatientVisit(id, createdAt, userId, patientId, serviceId, chequeId, payment_status)
+    } yield PatientVisit(id, createdAt, userId, patientId, payment_status)
 
   def createPatientVisitGen(
       maybeUserId: Option[UserId] = None,
@@ -38,26 +36,15 @@ trait PatientVisitGenerators extends TypeGen with ServiceGenerators with Patient
       List(maybeServiceId.getOrElse(serviceId)),
     )
 
-  lazy val insertPatientVisitGen: Gen[InsertPatientVisit] =
-    for {
-      id <- patientVisitIdGen
-      createdAt <- localDateTimeGen
-      userId <- userIdGen
-      patientId <- patientIdGen
-      serviceId <- serviceIdGen
-      chequeId <- chequeIdGen
-    } yield InsertPatientVisit(id, createdAt, userId, patientId, serviceId, chequeId)
-
   lazy val patientVisitInfoGen: Gen[PatientVisitInfo] =
     for {
       pv <- patientVisitGen
       fn <- firstNameGen
       ln <- lastNameGen
       patient <- patientGen
-      serviceWithTypeName <- serviceWithTypeNameGen
       region <- regionGen
       city <- cityGen
-    } yield PatientVisitInfo(pv, fn, ln, patient, serviceWithTypeName, region, city)
+    } yield PatientVisitInfo(pv, fn, ln, patient, region, city)
 
   lazy val patientVisitReportGen: Gen[PatientVisitReport] =
     for {
@@ -68,5 +55,5 @@ trait PatientVisitGenerators extends TypeGen with ServiceGenerators with Patient
       services <- serviceWithTypeNameGen
       region <- regionGen
       city <- cityGen
-    } yield PatientVisitReport(List(pv), fn, ln, patient, List(services), region, city)
+    } yield PatientVisitReport(pv, fn, ln, patient, List(services), region, city)
 }

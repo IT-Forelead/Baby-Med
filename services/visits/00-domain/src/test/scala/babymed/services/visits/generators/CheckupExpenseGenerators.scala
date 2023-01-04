@@ -63,7 +63,8 @@ trait CheckupExpenseGenerators
       service <- serviceWithTypeNameGen
       user <- userGen
       patientVisit <- patientVisitGen
-    } yield CheckupExpenseInfo(checkupExpense, doctorShare, service, user, patientVisit)
+      patient <- patientGen
+    } yield CheckupExpenseInfo(checkupExpense, doctorShare, service, user, patientVisit, patient)
 
   lazy val doctorShareInfoGen: Gen[DoctorShareInfo] =
     for {
