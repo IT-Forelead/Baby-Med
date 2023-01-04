@@ -70,10 +70,11 @@ object CheckupExpensesSql {
     }
 
   val decCheckupExpenseInfo: Decoder[CheckupExpenseInfo] =
-    (decoder ~ decDoctorShare ~ decServiceWithTypeName ~ decUser ~ VisitsSql.decoder).map {
-      case checkupExpense ~ doctorShare ~ service ~ user ~ visit =>
-        CheckupExpenseInfo(checkupExpense, doctorShare, service, user, visit)
-    }
+    (decoder ~ decDoctorShare ~ decServiceWithTypeName ~ decUser ~ VisitsSql.decoder ~ VisitsSql.decPatient)
+      .map {
+        case checkupExpense ~ doctorShare ~ service ~ user ~ visit ~ patient =>
+          CheckupExpenseInfo(checkupExpense, doctorShare, service, user, visit, patient)
+      }
 
   val insert: Query[CheckupExpense, CheckupExpense] =
     sql"""INSERT INTO checkup_expenses VALUES ($encoder) RETURNING *""".query(decoder)
@@ -92,10 +93,11 @@ object CheckupExpensesSql {
 
   def select(filters: CheckupExpenseFilters): AppliedFragment = {
     val baseQuery: Fragment[Void] =
-      sql"""SELECT checkup_expenses.*, doctor_shares.*, services.*, service_types.name, users.*, visits.*
+      sql"""SELECT checkup_expenses.*, doctor_shares.*, services.*, service_types.name, users.*, visits.*, patients.*
         FROM checkup_expenses
         INNER JOIN doctor_shares ON checkup_expenses.doctor_share_id = doctor_shares.id
         INNER JOIN visits ON checkup_expenses.visit_id = visits.id
+        INNER JOIN patients ON visits.patient_id = patients.id
         INNER JOIN services ON doctor_shares.service_id = services.id
         INNER JOIN service_types ON services.service_type_id = service_types.id
         INNER JOIN users ON doctor_shares.user_id = users.id
