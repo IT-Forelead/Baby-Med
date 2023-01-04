@@ -14,6 +14,7 @@ import babymed.support.skunk.syntax.all.skunkSyntaxFragmentOps
 
 object VisitsSql {
   private val Columns = patientVisitId ~ timestamp ~ userId ~ patientId ~ paymentStatus ~ bool
+  private val ItemColumns = patientVisitId ~ serviceId ~ bool
   private val ItemsColumns = patientVisitId ~ serviceId
   private val PatientColumns =
     patientId ~ timestamp ~ firstName ~ lastName ~ regionId ~ cityId ~ address.opt ~ date ~ phone ~ bool
@@ -29,6 +30,11 @@ object VisitsSql {
   val decoder: Decoder[PatientVisit] = Columns.map {
     case id ~ createdAt ~ userId ~ patientId ~ paymentStatus ~ _ =>
       PatientVisit(id, createdAt, userId, patientId, paymentStatus)
+  }
+
+  val decVisitItem: Decoder[VisitItem] = ItemColumns.map {
+    case visitId ~ serviceId ~ _ =>
+      VisitItem(visitId, serviceId)
   }
 
   val decPatient: Decoder[Patient] = PatientColumns.map {
@@ -110,4 +116,8 @@ object VisitsSql {
         WHERE visit_items.visit_id = $patientVisitId
         AND visit_items.deleted = false"""
       .query(decServiceWithTypeName)
+
+  val selectItemsByVisitIdSql: Query[PatientVisitId, VisitItem] =
+    sql"""SELECT * FROM visit_items WHERE visit_id = $patientVisitId AND deleted = false"""
+      .query(decVisitItem)
 }

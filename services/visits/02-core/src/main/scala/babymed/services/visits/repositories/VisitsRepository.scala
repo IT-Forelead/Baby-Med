@@ -4,26 +4,23 @@ import cats.effect.Concurrent
 import cats.effect.Resource
 import cats.implicits._
 import skunk.Session
+import skunk.codec.all.int8
 
 import babymed.domain.ID
 import babymed.domain.PaymentStatus.NotPaid
 import babymed.effects.Calendar
 import babymed.effects.GenUUID
-import babymed.services.visits.domain.CreatePatientVisit
-import babymed.services.visits.domain.PatientVisit
-import babymed.services.visits.domain.PatientVisitFilters
-import babymed.services.visits.domain.PatientVisitItem
-import babymed.services.visits.domain.PatientVisitReport
+import babymed.services.visits.domain._
 import babymed.services.visits.domain.types.PatientVisitId
 import babymed.services.visits.repositories.sql.VisitsSql
 import babymed.support.skunk.syntax.all._
-import skunk.codec.all.int8
 
 trait VisitsRepository[F[_]] {
   def create(createPatientVisit: CreatePatientVisit): F[PatientVisit]
   def get(filters: PatientVisitFilters): F[List[PatientVisitReport]]
   def getTotal(filters: PatientVisitFilters): F[Long]
   def updatePaymentStatus(id: PatientVisitId): F[PatientVisit]
+  def getItemsByVisitId(visitId: PatientVisitId): F[List[VisitItem]]
 }
 
 object VisitsRepository {
@@ -81,5 +78,8 @@ object VisitsRepository {
 
     override def updatePaymentStatus(id: PatientVisitId): F[PatientVisit] =
       updatePaymentStatusSql.queryUnique(id)
+
+    override def getItemsByVisitId(visitId: PatientVisitId): F[List[VisitItem]] =
+      selectItemsByVisitIdSql.queryList(visitId)
   }
 }

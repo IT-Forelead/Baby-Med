@@ -8,7 +8,7 @@ import babymed.services.visits.domain.types.PatientVisitId
 import babymed.services.visits.domain.types.ServiceId
 
 @derive(decoder, encoder)
-case class PatientVisitItem(
+case class VisitItem(
     visitId: PatientVisitId,
     serviceId: ServiceId,
   )

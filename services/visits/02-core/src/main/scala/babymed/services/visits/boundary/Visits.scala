@@ -4,6 +4,7 @@ import cats.Monad
 import cats.implicits._
 
 import babymed.domain.ResponseData
+import babymed.services.visits.domain.CreateCheckupExpense
 import babymed.services.visits.domain.CreatePatientVisit
 import babymed.services.visits.domain.PatientVisit
 import babymed.services.visits.domain.PatientVisitFilters
@@ -29,6 +30,10 @@ class Visits[F[_]: Monad](
   override def updatePaymentStatus(id: PatientVisitId): F[PatientVisit] =
     for {
       update <- visitsRepository.updatePaymentStatus(id)
-//      _ <- checkupExpensesRepository.create(update.id)
+      items <- visitsRepository.getItemsByVisitId(update.id)
+      createCheckupExpense = items.map(item =>
+        CreateCheckupExpense(serviceId = item.serviceId, visitId = item.visitId)
+      )
+      _ <- checkupExpensesRepository.create(createCheckupExpense)
     } yield update
 }
