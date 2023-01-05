@@ -9,6 +9,7 @@ import babymed.services.users.domain.Patient
 import babymed.services.users.domain.Region
 import babymed.services.visits.domain._
 import babymed.services.visits.domain.types.PatientVisitId
+import babymed.services.visits.domain.types.ServiceTypeId
 import babymed.support.skunk.codecs.phone
 import babymed.support.skunk.syntax.all.skunkSyntaxFragmentOps
 
@@ -112,6 +113,15 @@ object VisitsSql {
         INNER JOIN services ON visit_items.service_id = services.id
         INNER JOIN service_types ON services.service_type_id = service_types.id
         WHERE visit_items.visit_id = $patientVisitId
+        AND visit_items.deleted = false"""
+      .query(decServiceWithTypeName)
+
+  val selectItemsByServiceTypeIdSql: Query[PatientVisitId ~ ServiceTypeId, ServiceWithTypeName] =
+    sql"""SELECT services.*, service_types.name
+        FROM visit_items
+        INNER JOIN services ON visit_items.service_id = services.id
+        INNER JOIN service_types ON services.service_type_id = service_types.id
+        WHERE visit_items.visit_id = $patientVisitId AND services.service_type_id = $serviceTypeId
         AND visit_items.deleted = false"""
       .query(decServiceWithTypeName)
 

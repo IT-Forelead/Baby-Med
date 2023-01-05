@@ -6,6 +6,7 @@ import babymed.services.visits.domain.PatientVisit
 import babymed.services.visits.domain.PatientVisitFilters
 import babymed.services.visits.domain.PatientVisitReport
 import babymed.services.visits.domain.types.PatientVisitId
+import babymed.services.visits.domain.types.ServiceTypeId
 import babymed.support.services.service
 import babymed.support.services.syntax.marshaller.codec
 
@@ -14,6 +15,7 @@ trait Visits[F[_]] {
   def create(createPatientVisit: CreatePatientVisit): F[PatientVisit]
   def get(filters: PatientVisitFilters): F[ResponseData[PatientVisitReport]]
   def updatePaymentStatus(id: PatientVisitId): F[PatientVisit]
+  def getVisitsByServiceTypeId(serviceTypeId: ServiceTypeId): F[ResponseData[PatientVisitReport]]
 }
 
 object Visits {}
