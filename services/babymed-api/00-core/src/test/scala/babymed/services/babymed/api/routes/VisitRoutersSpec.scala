@@ -35,6 +35,7 @@ import babymed.services.visits.domain.PatientVisit
 import babymed.services.visits.domain.PatientVisitFilters
 import babymed.services.visits.domain.PatientVisitReport
 import babymed.services.visits.domain.types.PatientVisitId
+import babymed.services.visits.domain.types.ServiceTypeId
 import babymed.services.visits.generators.PatientVisitGenerators
 import babymed.services.visits.proto.Visits
 import babymed.support.redis.RedisClientMock
@@ -76,6 +77,10 @@ object VisitRoutersSpec extends HttpSuite with PatientVisitGenerators with UserG
       Sync[F].delay(ResponseData(List(patientVisitReport), total))
     override def updatePaymentStatus(id: PatientVisitId): F[PatientVisit] =
       Sync[F].delay(patientVisit)
+    override def getVisitsByServiceTypeId(
+        serviceTypeId: ServiceTypeId
+      ): F[ResponseData[PatientVisitReport]] =
+      ???
   }
 
   def authedReq(

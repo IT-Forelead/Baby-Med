@@ -16,8 +16,9 @@ import babymed.services.visits.domain.PatientVisit
 import babymed.services.visits.domain.PatientVisitFilters
 import babymed.services.visits.domain.PatientVisitReport
 import babymed.services.visits.domain.VisitItem
-import babymed.services.visits.domain.types
 import babymed.services.visits.domain.types.DoctorShareId
+import babymed.services.visits.domain.types.PatientVisitId
+import babymed.services.visits.domain.types.ServiceTypeId
 import babymed.services.visits.generators.CheckupExpenseGenerators
 import babymed.services.visits.generators.PatientVisitGenerators
 import babymed.services.visits.repositories.CheckupExpensesRepository
@@ -28,21 +29,18 @@ object VisitsSpec extends TestSuite with PatientVisitGenerators with CheckupExpe
   val visitRepo: VisitsRepository[F] = new VisitsRepository[F] {
     override def get(filters: PatientVisitFilters): F[List[PatientVisitReport]] =
       Sync[F].delay(List(patientVisitReportGen.get))
-    override def create(
-        createPatientVisit: CreatePatientVisit
-      ): F[PatientVisit] =
+    override def create(createPatientVisit: CreatePatientVisit): F[PatientVisit] =
       Sync[F].delay(patientVisitGen.get)
-    override def getTotal(
-        filters: PatientVisitFilters
-      ): F[Long] = Sync[F].delay(Gen.long.get)
-    override def updatePaymentStatus(
-        id: types.PatientVisitId
-      ): F[PatientVisit] =
+    override def getTotal(filters: PatientVisitFilters): F[Long] =
+      Sync[F].delay(Gen.long.get)
+    override def updatePaymentStatus(id: PatientVisitId): F[PatientVisit] =
       Sync[F].delay(patientVisitGen.get)
-    override def getItemsByVisitId(
-        visitId: types.PatientVisitId
-      ): F[List[VisitItem]] =
+    override def getItemsByVisitId(visitId: PatientVisitId): F[List[VisitItem]] =
       Sync[F].delay(List(visitItemGen.get))
+    override def getVisitsByServiceTypeId(
+        serviceTypeId: ServiceTypeId
+      ): F[List[PatientVisitReport]] =
+      ???
   }
   lazy val patientVisit: PatientVisit = patientVisitGen.get
 

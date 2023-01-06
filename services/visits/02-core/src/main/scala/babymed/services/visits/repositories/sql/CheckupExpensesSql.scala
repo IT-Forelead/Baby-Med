@@ -103,7 +103,8 @@ object CheckupExpensesSql {
         INNER JOIN users ON doctor_shares.user_id = users.id
         WHERE checkup_expenses.deleted = false"""
 
-    baseQuery(Void).andOpt(searchFilter(filters): _*)
+    baseQuery(Void).andOpt(searchFilter(filters): _*) |+| sql" ORDER BY visits.created_at DESC"
+      .apply(Void)
   }
 
   def total(filters: CheckupExpenseFilters): AppliedFragment = {

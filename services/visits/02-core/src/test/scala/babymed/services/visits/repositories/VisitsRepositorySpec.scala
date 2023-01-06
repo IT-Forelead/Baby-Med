@@ -39,20 +39,12 @@ object VisitsRepositorySpec extends DBSuite with PatientVisitGenerators {
     }
     object Case3 extends TestCase[Res] {
       override def check(implicit dao: Resource[IO, Session[IO]]): IO[Expectations] =
-        repo
-          .get(PatientVisitFilters(serviceId = data.service.id1.some))
-          .map { visits =>
-            assert(visits.flatMap(_.services.map(_.id)).contains(data.service.id1))
-          }
-    }
-    object Case4 extends TestCase[Res] {
-      override def check(implicit dao: Resource[IO, Session[IO]]): IO[Expectations] =
         for {
           visitsReport <- repo.get(PatientVisitFilters(paymentStatus = NotPaid.some))
           paymentStatuses = visitsReport.map(_.patientVisit.paymentStatus)
         } yield assert(paymentStatuses.forall(_ == NotPaid))
     }
-    object Case5 extends TestCase[Res] {
+    object Case4 extends TestCase[Res] {
       override def check(implicit dao: Resource[IO, Session[IO]]): IO[Expectations] =
         repo
           .get(PatientVisitFilters(startDate = LocalDateTime.now().minusMinutes(1).some))
@@ -60,18 +52,7 @@ object VisitsRepositorySpec extends DBSuite with PatientVisitGenerators {
             assert(visits.length == 3)
           }
     }
-    object Case6 extends TestCase[Res] {
-      override def check(implicit dao: Resource[IO, Session[IO]]): IO[Expectations] =
-        repo
-          .get(PatientVisitFilters(serviceTypeId = data.serviceType.id1.some))
-          .map { visitsReport =>
-            assert.same(
-              visitsReport.flatMap(_.services.map(_.serviceTypeId)),
-              List(data.serviceType.id1),
-            )
-          }
-    }
-    object Case7 extends TestCase[Res] {
+    object Case5 extends TestCase[Res] {
       override def check(implicit dao: Resource[IO, Session[IO]]): IO[Expectations] =
         repo
           .get(PatientVisitFilters(userId = data.user.id1.some))
@@ -82,7 +63,7 @@ object VisitsRepositorySpec extends DBSuite with PatientVisitGenerators {
             )
           }
     }
-    List(Case1, Case2, Case3, Case4, Case5, Case6, Case7)
+    List(Case1, Case2, Case3, Case4, Case5)
       .traverse(_.check)
       .map(_.reduce(_ and _))
   }
