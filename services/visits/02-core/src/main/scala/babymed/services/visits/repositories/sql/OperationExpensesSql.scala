@@ -84,7 +84,7 @@ object OperationExpensesSql {
         INNER JOIN patients ON visits.patient_id = patients.id
         INNER JOIN visit_items ON visits.id = visit_items.visit_id 
         INNER JOIN services ON visit_items.service_id = services.id
-        WHERE service_type_id = '712852a6-830f-45bd-9797-43c5c50ba1df' AND operation_expenses.deleted = false"""
+        WHERE operation_expenses.deleted = false"""
 
     baseQuery(Void).andOpt(
       searchFilter(filters): _*
