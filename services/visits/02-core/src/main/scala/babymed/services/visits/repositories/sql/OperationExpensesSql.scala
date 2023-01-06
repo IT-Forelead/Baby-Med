@@ -63,7 +63,7 @@ object OperationExpensesSql {
     }
 
   val insert: Query[OperationExpense, OperationExpense] =
-    sql"""INSERT INTO operation_expenses VALUES $encoder RETURNING *""".query(decoder)
+    sql"""INSERT INTO operation_expenses VALUES ($encoder) RETURNING *""".query(decoder)
 
   def insertItems(item: List[OperationExpenseItem]): Command[item.type] = {
     val enc = encItem.values.list(item)
@@ -78,11 +78,13 @@ object OperationExpensesSql {
 
   def select(filters: OperationExpenseFilters): AppliedFragment = {
     val baseQuery: Fragment[Void] =
-      sql"""SELECT operation_expenses.*, visits.*, patients.*
+      sql"""SELECT operation_expenses.*, visits.*, patients.*, services.*
         FROM operation_expenses
         INNER JOIN visits ON operation_expenses.visit_id = visits.id
         INNER JOIN patients ON visits.patient_id = patients.id
-        WHERE operation_expenses.deleted = false"""
+        INNER JOIN visit_items ON visits.id = visit_items.visit_id 
+        INNER JOIN services ON visit_items.service_id = services.id
+        WHERE service_type_id = '712852a6-830f-45bd-9797-43c5c50ba1df' AND operation_expenses.deleted = false"""
 
     baseQuery(Void).andOpt(
       searchFilter(filters): _*
