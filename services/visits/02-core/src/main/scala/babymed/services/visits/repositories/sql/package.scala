@@ -6,21 +6,11 @@ import skunk.codec.all._
 import squants.Money
 import tsec.passwordhashers.PasswordHash
 import tsec.passwordhashers.jca.SCrypt
-
 import babymed.domain.PaymentStatus
 import babymed.domain.Role
 import babymed.effects.IsUUID
 import babymed.services.users.domain.types._
-import babymed.services.visits.domain.types.CheckupExpenseId
-import babymed.services.visits.domain.types.DoctorShareId
-import babymed.services.visits.domain.types.OperationExpenseId
-import babymed.services.visits.domain.types.PartnerDoctorFullName
-import babymed.services.visits.domain.types.PatientVisitId
-import babymed.services.visits.domain.types.ServiceId
-import babymed.services.visits.domain.types.ServiceName
-import babymed.services.visits.domain.types.ServiceTypeId
-import babymed.services.visits.domain.types.ServiceTypeName
-import babymed.services.visits.domain.types.UZS
+import babymed.services.visits.domain.types.{CheckupExpenseId, DoctorShareId, OperationExpenseId, OperationServiceId, PartnerDoctorFullName, PatientVisitId, ServiceId, ServiceName, ServiceTypeId, ServiceTypeName, UZS}
 
 package object sql {
   def identity[A: IsUUID]: Codec[A] = uuid.imap[A](IsUUID[A].uuid.get)(IsUUID[A].uuid.apply)
@@ -31,6 +21,7 @@ package object sql {
   val patientId: Codec[PatientId] = identity[PatientId]
   val serviceId: Codec[ServiceId] = identity[ServiceId]
   val serviceTypeId: Codec[ServiceTypeId] = identity[ServiceTypeId]
+  val operationServiceId: Codec[OperationServiceId] = identity[OperationServiceId]
   val regionId: Codec[RegionId] = identity[RegionId]
   val cityId: Codec[CityId] = identity[CityId]
   val operationExpenseId: Codec[OperationExpenseId] = identity[OperationExpenseId]

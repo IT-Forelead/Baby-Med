@@ -8,6 +8,7 @@ import skunk.implicits.toStringOps
 import babymed.services.users.domain.SubRole
 import babymed.services.visits.domain._
 import babymed.services.visits.domain.types.OperationExpenseId
+import babymed.services.visits.repositories.sql.CheckupExpensesSql.decServiceWithTypeName
 import babymed.services.visits.repositories.sql.CheckupExpensesSql.decUser
 import babymed.support.skunk.syntax.all.skunkSyntaxFragmentOps
 
@@ -15,6 +16,7 @@ object OperationExpensesSql {
   private val Columns =
     operationExpenseId ~ timestamp ~ patientVisitId ~ price ~ price ~ price ~ partnerDoctorFullName.opt ~ price.opt ~ bool
   private val ItemsColumns = operationExpenseId ~ userId ~ subRoleId ~ price ~ bool
+  private val OperationServiceColumns = operationServiceId ~ serviceId ~ bool
 
   val encoder: Encoder[OperationExpense] =
     Columns.contramap(oe =>
@@ -45,6 +47,20 @@ object OperationExpensesSql {
       OperationExpenseItem(operationExpenseId, userId, subRoleId, price)
   }
 
+  val encOperationService: Encoder[OperationService] =
+    OperationServiceColumns.contramap(os => os.id ~ os.serviceId ~ false)
+
+  val decOperationService: Decoder[OperationService] = OperationServiceColumns.map {
+    case id ~ serviceId ~ _ =>
+      OperationService(id, serviceId)
+  }
+
+  val decOperationServiceInfo: Decoder[OperationServiceInfo] =
+    (decOperationService ~ decServiceWithTypeName).map {
+      case operationService ~ service =>
+        OperationServiceInfo(operationService, service)
+    }
+
   val decSubRole: Decoder[SubRole] = (subRoleId ~ subRoleName ~ bool).map {
     case id ~ name ~ _ =>
       SubRole(id, name)
@@ -69,6 +85,10 @@ object OperationExpensesSql {
     val enc = encItem.values.list(item)
     sql"""INSERT INTO operation_expense_items VALUES $enc""".command
   }
+
+  val insertOperationService: Query[OperationService, OperationService] =
+    sql"""INSERT INTO operation_services VALUES $encOperationService RETURNING *"""
+      .query(decOperationService)
 
   private def searchFilter(filters: OperationExpenseFilters): List[Option[AppliedFragment]] =
     List(
@@ -105,4 +125,12 @@ object OperationExpensesSql {
         WHERE operation_expense_items.operation_expense_id = $operationExpenseId
         AND operation_expense_items.deleted = false"""
       .query(decItemWithUser)
+
+  val selectOperationServices: Query[Void, OperationServiceInfo] =
+    sql"""SELECT operation_services.*, services.*, service_types.name
+        FROM operation_services
+        INNER JOIN services ON operation_services.service_id = services.id
+        INNER JOIN service_types ON services.service_type_id = service_types.id
+        WHERE operation_services.deleted = false"""
+      .query(decOperationService)
 }

@@ -4,12 +4,11 @@ import cats.effect._
 import cats.implicits._
 import skunk.Session
 import skunk.codec.all.int8
-
 import babymed.domain.ID
 import babymed.effects.Calendar
 import babymed.effects.GenUUID
 import babymed.services.visits.domain._
-import babymed.services.visits.domain.types.OperationExpenseId
+import babymed.services.visits.domain.types.{OperationExpenseId, OperationServiceId, ServiceId}
 import babymed.services.visits.repositories.sql.OperationExpensesSql
 import babymed.support.skunk.syntax.all._
 
@@ -18,6 +17,8 @@ trait OperationExpensesRepository[F[_]] {
   def get(filters: OperationExpenseFilters): F[List[OperationExpenseWithPatientVisit]]
   def getTotal(filters: OperationExpenseFilters): F[Long]
   def getItemsById(id: OperationExpenseId): F[List[OperationExpenseItemWithUser]]
+  def createOperationServices(serviceId: ServiceId): F[OperationService]
+  def getOperationServices: F[List[OperationServiceInfo]]
 }
 
 object OperationExpensesRepository {
@@ -69,5 +70,13 @@ object OperationExpensesRepository {
 
     override def getItemsById(id: OperationExpenseId): F[List[OperationExpenseItemWithUser]] =
       selectItemsSql.queryList(id)
+
+    override def createOperationServices(serviceId: ServiceId): F[OperationService] =
+      ID.make[F, OperationServiceId].flatMap { id =>
+        insertOperationService.queryUnique(OperationService(id, serviceId))
+      }
+
+    override def getOperationServices: F[List[OperationServiceInfo]] =
+      selectOperationServices.all
   }
 }
