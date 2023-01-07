@@ -12,7 +12,6 @@ import babymed.domain.Role
 import babymed.effects.IsUUID
 import babymed.services.users.domain.types._
 import babymed.services.visits.domain.types.CheckupExpenseId
-import babymed.services.visits.domain.types.ChequeId
 import babymed.services.visits.domain.types.DoctorShareId
 import babymed.services.visits.domain.types.OperationExpenseId
 import babymed.services.visits.domain.types.PartnerDoctorFullName
@@ -35,7 +34,6 @@ package object sql {
   val regionId: Codec[RegionId] = identity[RegionId]
   val cityId: Codec[CityId] = identity[CityId]
   val operationExpenseId: Codec[OperationExpenseId] = identity[OperationExpenseId]
-  val chequeId: Codec[ChequeId] = identity[ChequeId]
   val checkupExpenseId: Codec[CheckupExpenseId] = identity[CheckupExpenseId]
   val doctorShareId: Codec[DoctorShareId] = identity[DoctorShareId]
   val subRoleId: Codec[SubRoleId] = identity[SubRoleId]

@@ -11,7 +11,6 @@ import org.http4s.dsl.impl._
 import babymed.services.users.domain.types.Fullname
 import babymed.services.users.domain.types.RegionId
 import babymed.services.users.domain.types.UserId
-import babymed.services.visits.domain.types.ChequeId
 import babymed.services.visits.domain.types.DoctorShareId
 import babymed.services.visits.domain.types.OperationExpenseId
 import babymed.services.visits.domain.types.PatientVisitId
@@ -33,7 +32,6 @@ package object routes {
   object ServiceTypeIdVar extends MyPathVar(str => Try(ServiceTypeId(UUID.fromString(str))))
   object PatientVisitIdVar extends MyPathVar(str => Try(PatientVisitId(UUID.fromString(str))))
   object DoctorShareIdVar extends MyPathVar(str => Try(DoctorShareId(UUID.fromString(str))))
-  object ChequeIdVar extends MyPathVar(str => Try(ChequeId(UUID.fromString(str))))
   object OperationExpenseIdVar
       extends MyPathVar(str => Try(OperationExpenseId(UUID.fromString(str))))
   object PatientNameVar

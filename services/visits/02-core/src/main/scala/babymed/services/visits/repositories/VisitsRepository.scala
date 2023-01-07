@@ -1,27 +1,31 @@
 package babymed.services.visits.repositories
 
+import java.time.LocalDateTime
+
 import cats.effect.Concurrent
 import cats.effect.Resource
 import cats.implicits._
 import skunk.Session
+import skunk.codec.all.int8
+import skunk.implicits.toIdOps
 
 import babymed.domain.ID
+import babymed.domain.PaymentStatus.NotPaid
 import babymed.effects.Calendar
 import babymed.effects.GenUUID
-import babymed.services.visits.domain.CreatePatientVisit
-import babymed.services.visits.domain.InsertPatientVisit
-import babymed.services.visits.domain.PatientVisit
-import babymed.services.visits.domain.PatientVisitFilters
-import babymed.services.visits.domain.PatientVisitReport
-import babymed.services.visits.domain.types.ChequeId
+import babymed.services.visits.domain._
 import babymed.services.visits.domain.types.PatientVisitId
+import babymed.services.visits.domain.types.ServiceTypeId
 import babymed.services.visits.repositories.sql.VisitsSql
 import babymed.support.skunk.syntax.all._
 
 trait VisitsRepository[F[_]] {
-  def create(createPatientVisits: CreatePatientVisit): F[Unit]
+  def create(createPatientVisit: CreatePatientVisit): F[PatientVisit]
   def get(filters: PatientVisitFilters): F[List[PatientVisitReport]]
-  def updatePaymentStatus(chequeId: ChequeId): F[List[PatientVisit]]
+  def getTotal(filters: PatientVisitFilters): F[Long]
+  def updatePaymentStatus(id: PatientVisitId): F[PatientVisit]
+  def getItemsByVisitId(visitId: PatientVisitId): F[List[VisitItem]]
+  def getVisitsByServiceTypeId(serviceTypeId: ServiceTypeId): F[List[PatientVisitReport]]
 }
 
 object VisitsRepository {
@@ -31,49 +35,79 @@ object VisitsRepository {
     ): VisitsRepository[F] = new VisitsRepository[F] {
     import sql.VisitsSql._
 
-    override def create(createPatientVisits: CreatePatientVisit): F[Unit] =
+    override def create(createPatientVisit: CreatePatientVisit): F[PatientVisit] =
       for {
-        chequeId <- ID.make[F, ChequeId]
+        id <- ID.make[F, PatientVisitId]
         now <- Calendar[F].currentDateTime
-        visits <- createPatientVisits
-          .serviceIds
-          .traverse(serviceId =>
-            ID.make[F, PatientVisitId]
-              .map(pVId =>
-                InsertPatientVisit(
-                  pVId,
-                  now,
-                  createPatientVisits.userId,
-                  createPatientVisits.patientId,
-                  serviceId,
-                  chequeId,
-                )
-              )
+        visit <- insert.queryUnique(
+          PatientVisit(
+            id = id,
+            createdAt = now,
+            userId = createPatientVisit.userId,
+            patientId = createPatientVisit.patientId,
+            paymentStatus = NotPaid,
           )
-        _ <- VisitsSql.insertItems(visits).execute(visits)
-      } yield {}
+        )
+        list = createPatientVisit.serviceIds.map { serviceId =>
+          PatientVisitItem(
+            visitId = visit.id,
+            serviceId = serviceId,
+          )
+        }
+        _ <- insertItems(list).execute(list)
+      } yield visit
 
     override def get(filters: PatientVisitFilters): F[List[PatientVisitReport]] = {
       val query = VisitsSql.select(filters).paginateOpt(filters.limit, filters.page)
-      query.fragment.query(VisitsSql.decPaymentVisitInfo).queryList(query.argument).map { list =>
-        list
-          .groupBy(_.patientVisit.chequeId)
-          .map { el =>
+      query.fragment.query(VisitsSql.decPaymentVisitInfo).queryList(query.argument).flatMap {
+        _.traverse { el =>
+          selectItemsSql.queryList(el.patientVisit.id).map { service =>
             PatientVisitReport(
-              patientVisits = el._2.map(_.patientVisit),
-              userFirstName = el._2.map(_.userFirstName).distinct.head,
-              userLastName = el._2.map(_.userLastName).distinct.head,
-              patient = el._2.map(_.patient).distinct.head,
-              services = el._2.map(_.service),
-              region = el._2.map(_.region).distinct.head,
-              city = el._2.map(_.city).distinct.head,
+              patientVisit = el.patientVisit,
+              userFirstName = el.userFirstName,
+              userLastName = el.userLastName,
+              patient = el.patient,
+              services = service,
+              region = el.region,
+              city = el.city,
             )
           }
-          .toList
+        }
       }
     }
 
-    override def updatePaymentStatus(chequeId: ChequeId): F[List[PatientVisit]] =
-      updatePaymentStatusSql.queryList(chequeId)
+    override def getVisitsByServiceTypeId(
+        serviceTypeId: ServiceTypeId
+      ): F[List[PatientVisitReport]] = {
+      val query =
+        VisitsSql.select(PatientVisitFilters(startDate = LocalDateTime.now().minusMonths(1).some))
+      query.fragment.query(VisitsSql.decPaymentVisitInfo).queryList(query.argument).flatMap {
+        _.traverse { el =>
+          selectItemsByServiceTypeIdSql.queryList(el.patientVisit.id ~ serviceTypeId).map {
+            service =>
+              PatientVisitReport(
+                patientVisit = el.patientVisit,
+                userFirstName = el.userFirstName,
+                userLastName = el.userLastName,
+                patient = el.patient,
+                services = service,
+                region = el.region,
+                city = el.city,
+              )
+          }
+        }
+      }
+    }
+
+    override def getTotal(filters: PatientVisitFilters): F[Long] = {
+      val query = VisitsSql.total(filters)
+      query.fragment.query(int8).queryUnique(query.argument)
+    }
+
+    override def updatePaymentStatus(id: PatientVisitId): F[PatientVisit] =
+      updatePaymentStatusSql.queryUnique(id)
+
+    override def getItemsByVisitId(visitId: PatientVisitId): F[List[VisitItem]] =
+      selectItemsByVisitIdSql.queryList(visitId)
   }
 }

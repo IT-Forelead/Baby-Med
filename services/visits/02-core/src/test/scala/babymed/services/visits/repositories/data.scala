@@ -94,41 +94,42 @@ object data
     val values: Map[ServiceId, CreateService] = Map(id1 -> data1, id2 -> data2, id3 -> data3)
   }
 
-  object visits {
+  object visit {
     val id1: PatientVisitId = patientVisitIdGen.get
     val id2: PatientVisitId = patientVisitIdGen.get
     val id3: PatientVisitId = patientVisitIdGen.get
-    val chequeId1: ChequeId = chequeIdGen.get
-    val chequeId2: ChequeId = chequeIdGen.get
-    val chequeId3: ChequeId = chequeIdGen.get
-    val data1: InsertPatientVisit =
-      InsertPatientVisit(
+    val data1: PatientVisit =
+      PatientVisit(
         id1,
         LocalDateTime.now(),
         data.user.id1,
         data.patient.id1,
-        data.service.id1,
-        chequeId1,
+        paymentStatusGen.get,
       )
-    val data2: InsertPatientVisit =
-      InsertPatientVisit(
+    val data2: PatientVisit =
+      PatientVisit(
         id2,
         LocalDateTime.now(),
         data.user.id2,
         data.patient.id2,
-        data.service.id2,
-        chequeId2,
+        paymentStatusGen.get,
       )
-    val data3: InsertPatientVisit =
-      InsertPatientVisit(
+    val data3: PatientVisit =
+      PatientVisit(
         id3,
         LocalDateTime.now(),
         data.user.id3,
         data.patient.id3,
-        data.service.id3,
-        chequeId3,
+        paymentStatusGen.get,
       )
-    val values: List[InsertPatientVisit] = List(data1, data2, data3)
+    val values: List[PatientVisit] = List(data1, data2, data3)
+  }
+
+  object visitItems {
+    val data1: PatientVisitItem = PatientVisitItem(data.visit.id1, data.service.id1)
+    val data2: PatientVisitItem = PatientVisitItem(data.visit.id2, data.service.id2)
+    val data3: PatientVisitItem = PatientVisitItem(data.visit.id3, data.service.id3)
+    val values: List[PatientVisitItem] = List(data1, data2, data3)
   }
 
   object operationExpenses {
@@ -136,11 +137,11 @@ object data
     val id2: OperationExpenseId = operationExpenseIdGen.get
     val id3: OperationExpenseId = operationExpenseIdGen.get
     val data1: CreateOperationExpense =
-      createOperationExpenseGen(data.visits.id1.some).get
+      createOperationExpenseGen(data.visit.id1.some).get
     val data2: CreateOperationExpense =
-      createOperationExpenseGen(data.visits.id1.some).get
+      createOperationExpenseGen(data.visit.id2.some).get
     val data3: CreateOperationExpense =
-      createOperationExpenseGen(data.visits.id1.some).get
+      createOperationExpenseGen(data.visit.id3.some).get
     val values: Map[OperationExpenseId, CreateOperationExpense] =
       Map(id1 -> data1, id2 -> data2, id3 -> data3)
   }
@@ -186,9 +187,9 @@ object data
   }
 
   object checkupExpense {
-    val createData1: CreateCheckupExpense = CreateCheckupExpense(data.service.id1, data.visits.id1)
-    val createData2: CreateCheckupExpense = CreateCheckupExpense(data.service.id2, data.visits.id2)
-    val createData3: CreateCheckupExpense = CreateCheckupExpense(data.service.id3, data.visits.id3)
+    val createData1: CreateCheckupExpense = CreateCheckupExpense(data.service.id1, data.visit.id1)
+    val createData2: CreateCheckupExpense = CreateCheckupExpense(data.service.id2, data.visit.id2)
+    val createData3: CreateCheckupExpense = CreateCheckupExpense(data.service.id3, data.visit.id3)
     val createCheckupExpense: List[CreateCheckupExpense] =
       List(createData1, createData2, createData3)
     val data1: CheckupExpense =
@@ -196,7 +197,7 @@ object data
         id = checkupExpenseIdGen.get,
         createdAt = LocalDateTime.now(),
         doctorShareId = data.doctorShare.id1,
-        patientVisitId = data.visits.id1,
+        patientVisitId = data.visit.id1,
         price = priceGen.get,
       )
     val data2: CheckupExpense =
@@ -204,7 +205,7 @@ object data
         id = checkupExpenseIdGen.get,
         createdAt = LocalDateTime.now(),
         doctorShareId = data.doctorShare.id2,
-        patientVisitId = data.visits.id2,
+        patientVisitId = data.visit.id2,
         price = priceGen.get,
       )
     val data3: CheckupExpense =
@@ -212,7 +213,7 @@ object data
         id = checkupExpenseIdGen.get,
         createdAt = LocalDateTime.now(),
         doctorShareId = data.doctorShare.id3,
-        patientVisitId = data.visits.id3,
+        patientVisitId = data.visit.id3,
         price = priceGen.get,
       )
     val values: List[CheckupExpense] =
@@ -220,9 +221,8 @@ object data
   }
 
   def setup(implicit session: Resource[IO, Session[IO]]): IO[Unit] =
-    setupUsers *> setupPatients *> setupServiceTypes *> setupServices *>
-      setupVisits *>
-      setupOperationExpenses *> setupOperationExpenseItems *> setupDoctorShares *> setupCheckupExpenses
+    setupUsers *> setupPatients *> setupServiceTypes *> setupServices *> setupVisits *> setupVisitItems *>
+      setupDoctorShares *> setupCheckupExpenses *> setupOperationExpenses *> setupOperationExpenseItems
 
   private def setupPatients(implicit session: Resource[IO, Session[IO]]): IO[Unit] =
     patient.values.toList.traverse_ {
@@ -253,7 +253,12 @@ object data
     }
 
   private def setupVisits(implicit session: Resource[IO, Session[IO]]): IO[Unit] =
-    VisitsSql.insertItems(visits.values).execute(visits.values)
+    visit.values.traverse_ { data =>
+      VisitsSql.insert.queryUnique(data)
+    }
+
+  private def setupVisitItems(implicit session: Resource[IO, Session[IO]]): IO[Unit] =
+    VisitsSql.insertItems(visitItems.values).execute(visitItems.values)
 
   private def setupDoctorShares(implicit session: Resource[IO, Session[IO]]): IO[Unit] =
     doctorShare.values.toList.traverse_ {

@@ -53,9 +53,12 @@ final case class VisitRouters[F[_]: Async: JsonDecoder](
           .flatMap(Ok(_))
       }
 
-    case GET -> Root / "update-payment-status" / ChequeIdVar(chequeId) as user
+    case GET -> Root / "report" / ServiceTypeIdVar(id) as _ =>
+      visits.getVisitsByServiceTypeId(id).flatMap(Ok(_))
+
+    case GET -> Root / "update-payment-status" / PatientVisitIdVar(id) as user
          if List(SuperManager, Cashier, TechAdmin).contains(user.role) =>
-      visits.updatePaymentStatus(chequeId).flatMap(_ => NoContent()).handleErrorWith { _ =>
+      visits.updatePaymentStatus(id).flatMap(_ => NoContent()).handleErrorWith { _ =>
         NoContent()
       }
 

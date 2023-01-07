@@ -16,7 +16,6 @@ case class PatientVisitInfo(
     userFirstName: FirstName,
     userLastName: LastName,
     patient: Patient,
-    service: ServiceWithTypeName,
     region: Region,
     city: City,
   )

@@ -57,9 +57,9 @@ object CheckupExpensesRepository {
     override def create(
         createCheckupExpenses: List[CreateCheckupExpense]
       ): F[List[CheckupExpense]] =
-      createCheckupExpenses.traverse(chExp =>
+      createCheckupExpenses.flatTraverse(chExp =>
         OptionT(selectDoctorShareByServiceId.queryOption(chExp.serviceId))
-          .foldF(DoctorShareNotFound(chExp.serviceId).raiseError[F, CheckupExpense])(doctorShare =>
+          .semiflatMap(doctorShare =>
             createCheckupExpense(
               patientVisitId = chExp.visitId,
               doctorShareId = doctorShare.doctorShare.id,
@@ -67,6 +67,8 @@ object CheckupExpensesRepository {
                 UZS(doctorShare.service.price.value * doctorShare.doctorShare.percent.value / 100),
             )
           )
+          .value
+          .map(_.toList)
       )
 
     override def createDoctorShare(createDoctorShare: CreateDoctorShare): F[DoctorShare] =

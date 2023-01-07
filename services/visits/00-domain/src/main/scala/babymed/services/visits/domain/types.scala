@@ -27,8 +27,6 @@ object types {
   @derive(decoder, encoder, eqv, show, uuid)
   @newtype case class OperationExpenseId(value: UUID)
   @derive(decoder, encoder, eqv, show, uuid)
-  @newtype case class ChequeId(value: UUID)
-  @derive(decoder, encoder, eqv, show, uuid)
   @newtype case class DoctorShareId(value: UUID)
   @derive(decoder, encoder, eqv, show, uuid)
   @newtype case class CheckupExpenseId(value: UUID)
