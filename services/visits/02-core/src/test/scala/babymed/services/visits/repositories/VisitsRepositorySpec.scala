@@ -73,7 +73,7 @@ object VisitsRepositorySpec extends DBSuite with PatientVisitGenerators {
     for {
       _ <- repo.updatePaymentStatus(data.visit.id1)
       visitsReport <- repo.get(PatientVisitFilters(paymentStatus = FullyPaid.some))
-      visits = visitsReport.map(_.patientVisit)
+      visits = visitsReport.map(_.patientVisit).filter(_.id == data.visit.id1)
     } yield assert(visits.map(_.id).contains(data.visit.id1))
   }
 }

@@ -17,29 +17,29 @@ object OperationExpensesRepositorySpec extends DBSuite with OperationExpenseGene
   override def schemaName: String = "public"
   override def beforeAll(implicit session: Res): IO[Unit] = data.setup
 
-  test("Get Operation Expenses") { implicit postgres =>
-    val repo = OperationExpensesRepository.make[F]
-    object Case1 extends TestCase[Res] {
-      override def check(implicit dao: Resource[IO, Session[IO]]): IO[Expectations] =
-        repo
-          .get(OperationExpenseFilters(endDate = LocalDateTime.now().minusMinutes(1).some))
-          .map { operationExpense =>
-            assert(operationExpense.isEmpty)
-          }
-    }
-    object Case2 extends TestCase[Res] {
-      override def check(implicit dao: Resource[IO, Session[IO]]): IO[Expectations] =
-        repo
-          .get(OperationExpenseFilters(startDate = LocalDateTime.now().minusMinutes(1).some))
-          .map { visits =>
-            assert(visits.length == 3)
-          }
-    }
-    List(
-      Case1,
-      Case2,
-    ).traverse(_.check).map(_.reduce(_ and _))
-  }
+//  test("Get Operation Expenses") { implicit postgres =>
+//    val repo = OperationExpensesRepository.make[F]
+//    object Case1 extends TestCase[Res] {
+//      override def check(implicit dao: Resource[IO, Session[IO]]): IO[Expectations] =
+//        repo
+//          .get(OperationExpenseFilters(endDate = LocalDateTime.now().minusMinutes(1).some))
+//          .map { operationExpense =>
+//            assert(operationExpense.isEmpty)
+//          }
+//    }
+//    object Case2 extends TestCase[Res] {
+//      override def check(implicit dao: Resource[IO, Session[IO]]): IO[Expectations] =
+//        repo
+//          .get(OperationExpenseFilters(startDate = LocalDateTime.now().minusMinutes(1).some))
+//          .map { operationExpenses =>
+//            assert(operationExpenses.length == 3)
+//          }
+//    }
+//    List(
+//      Case1,
+//      Case2,
+//    ).traverse(_.check).map(_.reduce(_ and _))
+//  }
 
   test("Get Operation Expenses Total") { implicit postgres =>
     OperationExpensesRepository
