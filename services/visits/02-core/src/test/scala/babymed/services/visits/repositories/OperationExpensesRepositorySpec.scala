@@ -1,13 +1,13 @@
 package babymed.services.visits.repositories
 
-import java.time.LocalDateTime
+//import java.time.LocalDateTime
 
 import cats.effect.IO
-import cats.effect.Resource
-import cats.implicits.catsSyntaxOptionId
-import cats.implicits.toTraverseOps
-import skunk.Session
-import weaver.Expectations
+//import cats.effect.Resource
+//import cats.implicits.catsSyntaxOptionId
+//import cats.implicits.toTraverseOps
+//import skunk.Session
+//import weaver.Expectations
 
 import babymed.services.visits.domain.OperationExpenseFilters
 import babymed.services.visits.generators.OperationExpenseGenerators
@@ -31,8 +31,8 @@ object OperationExpensesRepositorySpec extends DBSuite with OperationExpenseGene
 //      override def check(implicit dao: Resource[IO, Session[IO]]): IO[Expectations] =
 //        repo
 //          .get(OperationExpenseFilters(startDate = LocalDateTime.now().minusMinutes(1).some))
-//          .map { visits =>
-//            assert(visits.length == 3)
+//          .map { operationExpenses =>
+//            assert(operationExpenses.length == 3)
 //          }
 //    }
 //    List(

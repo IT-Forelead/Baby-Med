@@ -139,9 +139,9 @@ object data
     val data1: CreateOperationExpense =
       createOperationExpenseGen(data.visit.id1.some).get
     val data2: CreateOperationExpense =
-      createOperationExpenseGen(data.visit.id1.some).get
+      createOperationExpenseGen(data.visit.id2.some).get
     val data3: CreateOperationExpense =
-      createOperationExpenseGen(data.visit.id1.some).get
+      createOperationExpenseGen(data.visit.id3.some).get
     val values: Map[OperationExpenseId, CreateOperationExpense] =
       Map(id1 -> data1, id2 -> data2, id3 -> data3)
   }
@@ -222,7 +222,7 @@ object data
 
   def setup(implicit session: Resource[IO, Session[IO]]): IO[Unit] =
     setupUsers *> setupPatients *> setupServiceTypes *> setupServices *> setupVisits *> setupVisitItems *>
-      setupOperationExpenses *> setupOperationExpenseItems *> setupDoctorShares *> setupCheckupExpenses
+      setupDoctorShares *> setupCheckupExpenses *> setupOperationExpenses *> setupOperationExpenseItems
 
   private def setupPatients(implicit session: Resource[IO, Session[IO]]): IO[Unit] =
     patient.values.toList.traverse_ {
