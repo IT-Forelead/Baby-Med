@@ -1,13 +1,13 @@
 package babymed.services.visits.repositories
 
 //import java.time.LocalDateTime
-
-import cats.effect.IO
 //import cats.effect.Resource
 //import cats.implicits.catsSyntaxOptionId
 //import cats.implicits.toTraverseOps
 //import skunk.Session
 //import weaver.Expectations
+
+import cats.effect.IO
 
 import babymed.services.visits.domain.OperationExpenseFilters
 import babymed.services.visits.generators.OperationExpenseGenerators
