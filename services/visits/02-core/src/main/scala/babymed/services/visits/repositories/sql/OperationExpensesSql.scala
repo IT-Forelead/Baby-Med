@@ -132,5 +132,5 @@ object OperationExpensesSql {
         INNER JOIN services ON operation_services.service_id = services.id
         INNER JOIN service_types ON services.service_type_id = service_types.id
         WHERE operation_services.deleted = false"""
-      .query(decOperationService)
+      .query(decOperationServiceInfo)
 }
