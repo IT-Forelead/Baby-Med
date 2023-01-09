@@ -4,16 +4,21 @@ import cats.effect._
 import cats.implicits._
 import skunk.Session
 import skunk.codec.all.int8
+
 import babymed.domain.ID
 import babymed.effects.Calendar
 import babymed.effects.GenUUID
 import babymed.services.visits.domain._
-import babymed.services.visits.domain.types.{OperationExpenseId, OperationServiceId, ServiceId}
+import babymed.services.visits.domain.types.OperationExpenseId
+import babymed.services.visits.domain.types.OperationId
+import babymed.services.visits.domain.types.OperationServiceId
+import babymed.services.visits.domain.types.ServiceId
 import babymed.services.visits.repositories.sql.OperationExpensesSql
 import babymed.support.skunk.syntax.all._
 
 trait OperationExpensesRepository[F[_]] {
   def create(createOperationExpense: CreateOperationExpense): F[OperationExpense]
+  def createOperation(visit: PatientVisit, serviceIds: List[ServiceId]): F[Unit]
   def get(filters: OperationExpenseFilters): F[List[OperationExpenseWithPatientVisit]]
   def getTotal(filters: OperationExpenseFilters): F[Long]
   def getOperations(filters: OperationFilters): F[List[OperationInfo]]
@@ -58,6 +63,28 @@ object OperationExpensesRepository {
         _ <- insertItems(list).execute(list)
       } yield operationExpense
 
+    override def createOperation(visit: PatientVisit, serviceIds: List[ServiceId]): F[Unit] =
+      for {
+        operationServices <- selectOperationServiceIds.all
+        now <- Calendar[F].currentDateTime
+        operations <- serviceIds
+          .filter { serviceId =>
+            operationServices.contains(serviceId)
+          }
+          .traverse { serviceId =>
+            ID.make[F, OperationId].map { id =>
+              Operation(
+                id = id,
+                createdAt = now,
+                patientId = visit.patientId,
+                serviceId = serviceId,
+              )
+            }
+          }
+        _ <- insertOperations(operations).execute(operations)
+        _ <- println("eroorrrrrrr").pure[F]
+      } yield {}
+
     override def get(
         filters: OperationExpenseFilters
       ): F[List[OperationExpenseWithPatientVisit]] = {
@@ -71,7 +98,8 @@ object OperationExpensesRepository {
     }
 
     override def getOperations(filters: OperationFilters): F[List[OperationInfo]] = {
-      val query = OperationExpensesSql.selectOperations(filters).paginateOpt(filters.limit, filters.page)
+      val query =
+        OperationExpensesSql.selectOperations(filters).paginateOpt(filters.limit, filters.page)
       query.fragment.query(OperationExpensesSql.decOperationInfo).queryList(query.argument)
     }
 

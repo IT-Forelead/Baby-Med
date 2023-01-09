@@ -8,6 +8,7 @@ import skunk.implicits.toStringOps
 import babymed.services.users.domain.SubRole
 import babymed.services.visits.domain._
 import babymed.services.visits.domain.types.OperationExpenseId
+import babymed.services.visits.domain.types.ServiceId
 import babymed.services.visits.repositories.sql.CheckupExpensesSql.decServiceWithTypeName
 import babymed.services.visits.repositories.sql.CheckupExpensesSql.decUser
 import babymed.support.skunk.syntax.all.skunkSyntaxFragmentOps
@@ -47,6 +48,9 @@ object OperationExpensesSql {
     ItemsColumns.contramap(oei =>
       oei.operationExpenseId ~ oei.userId ~ oei.subRoleId ~ oei.price ~ false
     )
+
+  val encOperation: Encoder[Operation] =
+    OperationColumns.contramap(o => o.id ~ o.createdAt ~ o.patientId ~ o.serviceId ~ false)
 
   val decItem: Decoder[OperationExpenseItem] = ItemsColumns.map {
     case operationExpenseId ~ userId ~ subRoleId ~ price ~ _ =>
@@ -97,6 +101,11 @@ object OperationExpensesSql {
   def insertItems(item: List[OperationExpenseItem]): Command[item.type] = {
     val enc = encItem.values.list(item)
     sql"""INSERT INTO operation_expense_items VALUES $enc""".command
+  }
+
+  def insertOperations(operation: List[Operation]): Command[operation.type] = {
+    val enc = encOperation.values.list(operation)
+    sql"""INSERT INTO operations VALUES $enc""".command
   }
 
   val insertOperationService: Query[OperationService, OperationService] =
@@ -176,4 +185,8 @@ object OperationExpensesSql {
         INNER JOIN service_types ON services.service_type_id = service_types.id
         WHERE operation_services.deleted = false"""
       .query(decOperationServiceInfo)
+
+  val selectOperationServiceIds: Query[Void, ServiceId] =
+    sql"""SELECT service_id FROM operation_services WHERE deleted = false"""
+      .query(serviceId)
 }
