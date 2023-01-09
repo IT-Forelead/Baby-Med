@@ -87,7 +87,7 @@ object OperationExpensesSql {
   }
 
   val insertOperationService: Query[OperationService, OperationService] =
-    sql"""INSERT INTO operation_services VALUES $encOperationService RETURNING *"""
+    sql"""INSERT INTO operation_services VALUES ($encOperationService) RETURNING *"""
       .query(decOperationService)
 
   private def searchFilter(filters: OperationExpenseFilters): List[Option[AppliedFragment]] =
