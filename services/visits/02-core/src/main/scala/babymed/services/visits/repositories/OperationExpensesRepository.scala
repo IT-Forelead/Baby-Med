@@ -16,6 +16,8 @@ trait OperationExpensesRepository[F[_]] {
   def create(createOperationExpense: CreateOperationExpense): F[OperationExpense]
   def get(filters: OperationExpenseFilters): F[List[OperationExpenseWithPatientVisit]]
   def getTotal(filters: OperationExpenseFilters): F[Long]
+  def getOperations(filters: OperationFilters): F[List[OperationInfo]]
+  def getOperationsTotal(filters: OperationFilters): F[Long]
   def getItemsById(id: OperationExpenseId): F[List[OperationExpenseItemWithUser]]
   def createOperationServices(serviceId: ServiceId): F[OperationService]
   def getOperationServices: F[List[OperationServiceInfo]]
@@ -65,6 +67,16 @@ object OperationExpensesRepository {
 
     override def getTotal(filters: OperationExpenseFilters): F[Long] = {
       val query = OperationExpensesSql.total(filters)
+      query.fragment.query(int8).queryUnique(query.argument)
+    }
+
+    override def getOperations(filters: OperationFilters): F[List[OperationInfo]] = {
+      val query = OperationExpensesSql.selectOperations(filters).paginateOpt(filters.limit, filters.page)
+      query.fragment.query(OperationExpensesSql.decOperationInfo).queryList(query.argument)
+    }
+
+    override def getOperationsTotal(filters: OperationFilters): F[Long] = {
+      val query = OperationExpensesSql.operationTotal(filters)
       query.fragment.query(int8).queryUnique(query.argument)
     }
 

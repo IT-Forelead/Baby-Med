@@ -21,6 +21,11 @@ class OperationExpenses[F[_]: Monad](operationExpensesRepository: OperationExpen
       operationExpenses <- operationExpensesRepository.get(filters)
       total <- operationExpensesRepository.getTotal(filters)
     } yield ResponseData(operationExpenses, total)
+  override def getOperations(filters: OperationFilters): F[ResponseData[OperationInfo]] =
+    for {
+      operations <- operationExpensesRepository.getOperations(filters)
+      total <- operationExpensesRepository.getOperationsTotal(filters)
+    } yield ResponseData(operations, total)
   override def getTotal(filters: OperationExpenseFilters): F[Long] =
     operationExpensesRepository.getTotal(filters)
   override def getItemsById(id: OperationExpenseId): F[List[OperationExpenseItemWithUser]] =

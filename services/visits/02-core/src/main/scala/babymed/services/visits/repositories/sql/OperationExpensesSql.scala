@@ -15,6 +15,7 @@ import babymed.support.skunk.syntax.all.skunkSyntaxFragmentOps
 object OperationExpensesSql {
   private val Columns =
     operationExpenseId ~ timestamp ~ patientVisitId ~ price ~ price ~ price ~ partnerDoctorFullName.opt ~ price.opt ~ bool
+  private val OperationColumns = operationId ~ timestamp ~ patientId ~ serviceId ~ bool
   private val ItemsColumns = operationExpenseId ~ userId ~ subRoleId ~ price ~ bool
   private val OperationServiceColumns = operationServiceId ~ serviceId ~ bool
 
@@ -35,6 +36,11 @@ object OperationExpensesSql {
         partnerDoctorFullName,
         partnerDoctorPrice,
       )
+  }
+
+  val decOperation: Decoder[Operation] = OperationColumns.map {
+    case id ~ createdAt ~ patientId ~ serviceId ~ _ =>
+      Operation(id, createdAt, patientId, serviceId)
   }
 
   val encItem: Encoder[OperationExpenseItem] =
@@ -78,6 +84,13 @@ object OperationExpensesSql {
         OperationExpenseWithPatientVisit(operationExpense, visit, patient, service)
     }
 
+  val decOperationInfo: Decoder[OperationInfo] =
+    (decOperation ~ VisitsSql.decServiceWithTypeName ~ VisitsSql.decPatient ~ VisitsSql.decRegion ~ VisitsSql.decCity)
+      .map {
+        case operation ~ service ~ patient ~ region ~ city =>
+          OperationInfo(operation, service, patient, region, city)
+      }
+
   val insert: Query[OperationExpense, OperationExpense] =
     sql"""INSERT INTO operation_expenses VALUES ($encoder) RETURNING *""".query(decoder)
 
@@ -115,6 +128,36 @@ object OperationExpensesSql {
     val baseQuery: Fragment[Void] =
       sql"""SELECT count(*) FROM operation_expenses WHERE deleted = false"""
     baseQuery(Void).andOpt(searchFilter(filters): _*)
+  }
+
+  private def operationFilters(filters: OperationFilters): List[Option[AppliedFragment]] =
+    List(
+      filters.startDate.map(sql"operations.created_at >= $timestamp"),
+      filters.endDate.map(sql"operations.created_at <= $timestamp"),
+      filters.patientId.map(sql"operations.patient_id = $patientId"),
+      filters.serviceId.map(sql"operations.service_id = $serviceId"),
+    )
+
+  def selectOperations(filters: OperationFilters): AppliedFragment = {
+    val baseQuery: Fragment[Void] =
+      sql"""SELECT operations.*, services.*, service_types.name, patients.*, regions.*, cities.*
+        FROM operations
+        INNER JOIN patients ON operations.patient_id = patients.id
+        INNER JOIN services ON operations.service_id = services.id
+        INNER JOIN service_types ON services.service_type_id = service_types.id
+        INNER JOIN regions ON patients.region_id = regions.id
+        INNER JOIN cities  on patients.city_id = cities.id
+        WHERE operations.deleted = false"""
+
+    baseQuery(Void).andOpt(
+      operationFilters(filters): _*
+    ) |+| sql" ORDER BY operations.created_at DESC".apply(Void)
+  }
+
+  def operationTotal(filters: OperationFilters): AppliedFragment = {
+    val baseQuery: Fragment[Void] =
+      sql"""SELECT count(*) FROM operations WHERE deleted = false"""
+    baseQuery(Void).andOpt(operationFilters(filters): _*)
   }
 
   val selectItemsSql: Query[OperationExpenseId, OperationExpenseItemWithUser] =

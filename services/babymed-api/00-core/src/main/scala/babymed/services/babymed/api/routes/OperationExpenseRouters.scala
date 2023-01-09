@@ -8,14 +8,12 @@ import org.http4s.circe.JsonDecoder
 import org.http4s.dsl.Http4sDsl
 import org.http4s.server.Router
 import org.typelevel.log4cats.Logger
-
 import babymed.domain.Role.Cashier
 import babymed.domain.Role.SuperManager
 import babymed.domain.Role.TechAdmin
 import babymed.services.auth.impl.Security
 import babymed.services.users.domain.User
-import babymed.services.visits.domain.CreateOperationExpense
-import babymed.services.visits.domain.OperationExpenseFilters
+import babymed.services.visits.domain.{CreateOperationExpense, OperationExpenseFilters, OperationFilters}
 import babymed.services.visits.domain.types.ServiceId
 import babymed.services.visits.proto.OperationExpenses
 import babymed.support.services.syntax.all.deriveEntityEncoder
@@ -42,6 +40,14 @@ final case class OperationExpenseRouters[F[_]: Async: JsonDecoder](
       ar.req.decodeR[OperationExpenseFilters] { operationExpenseFilters =>
         operationExpenses
           .get(operationExpenseFilters)
+          .flatMap(Ok(_))
+      }
+
+    case ar @ POST -> Root / "operations" as user
+         if List(SuperManager, Cashier, TechAdmin).contains(user.role) =>
+      ar.req.decodeR[OperationFilters] { operationFilters =>
+        operationExpenses
+          .getOperations(operationFilters)
           .flatMap(Ok(_))
       }
 

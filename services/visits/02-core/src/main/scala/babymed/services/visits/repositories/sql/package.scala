@@ -6,17 +6,19 @@ import skunk.codec.all._
 import squants.Money
 import tsec.passwordhashers.PasswordHash
 import tsec.passwordhashers.jca.SCrypt
+
 import babymed.domain.PaymentStatus
 import babymed.domain.Role
 import babymed.effects.IsUUID
 import babymed.services.users.domain.types._
-import babymed.services.visits.domain.types.{CheckupExpenseId, DoctorShareId, OperationExpenseId, OperationServiceId, PartnerDoctorFullName, PatientVisitId, ServiceId, ServiceName, ServiceTypeId, ServiceTypeName, UZS}
+import babymed.services.visits.domain.types._
 
 package object sql {
   def identity[A: IsUUID]: Codec[A] = uuid.imap[A](IsUUID[A].uuid.get)(IsUUID[A].uuid.apply)
 
   val nes: Codec[NonEmptyString] = varchar.imap[NonEmptyString](NonEmptyString.unsafeFrom)(_.value)
   val patientVisitId: Codec[PatientVisitId] = identity[PatientVisitId]
+  val operationId: Codec[OperationId] = identity[OperationId]
   val userId: Codec[UserId] = identity[UserId]
   val patientId: Codec[PatientId] = identity[PatientId]
   val serviceId: Codec[ServiceId] = identity[ServiceId]
