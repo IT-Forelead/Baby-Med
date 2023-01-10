@@ -167,9 +167,9 @@ object data
     val data1: CreateOperationExpense =
       createOperationExpenseGen(data.operations.id1.some).get
     val data2: CreateOperationExpense =
-      createOperationExpenseGen(data.operations.id1.some).get
+      createOperationExpenseGen(data.operations.id2.some).get
     val data3: CreateOperationExpense =
-      createOperationExpenseGen(data.operations.id1.some).get
+      createOperationExpenseGen(data.operations.id3.some).get
     val values: Map[OperationExpenseId, CreateOperationExpense] =
       Map(id1 -> data1, id2 -> data2, id3 -> data3)
   }
