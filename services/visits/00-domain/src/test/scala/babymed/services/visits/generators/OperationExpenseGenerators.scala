@@ -4,7 +4,7 @@ import org.scalacheck.Gen
 
 import babymed.services.users.generators.UserGenerators
 import babymed.services.visits.domain._
-import babymed.services.visits.domain.types.PatientVisitId
+import babymed.services.visits.domain.types.OperationId
 
 trait OperationExpenseGenerators
     extends TypeGen
@@ -15,7 +15,7 @@ trait OperationExpenseGenerators
     for {
       id <- operationExpenseIdGen
       createdAt <- localDateTimeGen
-      patientVisitId <- patientVisitIdGen
+      operationId <- operationIdGen
       forLaboratory <- priceGen
       forTools <- priceGen
       forDrugs <- priceGen
@@ -24,7 +24,7 @@ trait OperationExpenseGenerators
     } yield OperationExpense(
       id,
       createdAt,
-      patientVisitId,
+      operationId,
       forLaboratory,
       forTools,
       forDrugs,
@@ -53,10 +53,10 @@ trait OperationExpenseGenerators
     } yield CreateOperationExpenseItem(userId, subRoleId, price)
 
   def createOperationExpenseGen(
-      maybePatientVisitId: Option[PatientVisitId] = None
+      maybeOperationId: Option[OperationId] = None
     ): Gen[CreateOperationExpense] =
     for {
-      patientVisitId <- patientVisitIdGen
+      operationId <- operationIdGen
       items <- createOperationExpenseItemGen
       forLaboratory <- priceGen
       forTools <- priceGen
@@ -64,7 +64,7 @@ trait OperationExpenseGenerators
       partnerDoctorFullName <- partnerDoctorFullNameGen.opt
       partnerDoctorPrice <- priceGen.opt
     } yield CreateOperationExpense(
-      maybePatientVisitId.getOrElse(patientVisitId),
+      maybeOperationId.getOrElse(operationId),
       List(items),
       forLaboratory,
       forTools,
@@ -80,11 +80,40 @@ trait OperationExpenseGenerators
       subRole <- subRoleGen
     } yield OperationExpenseItemWithUser(items, user, subRole)
 
+  lazy val operationGen: Gen[Operation] =
+    for {
+      id <- operationIdGen
+      createdAt <- localDateTimeGen
+      patientId <- patientIdGen
+      serviceId <- serviceIdGen
+    } yield Operation(id, createdAt, patientId, serviceId)
+
+  lazy val operationServiceGen: Gen[OperationService] =
+    for {
+      id <- operationServiceIdGen
+      serviceId <- serviceIdGen
+    } yield OperationService(id, serviceId)
+
+  lazy val operationServiceInfoGen: Gen[OperationServiceInfo] =
+    for {
+      operationService <- operationServiceGen
+      service <- serviceWithTypeNameGen
+    } yield OperationServiceInfo(operationService, service)
+
+  lazy val operationInfoGen: Gen[OperationInfo] =
+    for {
+      operation <- operationGen
+      service <- serviceWithTypeNameGen
+      patient <- patientGen
+      region <- regionGen
+      city <- cityGen
+    } yield OperationInfo(operation, service, patient, region, city)
+
   lazy val operationExpenseWithPatientVisitGen: Gen[OperationExpenseInfo] =
     for {
       operationExpense <- operationExpenseGen
-      user <- patientVisitGen
+      operation <- operationGen
       patient <- patientGen
-      service <- serviceGen
-    } yield OperationExpenseInfo(operationExpense, user, patient, service)
+      service <- serviceWithTypeNameGen
+    } yield OperationExpenseInfo(operationExpense, operation, patient, service)
 }
