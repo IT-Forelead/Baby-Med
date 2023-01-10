@@ -5,6 +5,7 @@ import org.scalacheck.Gen
 
 import babymed.services.visits.domain._
 import babymed.services.visits.domain.types.OperationExpenseId
+import babymed.services.visits.domain.types.ServiceId
 import babymed.services.visits.generators.OperationExpenseGenerators
 import babymed.services.visits.repositories.OperationExpensesRepository
 import babymed.test.TestSuite
@@ -19,6 +20,16 @@ object OperationExpensesSpec extends TestSuite with OperationExpenseGenerators {
       Sync[F].delay(Gen.long.get)
     override def getItemsById(id: OperationExpenseId): F[List[OperationExpenseItemWithUser]] =
       Sync[F].delay(List(operationExpenseItemWithUserGen.get))
+    override def createOperation(
+        visit: PatientVisit,
+        serviceIds: List[ServiceId],
+      ): F[Unit] = ???
+    override def getOperations(filters: OperationFilters): F[List[OperationInfo]] =
+      ???
+    override def getOperationsTotal(filters: OperationFilters): F[Long] = ???
+    override def createOperationServices(serviceId: ServiceId): F[OperationService] =
+      ???
+    override def getOperationServices: F[List[OperationServiceInfo]] = ???
   }
 
   val operationExpenses: OperationExpenses[F] = new OperationExpenses[F](operationExpenseRepo)
