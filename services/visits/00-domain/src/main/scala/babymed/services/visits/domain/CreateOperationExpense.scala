@@ -5,12 +5,12 @@ import derevo.circe.magnolia.encoder
 import derevo.derive
 import squants.Money
 
+import babymed.services.visits.domain.types.OperationId
 import babymed.services.visits.domain.types.PartnerDoctorFullName
-import babymed.services.visits.domain.types.PatientVisitId
 
 @derive(decoder, encoder)
 case class CreateOperationExpense(
-    patientVisitId: PatientVisitId,
+    operationId: OperationId,
     operationExpenseItems: List[CreateOperationExpenseItem],
     forLaboratory: Money,
     forTools: Money,

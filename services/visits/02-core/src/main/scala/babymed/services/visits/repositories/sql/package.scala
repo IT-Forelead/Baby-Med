@@ -11,26 +11,19 @@ import babymed.domain.PaymentStatus
 import babymed.domain.Role
 import babymed.effects.IsUUID
 import babymed.services.users.domain.types._
-import babymed.services.visits.domain.types.CheckupExpenseId
-import babymed.services.visits.domain.types.DoctorShareId
-import babymed.services.visits.domain.types.OperationExpenseId
-import babymed.services.visits.domain.types.PartnerDoctorFullName
-import babymed.services.visits.domain.types.PatientVisitId
-import babymed.services.visits.domain.types.ServiceId
-import babymed.services.visits.domain.types.ServiceName
-import babymed.services.visits.domain.types.ServiceTypeId
-import babymed.services.visits.domain.types.ServiceTypeName
-import babymed.services.visits.domain.types.UZS
+import babymed.services.visits.domain.types._
 
 package object sql {
   def identity[A: IsUUID]: Codec[A] = uuid.imap[A](IsUUID[A].uuid.get)(IsUUID[A].uuid.apply)
 
   val nes: Codec[NonEmptyString] = varchar.imap[NonEmptyString](NonEmptyString.unsafeFrom)(_.value)
   val patientVisitId: Codec[PatientVisitId] = identity[PatientVisitId]
+  val operationId: Codec[OperationId] = identity[OperationId]
   val userId: Codec[UserId] = identity[UserId]
   val patientId: Codec[PatientId] = identity[PatientId]
   val serviceId: Codec[ServiceId] = identity[ServiceId]
   val serviceTypeId: Codec[ServiceTypeId] = identity[ServiceTypeId]
+  val operationServiceId: Codec[OperationServiceId] = identity[OperationServiceId]
   val regionId: Codec[RegionId] = identity[RegionId]
   val cityId: Codec[CityId] = identity[CityId]
   val operationExpenseId: Codec[OperationExpenseId] = identity[OperationExpenseId]

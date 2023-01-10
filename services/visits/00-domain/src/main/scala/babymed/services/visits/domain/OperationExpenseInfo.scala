@@ -7,9 +7,9 @@ import derevo.derive
 import babymed.services.users.domain.Patient
 
 @derive(decoder, encoder)
-case class OperationExpenseWithPatientVisit(
+case class OperationExpenseInfo(
     operationExpense: OperationExpense,
-    patientVisit: PatientVisit,
+    operation: Operation,
     patient: Patient,
-    service: Service,
+    service: ServiceWithTypeName,
   )

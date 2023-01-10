@@ -132,16 +132,44 @@ object data
     val values: List[PatientVisitItem] = List(data1, data2, data3)
   }
 
+  object operations {
+    val id1: OperationId = operationIdGen.get
+    val id2: OperationId = operationIdGen.get
+    val id3: OperationId = operationIdGen.get
+    val data1: Operation =
+      Operation(
+        id = id1,
+        createdAt = LocalDateTime.now(),
+        patientId = data.patient.id1,
+        serviceId = data.service.id1,
+      )
+    val data2: Operation =
+      Operation(
+        id = id2,
+        createdAt = LocalDateTime.now(),
+        patientId = data.patient.id2,
+        serviceId = data.service.id2,
+      )
+    val data3: Operation =
+      Operation(
+        id = id3,
+        createdAt = LocalDateTime.now(),
+        patientId = data.patient.id3,
+        serviceId = data.service.id3,
+      )
+    val values: List[Operation] = List(data1, data2, data3)
+  }
+
   object operationExpenses {
     val id1: OperationExpenseId = operationExpenseIdGen.get
     val id2: OperationExpenseId = operationExpenseIdGen.get
     val id3: OperationExpenseId = operationExpenseIdGen.get
     val data1: CreateOperationExpense =
-      createOperationExpenseGen(data.visit.id1.some).get
+      createOperationExpenseGen(data.operations.id1.some).get
     val data2: CreateOperationExpense =
-      createOperationExpenseGen(data.visit.id2.some).get
+      createOperationExpenseGen(data.operations.id2.some).get
     val data3: CreateOperationExpense =
-      createOperationExpenseGen(data.visit.id3.some).get
+      createOperationExpenseGen(data.operations.id3.some).get
     val values: Map[OperationExpenseId, CreateOperationExpense] =
       Map(id1 -> data1, id2 -> data2, id3 -> data3)
   }
@@ -222,7 +250,8 @@ object data
 
   def setup(implicit session: Resource[IO, Session[IO]]): IO[Unit] =
     setupUsers *> setupPatients *> setupServiceTypes *> setupServices *> setupVisits *> setupVisitItems *>
-      setupDoctorShares *> setupCheckupExpenses *> setupOperationExpenses *> setupOperationExpenseItems
+      setupOperations *> setupOperationExpenses *> setupOperationExpenseItems *> setupDoctorShares *>
+      setupCheckupExpenses
 
   private def setupPatients(implicit session: Resource[IO, Session[IO]]): IO[Unit] =
     patient.values.toList.traverse_ {
@@ -260,6 +289,9 @@ object data
   private def setupVisitItems(implicit session: Resource[IO, Session[IO]]): IO[Unit] =
     VisitsSql.insertItems(visitItems.values).execute(visitItems.values)
 
+  private def setupOperations(implicit session: Resource[IO, Session[IO]]): IO[Unit] =
+    OperationExpensesSql.insertOperations(operations.values).execute(operations.values)
+
   private def setupDoctorShares(implicit session: Resource[IO, Session[IO]]): IO[Unit] =
     doctorShare.values.toList.traverse_ {
       case id -> data =>
@@ -280,7 +312,7 @@ object data
             OperationExpense(
               id = id,
               createdAt = LocalDateTime.now(),
-              patientVisitId = data.patientVisitId,
+              operationId = data.operationId,
               forLaboratory = data.forTools,
               forTools = data.forTools,
               forDrugs = data.forDrugs,

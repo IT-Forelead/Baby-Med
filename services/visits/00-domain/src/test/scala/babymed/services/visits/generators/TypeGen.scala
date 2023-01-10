@@ -10,6 +10,8 @@ import babymed.test.generators.Generators
 
 trait TypeGen extends Generators {
   val serviceIdGen: Gen[ServiceId] = idGen(ServiceId.apply)
+  val operationIdGen: Gen[OperationId] = idGen(OperationId.apply)
+  val operationServiceIdGen: Gen[OperationServiceId] = idGen(OperationServiceId.apply)
   val serviceTypeIdGen: Gen[ServiceTypeId] = idGen(ServiceTypeId.apply)
   val patientVisitIdGen: Gen[PatientVisitId] = idGen(PatientVisitId.apply)
   val operationExpenseIdGen: Gen[OperationExpenseId] = idGen(OperationExpenseId.apply)

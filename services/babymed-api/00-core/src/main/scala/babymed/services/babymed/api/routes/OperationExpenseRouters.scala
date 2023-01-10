@@ -16,6 +16,8 @@ import babymed.services.auth.impl.Security
 import babymed.services.users.domain.User
 import babymed.services.visits.domain.CreateOperationExpense
 import babymed.services.visits.domain.OperationExpenseFilters
+import babymed.services.visits.domain.OperationFilters
+import babymed.services.visits.domain.types.ServiceId
 import babymed.services.visits.proto.OperationExpenses
 import babymed.support.services.syntax.all.deriveEntityEncoder
 import babymed.support.services.syntax.all.http4SyntaxReqOps
@@ -44,6 +46,14 @@ final case class OperationExpenseRouters[F[_]: Async: JsonDecoder](
           .flatMap(Ok(_))
       }
 
+    case ar @ POST -> Root / "operations" as user
+         if List(SuperManager, Cashier, TechAdmin).contains(user.role) =>
+      ar.req.decodeR[OperationFilters] { operationFilters =>
+        operationExpenses
+          .getOperations(operationFilters)
+          .flatMap(Ok(_))
+      }
+
     case ar @ POST -> Root / "report" / "summary" as user
          if List(SuperManager, Cashier, TechAdmin).contains(user.role) =>
       ar.req.decodeR[OperationExpenseFilters] { operationExpenseFilters =>
@@ -53,6 +63,15 @@ final case class OperationExpenseRouters[F[_]: Async: JsonDecoder](
     case GET -> Root / "items" / OperationExpenseIdVar(id) as user
          if List(SuperManager, Cashier, TechAdmin).contains(user.role) =>
       operationExpenses.getItemsById(id).flatMap(Ok(_))
+
+    case ar @ POST -> Root / "create" / "operation-service" as user
+         if List(SuperManager, TechAdmin).contains(user.role) =>
+      ar.req.decodeR[ServiceId] { serviceId =>
+        operationExpenses.createOperationServices(serviceId) *> NoContent()
+      }
+
+    case GET -> Root / "operation-services" as _ =>
+      operationExpenses.getOperationServices.flatMap(Ok(_))
 
   }
 

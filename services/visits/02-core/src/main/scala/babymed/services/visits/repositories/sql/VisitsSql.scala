@@ -128,4 +128,8 @@ object VisitsSql {
   val selectItemsByVisitIdSql: Query[PatientVisitId, VisitItem] =
     sql"""SELECT * FROM visit_items WHERE visit_id = $patientVisitId AND deleted = false"""
       .query(decVisitItem)
+
+  val selectVisitById: Query[PatientVisitId, PatientVisit] =
+    sql"""SELECT * FROM visits WHERE id = $patientVisitId AND deleted = false"""
+      .query(decoder)
 }

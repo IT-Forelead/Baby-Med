@@ -8,14 +8,14 @@ import derevo.derive
 import squants.Money
 
 import babymed.services.visits.domain.types.OperationExpenseId
+import babymed.services.visits.domain.types.OperationId
 import babymed.services.visits.domain.types.PartnerDoctorFullName
-import babymed.services.visits.domain.types.PatientVisitId
 
 @derive(decoder, encoder)
 case class OperationExpense(
     id: OperationExpenseId,
     createdAt: LocalDateTime,
-    patientVisitId: PatientVisitId,
+    operationId: OperationId,
     forLaboratory: Money,
     forTools: Money,
     forDrugs: Money,

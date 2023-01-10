@@ -26,6 +26,7 @@ trait VisitsRepository[F[_]] {
   def updatePaymentStatus(id: PatientVisitId): F[PatientVisit]
   def getItemsByVisitId(visitId: PatientVisitId): F[List[VisitItem]]
   def getVisitsByServiceTypeId(serviceTypeId: ServiceTypeId): F[List[PatientVisitReport]]
+  def getVisitById(id: PatientVisitId): F[PatientVisit]
 }
 
 object VisitsRepository {
@@ -109,5 +110,8 @@ object VisitsRepository {
 
     override def getItemsByVisitId(visitId: PatientVisitId): F[List[VisitItem]] =
       selectItemsByVisitIdSql.queryList(visitId)
+
+    override def getVisitById(id: PatientVisitId): F[PatientVisit] =
+      selectVisitById.queryUnique(id)
   }
 }

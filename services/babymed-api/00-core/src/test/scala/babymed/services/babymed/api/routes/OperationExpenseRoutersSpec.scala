@@ -33,9 +33,14 @@ import babymed.services.users.proto.Users
 import babymed.services.visits.domain.CreateOperationExpense
 import babymed.services.visits.domain.OperationExpense
 import babymed.services.visits.domain.OperationExpenseFilters
+import babymed.services.visits.domain.OperationExpenseInfo
 import babymed.services.visits.domain.OperationExpenseItemWithUser
-import babymed.services.visits.domain.OperationExpenseWithPatientVisit
+import babymed.services.visits.domain.OperationFilters
+import babymed.services.visits.domain.OperationInfo
+import babymed.services.visits.domain.OperationService
+import babymed.services.visits.domain.OperationServiceInfo
 import babymed.services.visits.domain.types.OperationExpenseId
+import babymed.services.visits.domain.types.ServiceId
 import babymed.services.visits.generators.OperationExpenseGenerators
 import babymed.services.visits.proto.OperationExpenses
 import babymed.support.redis.RedisClientMock
@@ -57,7 +62,10 @@ object OperationExpenseRoutersSpec
   lazy val credentials: Credentials =
     Credentials(phoneGen.get, NonEmptyString.unsafeFrom(nonEmptyStringGen(8).get))
   lazy val operationExpense: OperationExpense = operationExpenseGen.get
-  lazy val operationExpenseWithPatientVisit: OperationExpenseWithPatientVisit =
+  lazy val operationService: OperationService = operationServiceGen.get
+  lazy val operationServiceInfo: OperationServiceInfo = operationServiceInfoGen.get
+  lazy val operationInfo: OperationInfo = operationInfoGen.get
+  lazy val operationExpenseWithPatientVisit: OperationExpenseInfo =
     operationExpenseWithPatientVisitGen.get
   lazy val operationExpenseItemWithUser: OperationExpenseItemWithUser =
     operationExpenseItemWithUserGen.get
@@ -81,12 +89,18 @@ object OperationExpenseRoutersSpec
       Sync[F].delay(operationExpense)
     override def get(
         filters: OperationExpenseFilters
-      ): F[ResponseData[OperationExpenseWithPatientVisit]] =
+      ): F[ResponseData[OperationExpenseInfo]] =
       Sync[F].delay(ResponseData(List(operationExpenseWithPatientVisit), total))
     override def getTotal(filters: OperationExpenseFilters): F[Long] =
       Sync[F].delay(total)
     override def getItemsById(id: OperationExpenseId): F[List[OperationExpenseItemWithUser]] =
       Sync[F].delay(List(operationExpenseItemWithUser))
+    override def createOperationServices(serviceId: ServiceId): F[OperationService] =
+      Sync[F].delay(operationService)
+    override def getOperations(filters: OperationFilters): F[ResponseData[OperationInfo]] =
+      Sync[F].delay(ResponseData(List(operationInfo), total))
+    override def getOperationServices: F[List[OperationServiceInfo]] =
+      Sync[F].delay(List(operationServiceInfo))
   }
 
   def authedReq(

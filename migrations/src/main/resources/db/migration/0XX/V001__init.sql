@@ -572,9 +572,6 @@ CREATE TABLE IF NOT EXISTS service_types
     deleted BOOLEAN NOT NULL DEFAULT false
 );
 
-INSERT INTO service_types (id, name, deleted)
-VALUES ('712852a6-830f-45bd-9797-43c5c50ba1df', 'Операциялар', false);
-
 CREATE TABLE IF NOT EXISTS services
 (
     id              UUID PRIMARY KEY,
@@ -642,12 +639,31 @@ CREATE TABLE IF NOT EXISTS sms_messages
         CONSTRAINT fk_delivery_status REFERENCES delivery_statuses (name) ON UPDATE CASCADE ON DELETE NO ACTION DEFAULT 'sent'
 );
 
+CREATE TABLE IF NOT EXISTS operation_services
+(
+    id          UUID PRIMARY KEY,
+    service_id  UUID    NOT NULL
+        CONSTRAINT fk_service_id REFERENCES services (id) ON UPDATE CASCADE ON DELETE NO ACTION,
+    deleted     BOOLEAN NOT NULL DEFAULT false
+);
+
+CREATE TABLE IF NOT EXISTS operations
+(
+    id             UUID PRIMARY KEY,
+    created_at     TIMESTAMP NOT NULL,
+    patient_id     UUID      NOT NULL
+        CONSTRAINT fk_patient_id REFERENCES patients (id) ON UPDATE CASCADE ON DELETE NO ACTION,
+    service_id     UUID      NOT NULL
+        CONSTRAINT fk_service_id REFERENCES services (id) ON UPDATE CASCADE ON DELETE NO ACTION,
+    deleted        BOOLEAN   NOT NULL DEFAULT false
+);
+
 CREATE TABLE IF NOT EXISTS operation_expenses
 (
     id                   UUID PRIMARY KEY,
     created_at           TIMESTAMP NOT NULL,
-    visit_id             UUID      NOT NULL
-        CONSTRAINT fk_visit_id REFERENCES visits (id) ON UPDATE CASCADE ON DELETE NO ACTION,
+    operation_id         UUID      NOT NULL
+        CONSTRAINT fk_operation_id REFERENCES operations (id) ON UPDATE CASCADE ON DELETE NO ACTION,
     for_laboratory       NUMERIC   NOT NULL DEFAULT 0,
     for_tools            NUMERIC   NOT NULL DEFAULT 0,
     for_drugs            NUMERIC   NOT NULL DEFAULT 0,
