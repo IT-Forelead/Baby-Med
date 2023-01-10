@@ -33,8 +33,8 @@ import babymed.services.users.proto.Users
 import babymed.services.visits.domain.CreateOperationExpense
 import babymed.services.visits.domain.OperationExpense
 import babymed.services.visits.domain.OperationExpenseFilters
+import babymed.services.visits.domain.OperationExpenseInfo
 import babymed.services.visits.domain.OperationExpenseItemWithUser
-import babymed.services.visits.domain.OperationExpenseWithPatientVisit
 import babymed.services.visits.domain.types.OperationExpenseId
 import babymed.services.visits.generators.OperationExpenseGenerators
 import babymed.services.visits.proto.OperationExpenses
@@ -57,7 +57,7 @@ object OperationExpenseRoutersSpec
   lazy val credentials: Credentials =
     Credentials(phoneGen.get, NonEmptyString.unsafeFrom(nonEmptyStringGen(8).get))
   lazy val operationExpense: OperationExpense = operationExpenseGen.get
-  lazy val operationExpenseWithPatientVisit: OperationExpenseWithPatientVisit =
+  lazy val operationExpenseWithPatientVisit: OperationExpenseInfo =
     operationExpenseWithPatientVisitGen.get
   lazy val operationExpenseItemWithUser: OperationExpenseItemWithUser =
     operationExpenseItemWithUserGen.get
@@ -81,7 +81,7 @@ object OperationExpenseRoutersSpec
       Sync[F].delay(operationExpense)
     override def get(
         filters: OperationExpenseFilters
-      ): F[ResponseData[OperationExpenseWithPatientVisit]] =
+      ): F[ResponseData[OperationExpenseInfo]] =
       Sync[F].delay(ResponseData(List(operationExpenseWithPatientVisit), total))
     override def getTotal(filters: OperationExpenseFilters): F[Long] =
       Sync[F].delay(total)

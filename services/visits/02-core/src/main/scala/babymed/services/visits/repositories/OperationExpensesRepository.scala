@@ -19,7 +19,7 @@ import babymed.support.skunk.syntax.all._
 trait OperationExpensesRepository[F[_]] {
   def create(createOperationExpense: CreateOperationExpense): F[OperationExpense]
   def createOperation(visit: PatientVisit, serviceIds: List[ServiceId]): F[Unit]
-  def get(filters: OperationExpenseFilters): F[List[OperationExpenseWithPatientVisit]]
+  def get(filters: OperationExpenseFilters): F[List[OperationExpenseInfo]]
   def getTotal(filters: OperationExpenseFilters): F[Long]
   def getOperations(filters: OperationFilters): F[List[OperationInfo]]
   def getOperationsTotal(filters: OperationFilters): F[Long]
@@ -44,7 +44,7 @@ object OperationExpensesRepository {
           OperationExpense(
             id = id,
             createdAt = now,
-            patientVisitId = createOperationExpense.patientVisitId,
+            operationId = createOperationExpense.operationId,
             forLaboratory = createOperationExpense.forLaboratory,
             forTools = createOperationExpense.forTools,
             forDrugs = createOperationExpense.forDrugs,
@@ -82,14 +82,13 @@ object OperationExpensesRepository {
             }
           }
         _ <- insertOperations(operations).execute(operations)
-        _ <- println("eroorrrrrrr").pure[F]
       } yield {}
 
     override def get(
         filters: OperationExpenseFilters
-      ): F[List[OperationExpenseWithPatientVisit]] = {
+      ): F[List[OperationExpenseInfo]] = {
       val query = OperationExpensesSql.select(filters).paginateOpt(filters.limit, filters.page)
-      query.fragment.query(OperationExpensesSql.decOEWithPatientVisit).queryList(query.argument)
+      query.fragment.query(OperationExpensesSql.decOperationExpenseInfo).queryList(query.argument)
     }
 
     override def getTotal(filters: OperationExpenseFilters): F[Long] = {

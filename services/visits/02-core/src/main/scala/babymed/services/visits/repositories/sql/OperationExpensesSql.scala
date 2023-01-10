@@ -15,22 +15,22 @@ import babymed.support.skunk.syntax.all.skunkSyntaxFragmentOps
 
 object OperationExpensesSql {
   private val Columns =
-    operationExpenseId ~ timestamp ~ patientVisitId ~ price ~ price ~ price ~ partnerDoctorFullName.opt ~ price.opt ~ bool
+    operationExpenseId ~ timestamp ~ operationId ~ price ~ price ~ price ~ partnerDoctorFullName.opt ~ price.opt ~ bool
   private val OperationColumns = operationId ~ timestamp ~ patientId ~ serviceId ~ bool
   private val ItemsColumns = operationExpenseId ~ userId ~ subRoleId ~ price ~ bool
   private val OperationServiceColumns = operationServiceId ~ serviceId ~ bool
 
   val encoder: Encoder[OperationExpense] =
     Columns.contramap(oe =>
-      oe.id ~ oe.createdAt ~ oe.patientVisitId ~ oe.forLaboratory ~ oe.forTools ~ oe.forDrugs ~ oe.partnerDoctorFullName ~ oe.partnerDoctorPrice ~ false
+      oe.id ~ oe.createdAt ~ oe.operationId ~ oe.forLaboratory ~ oe.forTools ~ oe.forDrugs ~ oe.partnerDoctorFullName ~ oe.partnerDoctorPrice ~ false
     )
 
   val decoder: Decoder[OperationExpense] = Columns.map {
-    case id ~ createdAt ~ patientVisitId ~ forLaboratory ~ forTools ~ forDrugs ~ partnerDoctorFullName ~ partnerDoctorPrice ~ _ =>
+    case id ~ createdAt ~ operationId ~ forLaboratory ~ forTools ~ forDrugs ~ partnerDoctorFullName ~ partnerDoctorPrice ~ _ =>
       OperationExpense(
         id,
         createdAt,
-        patientVisitId,
+        operationId,
         forLaboratory,
         forTools,
         forDrugs,
@@ -82,10 +82,10 @@ object OperationExpensesSql {
         OperationExpenseItemWithUser(item, user, subRole)
     }
 
-  val decOEWithPatientVisit: Decoder[OperationExpenseWithPatientVisit] =
-    (decoder ~ VisitsSql.decoder ~ VisitsSql.decPatient ~ ServicesSql.decoder).map {
-      case operationExpense ~ visit ~ patient ~ service =>
-        OperationExpenseWithPatientVisit(operationExpense, visit, patient, service)
+  val decOperationExpenseInfo: Decoder[OperationExpenseInfo] =
+    (decoder ~ decOperation ~ VisitsSql.decPatient ~ ServicesSql.decServiceWithTypeName).map {
+      case operationExpense ~ operation ~ patient ~ service =>
+        OperationExpenseInfo(operationExpense, operation, patient, service)
     }
 
   val decOperationInfo: Decoder[OperationInfo] =
@@ -120,12 +120,12 @@ object OperationExpensesSql {
 
   def select(filters: OperationExpenseFilters): AppliedFragment = {
     val baseQuery: Fragment[Void] =
-      sql"""SELECT operation_expenses.*, visits.*, patients.*, services.*
+      sql"""SELECT operation_expenses.*, operations.*, patients.*, services.*, service_types.name
         FROM operation_expenses
-        INNER JOIN visits ON operation_expenses.visit_id = visits.id
-        INNER JOIN patients ON visits.patient_id = patients.id
-        INNER JOIN visit_items ON visits.id = visit_items.visit_id 
-        INNER JOIN services ON visit_items.service_id = services.id
+        INNER JOIN operations ON operation_expenses.operation_id = operations.id
+        INNER JOIN patients ON operations.patient_id = patients.id
+        INNER JOIN services ON operations.service_id = services.id
+        INNER JOIN service_types ON services.service_type_id = service_types.id
         WHERE operation_expenses.deleted = false"""
 
     baseQuery(Void).andOpt(

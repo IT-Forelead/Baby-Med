@@ -16,7 +16,7 @@ class OperationExpenses[F[_]: Monad](operationExpensesRepository: OperationExpen
     operationExpensesRepository.create(createOperationExpense)
   override def get(
       filters: OperationExpenseFilters
-    ): F[ResponseData[OperationExpenseWithPatientVisit]] =
+    ): F[ResponseData[OperationExpenseInfo]] =
     for {
       operationExpenses <- operationExpensesRepository.get(filters)
       total <- operationExpensesRepository.getTotal(filters)

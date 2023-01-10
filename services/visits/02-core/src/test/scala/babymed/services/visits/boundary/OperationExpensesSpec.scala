@@ -13,7 +13,7 @@ object OperationExpensesSpec extends TestSuite with OperationExpenseGenerators {
   val operationExpenseRepo: OperationExpensesRepository[F] = new OperationExpensesRepository[F] {
     override def create(createOperationExpense: CreateOperationExpense): F[OperationExpense] =
       Sync[F].delay(operationExpenseGen.get)
-    override def get(filters: OperationExpenseFilters): F[List[OperationExpenseWithPatientVisit]] =
+    override def get(filters: OperationExpenseFilters): F[List[OperationExpenseInfo]] =
       Sync[F].delay(List(operationExpenseWithPatientVisitGen.get))
     override def getTotal(filters: OperationExpenseFilters): F[Long] =
       Sync[F].delay(Gen.long.get)

@@ -10,7 +10,7 @@ import babymed.support.services.syntax.marshaller.codec
 @service(Custom)
 trait OperationExpenses[F[_]] {
   def create(createOperationExpense: CreateOperationExpense): F[OperationExpense]
-  def get(filters: OperationExpenseFilters): F[ResponseData[OperationExpenseWithPatientVisit]]
+  def get(filters: OperationExpenseFilters): F[ResponseData[OperationExpenseInfo]]
   def getOperations(filters: OperationFilters): F[ResponseData[OperationInfo]]
   def getTotal(filters: OperationExpenseFilters): F[Long]
   def getItemsById(id: OperationExpenseId): F[List[OperationExpenseItemWithUser]]

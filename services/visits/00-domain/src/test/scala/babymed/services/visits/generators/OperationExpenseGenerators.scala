@@ -80,11 +80,11 @@ trait OperationExpenseGenerators
       subRole <- subRoleGen
     } yield OperationExpenseItemWithUser(items, user, subRole)
 
-  lazy val operationExpenseWithPatientVisitGen: Gen[OperationExpenseWithPatientVisit] =
+  lazy val operationExpenseWithPatientVisitGen: Gen[OperationExpenseInfo] =
     for {
       operationExpense <- operationExpenseGen
       user <- patientVisitGen
       patient <- patientGen
       service <- serviceGen
-    } yield OperationExpenseWithPatientVisit(operationExpense, user, patient, service)
+    } yield OperationExpenseInfo(operationExpense, user, patient, service)
 }
