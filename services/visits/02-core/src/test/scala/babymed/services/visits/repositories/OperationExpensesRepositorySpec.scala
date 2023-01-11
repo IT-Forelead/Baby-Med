@@ -72,9 +72,27 @@ object OperationExpensesRepositorySpec extends DBSuite with OperationExpenseGene
             assert(operationExpenses.length == 3)
           }
     }
+    object Case3 extends TestCase[Res] {
+      override def check(implicit dao: Resource[IO, Session[IO]]): IO[Expectations] =
+        repo
+          .getOperations(OperationFilters(patientId = data.patient.id1.some))
+          .map { visitsReport =>
+            assert(visitsReport.map(_.operation.patientId).contains(data.patient.id1))
+          }
+    }
+    object Case4 extends TestCase[Res] {
+      override def check(implicit dao: Resource[IO, Session[IO]]): IO[Expectations] =
+        repo
+          .getOperations(OperationFilters(serviceId = data.service.id1.some))
+          .map { visitsReport =>
+            assert(visitsReport.map(_.operation.serviceId).contains(data.service.id1))
+          }
+    }
     List(
       Case1,
       Case2,
+      Case3,
+      Case4,
     ).traverse(_.check).map(_.reduce(_ and _))
   }
 
