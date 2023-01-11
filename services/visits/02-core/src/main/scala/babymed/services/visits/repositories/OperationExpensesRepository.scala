@@ -24,7 +24,7 @@ trait OperationExpensesRepository[F[_]] {
   def getOperations(filters: OperationFilters): F[List[OperationInfo]]
   def getOperationsTotal(filters: OperationFilters): F[Long]
   def getItemsById(id: OperationExpenseId): F[List[OperationExpenseItemWithUser]]
-  def createOperationServices(serviceId: ServiceId): F[OperationService]
+  def createOperationService(serviceId: ServiceId): F[OperationService]
   def getOperationServices: F[List[OperationServiceInfo]]
 }
 
@@ -110,7 +110,7 @@ object OperationExpensesRepository {
     override def getItemsById(id: OperationExpenseId): F[List[OperationExpenseItemWithUser]] =
       selectItemsSql.queryList(id)
 
-    override def createOperationServices(serviceId: ServiceId): F[OperationService] =
+    override def createOperationService(serviceId: ServiceId): F[OperationService] =
       ID.make[F, OperationServiceId].flatMap { id =>
         insertOperationService.queryUnique(OperationService(id, serviceId))
       }

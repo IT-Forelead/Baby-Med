@@ -80,7 +80,7 @@ object VisitsSpec
     override def getOperationsTotal(filters: OperationFilters): F[Long] = ???
     override def create(createOperationExpense: CreateOperationExpense): F[OperationExpense] =
       Sync[F].delay(operationExpenseGen.get)
-    override def createOperationServices(serviceId: ServiceId): F[OperationService] =
+    override def createOperationService(serviceId: ServiceId): F[OperationService] =
       ???
     override def getOperations(filters: OperationFilters): F[List[OperationInfo]] =
       ???
@@ -108,7 +108,7 @@ object VisitsSpec
       }
   }
 
-  loggedTest("Get All Patient Visits") { logger =>
+  loggedTest("Get Patient Visits") { logger =>
     visits
       .get(PatientVisitFilters.Empty)
       .as(success)

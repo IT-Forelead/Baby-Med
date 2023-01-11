@@ -94,7 +94,7 @@ object OperationExpenseRoutersSpec
       Sync[F].delay(total)
     override def getItemsById(id: OperationExpenseId): F[List[OperationExpenseItemWithUser]] =
       Sync[F].delay(List(operationExpenseItemWithUser))
-    override def createOperationServices(serviceId: ServiceId): F[OperationService] =
+    override def createOperationService(serviceId: ServiceId): F[OperationService] =
       Sync[F].delay(operationService)
     override def getOperations(filters: OperationFilters): F[ResponseData[OperationInfo]] =
       Sync[F].delay(ResponseData(List(operationInfo), total))
