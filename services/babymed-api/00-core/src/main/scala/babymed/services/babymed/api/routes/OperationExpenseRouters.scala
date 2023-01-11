@@ -67,7 +67,7 @@ final case class OperationExpenseRouters[F[_]: Async: JsonDecoder](
     case ar @ POST -> Root / "create" / "operation-service" as user
          if List(SuperManager, TechAdmin).contains(user.role) =>
       ar.req.decodeR[ServiceId] { serviceId =>
-        operationExpenses.createOperationServices(serviceId) *> NoContent()
+        operationExpenses.createOperationServices(serviceId).flatMap(Ok(_))
       }
 
     case GET -> Root / "operation-services" as _ =>

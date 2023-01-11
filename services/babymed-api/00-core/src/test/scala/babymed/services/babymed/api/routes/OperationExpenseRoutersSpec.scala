@@ -19,8 +19,7 @@ import weaver.Expectations
 
 import babymed.domain.ResponseData
 import babymed.domain.Role
-import babymed.domain.Role.Doctor
-import babymed.domain.Role.TechAdmin
+import babymed.domain.Role._
 import babymed.refinements.Phone
 import babymed.services.auth.JwtConfig
 import babymed.services.auth.domain.Credentials
@@ -190,6 +189,61 @@ object OperationExpenseRoutersSpec
           OperationExpenseRouters[F](security, operationExpenses).routes,
           request,
         )(List(operationExpenseItemWithUser), Status.Ok)
+    }
+  }
+
+  test("Create Operation Service with incorrect role") {
+    authedReq(Doctor) { token =>
+      POST(serviceIdGen.get, uri"/operation-expense/create/operation-service")
+        .bearer(NonEmptyString.unsafeFrom(token.value))
+    } {
+      case request -> security =>
+        expectNotFound(OperationExpenseRouters[F](security, operationExpenses).routes, request)
+    }
+  }
+
+  test("Create Operation Service with correct role") {
+    authedReq() { token =>
+      POST(serviceIdGen.get, uri"/operation-expense/create/operation-service")
+        .bearer(NonEmptyString.unsafeFrom(token.value))
+    } {
+      case request -> security =>
+        expectHttpBodyAndStatus(
+          OperationExpenseRouters[F](security, operationExpenses).routes,
+          request,
+        )(operationService, Status.Ok)
+    }
+  }
+
+  test("Get Operations") {
+    authedReq() { token =>
+      POST(OperationFilters.Empty, uri"/operation-expense/operations")
+        .bearer(NonEmptyString.unsafeFrom(token.value))
+    } {
+      case request -> security =>
+        expectHttpBodyAndStatus(
+          OperationExpenseRouters[F](security, operationExpenses).routes,
+          request,
+        )(
+          ResponseData(List(operationInfo), total),
+          Status.Ok,
+        )
+    }
+  }
+
+  test("Get All Operation Services") {
+    authedReq() { token =>
+      GET(uri"/operation-expense/operation-services")
+        .bearer(NonEmptyString.unsafeFrom(token.value))
+    } {
+      case request -> security =>
+        expectHttpBodyAndStatus(
+          OperationExpenseRouters[F](security, operationExpenses).routes,
+          request,
+        )(
+          List(operationServiceInfo),
+          Status.Ok,
+        )
     }
   }
 }
