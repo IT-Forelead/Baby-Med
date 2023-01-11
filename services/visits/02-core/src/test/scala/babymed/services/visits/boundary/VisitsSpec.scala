@@ -29,7 +29,6 @@ import babymed.services.visits.domain.types.DoctorShareId
 import babymed.services.visits.domain.types.OperationExpenseId
 import babymed.services.visits.domain.types.PatientVisitId
 import babymed.services.visits.domain.types.ServiceId
-import babymed.services.visits.domain.types.ServiceTypeId
 import babymed.services.visits.generators.CheckupExpenseGenerators
 import babymed.services.visits.generators.OperationExpenseGenerators
 import babymed.services.visits.generators.PatientVisitGenerators
@@ -55,10 +54,6 @@ object VisitsSpec
       Sync[F].delay(patientVisit)
     override def getItemsByVisitId(visitId: PatientVisitId): F[List[VisitItem]] =
       Sync[F].delay(List(visitItemGen.get))
-    override def getVisitsByServiceTypeId(
-        serviceTypeId: ServiceTypeId
-      ): F[List[PatientVisitReport]] =
-      ???
     override def getVisitById(id: PatientVisitId): F[PatientVisit] =
       Sync[F].delay(patientVisit)
   }

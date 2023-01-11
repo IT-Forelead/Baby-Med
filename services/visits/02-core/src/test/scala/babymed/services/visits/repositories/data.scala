@@ -261,8 +261,8 @@ object data
 
   def setup(implicit session: Resource[IO, Session[IO]]): IO[Unit] =
     setupUsers *> setupPatients *> setupServiceTypes *> setupServices *> setupVisits *> setupVisitItems *>
-      setupOperationServices *> setupOperations *> setupOperationExpenses *> setupOperationExpenseItems *>
-      setupDoctorShares *> setupCheckupExpenses
+      setupDoctorShares *> setupCheckupExpenses *> setupOperationServices *> setupOperations *>
+      setupOperationExpenses *> setupOperationExpenseItems
 
   private def setupPatients(implicit session: Resource[IO, Session[IO]]): IO[Unit] =
     patient.values.toList.traverse_ {
