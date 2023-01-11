@@ -1,22 +1,20 @@
 import Dependencies.Libraries
 import Dependencies.Libraries._
 
-lazy val `Baby-Med` = project
+lazy val `baby-med` = project
   .in(file("."))
-  .settings(
-    name := "baby-med"
-  )
+  .settings(name := "baby-med")
   .aggregate(
     migrations,
     integrations,
     supports,
     services,
-    `test-tools`,
+    `test-tools`
   )
 
 addCommandAlias(
-  "styleCheck",
-  "all scalafmtSbtCheck; scalafmtCheckAll; Test / compile; scalafixAll --check",
+  "styleCheck", // TODO formatAndCheck - "all scalafmtSbtCheck; scalafmtCheckAll; test; scalafixAll --check"
+  "all scalafmtSbtCheck; scalafmtCheckAll; Test / compile; scalafixAll --check"
 )
 
 lazy val common = project
@@ -31,31 +29,22 @@ lazy val common = project
         Enumeratum.all ++
         Ciris.all ++
         Derevo.all ++
-        Seq(
-          Libraries.`monocle-core`,
-          Libraries.squants,
-        ),
+        Seq(Libraries.`monocle-core`, Libraries.squants) // replace `monocle-core` with monocleCore
   )
 lazy val migrations =
   project.in(file("migrations"))
 
 lazy val integrations = project
   .in(file("integrations"))
-  .settings(
-    name := "integrations"
-  )
+  .settings(name := "integrations")
 
 lazy val supports = project
   .in(file("supports"))
-  .settings(
-    name := "supports"
-  )
+  .settings(name := "supports")
 
 lazy val services = project
   .in(file("services"))
-  .settings(
-    name := "services"
-  )
+  .settings(name := "services")
 
 lazy val `test-tools` = project
   .in(file("test"))
@@ -64,7 +53,7 @@ lazy val `test-tools` = project
     libraryDependencies ++=
       Libraries.Testing.all ++
         Libraries.Http4s.all ++
-        Libraries.Skunk.all,
+        Libraries.Skunk.all // replace all with Libraries.testingDependencies
   )
   .dependsOn(common)
 
