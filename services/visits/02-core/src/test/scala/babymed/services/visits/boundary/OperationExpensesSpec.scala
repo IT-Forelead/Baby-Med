@@ -25,11 +25,13 @@ object OperationExpensesSpec extends TestSuite with OperationExpenseGenerators {
         serviceIds: List[ServiceId],
       ): F[Unit] = ???
     override def getOperations(filters: OperationFilters): F[List[OperationInfo]] =
-      ???
-    override def getOperationsTotal(filters: OperationFilters): F[Long] = ???
-    override def createOperationServices(serviceId: ServiceId): F[OperationService] =
-      ???
-    override def getOperationServices: F[List[OperationServiceInfo]] = ???
+      Sync[F].delay(List(operationInfoGen.get))
+    override def getOperationsTotal(filters: OperationFilters): F[Long] =
+      Sync[F].delay(Gen.long.get)
+    override def createOperationService(serviceId: ServiceId): F[OperationService] =
+      Sync[F].delay(operationServiceGen.get)
+    override def getOperationServices: F[List[OperationServiceInfo]] =
+      Sync[F].delay(List(operationServiceInfoGen.get))
   }
 
   val operationExpenses: OperationExpenses[F] = new OperationExpenses[F](operationExpenseRepo)
@@ -71,6 +73,39 @@ object OperationExpensesSpec extends TestSuite with OperationExpenseGenerators {
   loggedTest("Get Operation Expense Items by Id") { logger =>
     operationExpenses
       .getItemsById(operationExpenseIdGen.get)
+      .as(success)
+      .handleErrorWith { error =>
+        logger
+          .error("Error occurred!", cause = error)
+          .as(failure("Test failed!"))
+      }
+  }
+
+  loggedTest("Create Operation Service") { logger =>
+    operationExpenses
+      .createOperationService(serviceIdGen.get)
+      .as(success)
+      .handleErrorWith { error =>
+        logger
+          .error("Error occurred!", cause = error)
+          .as(failure("Test failed!"))
+      }
+  }
+
+  loggedTest("Get Operations") { logger =>
+    operationExpenses
+      .getOperations(OperationFilters.Empty)
+      .as(success)
+      .handleErrorWith { error =>
+        logger
+          .error("Error occurred!", cause = error)
+          .as(failure("Test failed!"))
+      }
+  }
+
+  loggedTest("Get All Operation Services") { logger =>
+    operationExpenses
+      .getOperationServices
       .as(success)
       .handleErrorWith { error =>
         logger

@@ -27,6 +27,7 @@ import babymed.services.auth.domain.Credentials
 import babymed.services.auth.domain.types._
 import babymed.services.auth.impl.Security
 import babymed.services.users.domain._
+import babymed.services.users.domain.types.Fullname
 import babymed.services.users.domain.types.PatientId
 import babymed.services.users.domain.types.RegionId
 import babymed.services.users.domain.types.UserId
@@ -80,9 +81,7 @@ object PatientRoutersSpec extends HttpSuite with PatientGenerators with UserGene
     override def getRegions: F[List[Region]] = Sync[F].delay(List(region))
     override def getCitiesByRegionId(regionId: RegionId): F[List[City]] =
       Sync[F].delay(List(city))
-    override def getPatientsByName(
-        name: types.Fullname
-      ): PatientRoutersSpec.F[List[PatientWithName]] =
+    override def getPatientsByName(name: Fullname): F[List[PatientWithName]] =
       ???
   }
 

@@ -10,7 +10,6 @@ import babymed.services.visits.domain.PatientVisit
 import babymed.services.visits.domain.PatientVisitFilters
 import babymed.services.visits.domain.PatientVisitReport
 import babymed.services.visits.domain.types.PatientVisitId
-import babymed.services.visits.domain.types.ServiceTypeId
 import babymed.services.visits.proto
 import babymed.services.visits.repositories.CheckupExpensesRepository
 import babymed.services.visits.repositories.OperationExpensesRepository
@@ -42,11 +41,4 @@ class Visits[F[_]: Monad](
       serviceIds = items.map(_.serviceId)
       _ <- operationExpensesRepository.createOperation(visit, serviceIds)
     } yield update
-
-  override def getVisitsByServiceTypeId(
-      serviceTypeId: ServiceTypeId
-    ): F[ResponseData[PatientVisitReport]] = for {
-    visits <- visitsRepository.getVisitsByServiceTypeId(serviceTypeId)
-    total <- visitsRepository.getTotal(PatientVisitFilters())
-  } yield ResponseData(visits, total)
 }

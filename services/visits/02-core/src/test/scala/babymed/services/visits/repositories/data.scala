@@ -174,6 +174,17 @@ object data
       Map(id1 -> data1, id2 -> data2, id3 -> data3)
   }
 
+  object operationServices {
+    val id1: OperationServiceId = operationServiceIdGen.get
+    val id2: OperationServiceId = operationServiceIdGen.get
+    val id3: OperationServiceId = operationServiceIdGen.get
+    val serviceId1: ServiceId = data.service.id1
+    val serviceId2: ServiceId = data.service.id2
+    val serviceId3: ServiceId = data.service.id3
+    val values: Map[OperationServiceId, ServiceId] =
+      Map(id1 -> serviceId1, id2 -> serviceId2, id3 -> serviceId3)
+  }
+
   object operationExpenseItems {
     val data1: OperationExpenseItem =
       OperationExpenseItem(
@@ -250,8 +261,8 @@ object data
 
   def setup(implicit session: Resource[IO, Session[IO]]): IO[Unit] =
     setupUsers *> setupPatients *> setupServiceTypes *> setupServices *> setupVisits *> setupVisitItems *>
-      setupOperations *> setupOperationExpenses *> setupOperationExpenseItems *> setupDoctorShares *>
-      setupCheckupExpenses
+      setupDoctorShares *> setupCheckupExpenses *> setupOperationServices *> setupOperations *>
+      setupOperationExpenses *> setupOperationExpenseItems
 
   private def setupPatients(implicit session: Resource[IO, Session[IO]]): IO[Unit] =
     patient.values.toList.traverse_ {
@@ -318,6 +329,19 @@ object data
               forDrugs = data.forDrugs,
               partnerDoctorFullName = data.partnerDoctorFullName,
               partnerDoctorPrice = data.partnerDoctorPrice,
+            )
+          )
+    }
+
+  private def setupOperationServices(implicit session: Resource[IO, Session[IO]]): IO[Unit] =
+    operationServices.values.toList.traverse_ {
+      case id -> serviceId =>
+        OperationExpensesSql
+          .insertOperationService
+          .queryUnique(
+            OperationService(
+              id = id,
+              serviceId = serviceId,
             )
           )
     }

@@ -14,7 +14,7 @@ trait OperationExpenses[F[_]] {
   def getOperations(filters: OperationFilters): F[ResponseData[OperationInfo]]
   def getTotal(filters: OperationExpenseFilters): F[Long]
   def getItemsById(id: OperationExpenseId): F[List[OperationExpenseItemWithUser]]
-  def createOperationServices(serviceId: ServiceId): F[OperationService]
+  def createOperationService(serviceId: ServiceId): F[OperationService]
   def getOperationServices: F[List[OperationServiceInfo]]
 }
 

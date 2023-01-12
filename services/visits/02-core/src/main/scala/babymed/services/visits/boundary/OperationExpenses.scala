@@ -30,8 +30,8 @@ class OperationExpenses[F[_]: Monad](operationExpensesRepository: OperationExpen
     operationExpensesRepository.getTotal(filters)
   override def getItemsById(id: OperationExpenseId): F[List[OperationExpenseItemWithUser]] =
     operationExpensesRepository.getItemsById(id)
-  override def createOperationServices(serviceId: ServiceId): F[OperationService] =
-    operationExpensesRepository.createOperationServices(serviceId)
+  override def createOperationService(serviceId: ServiceId): F[OperationService] =
+    operationExpensesRepository.createOperationService(serviceId)
   override def getOperationServices: F[List[OperationServiceInfo]] =
     operationExpensesRepository.getOperationServices
 }

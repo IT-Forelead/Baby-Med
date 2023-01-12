@@ -10,7 +10,6 @@ import io.circe.refined._
 
 import babymed.services.users.domain.types.PatientId
 import babymed.services.visits.domain.types.ServiceId
-import babymed.services.visits.domain.types.ServiceTypeId
 
 @derive(encoder, decoder)
 case class OperationFilters(
@@ -18,7 +17,6 @@ case class OperationFilters(
     endDate: Option[LocalDateTime] = None,
     patientId: Option[PatientId] = None,
     serviceId: Option[ServiceId] = None,
-    serviceTypeId: Option[ServiceTypeId] = None,
     page: Option[NonNegInt] = None,
     limit: Option[NonNegInt] = None,
   )
